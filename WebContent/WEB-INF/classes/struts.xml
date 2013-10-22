@@ -1,0 +1,66 @@
+﻿<!-- 指定struts2 DTD信息 -->
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.1.7//EN"
+    "http://struts.apache.org/dtds/struts-2.1.7.dtd">
+
+<struts>
+	
+	<!-- 开发模式 【开发时设为true】-->
+	<constant name="struts.devMode" value="false"/>
+	
+	<!-- 浏览器是否缓存静态内容 【开发时设为false】-->
+	<constant name="struts.serve.static.browerCache" value="true"/>
+		
+	<!-- 编码集 -->
+	<constant name="struts.i18n.encoding" value="UTF-8"/>
+	
+	<!-- 请求后缀 -->
+	<constant name="struts.action.extension" value="action"/>
+	
+	<!-- 基本配置 -->
+	<package name="base" extends="struts-default">
+	
+		<!-- 配置默认Action【当用户请求找不到处理类时，使用该Action】 -->
+		<default-action-ref name="defaultAction"></default-action-ref>
+		
+		<!-- 定义全局结果 -->
+		<global-results>
+			<result name="login">/login.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
+		</global-results>
+		
+		<!-- 默认处理的Action -->
+		<action name="defaultAction" class="com.travel.action.ExceptionAction">
+		</action>
+	</package>
+	
+	<!-- 包含权限配置 -->
+	<!--<package name="authority" extends="base">
+	
+		<interceptors>
+			 权限检查拦截器 
+			<interceptor name="authority" class="com.travel.interceptor.AuthorityInterceptor"></interceptor>
+			<interceptor-stack name="authorityStack">
+				<interceptor-ref name="defaultStack"/>
+				<interceptor-ref name="authority"/>
+			</interceptor-stack>
+		</interceptors>
+		
+		 默认拦截器栈 
+		<default-interceptor-ref name="authorityStack"/>
+		
+	</package>
+	
+	--><!-- 验证码配置 --><!--
+	<package name="valificationCode" extends="struts-default">  
+		<action name="valificationCode" class="com.fsti.o2o.action.ValificationCodeAction">  
+	      <result type="stream">  
+	               <param name="contentType">image/jpeg</param>  
+	               <param name="inputName">inputStream</param>  
+	        </result>  
+	 	</action> 
+ 	</package>  
+	
+	--><!-- 导入其他配置文件 -->
+	<!--<include file="resource/struts/download.xml"/>
+--></struts>

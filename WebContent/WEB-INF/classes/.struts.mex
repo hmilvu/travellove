@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Struts2Diagram version="2.0">
+  <package name="base" location="10,115" size="180,70">
+    <action name="defaultAction" location="15,23" size="150,40" />
+  </package>
+  <package name="authority" location="15,10" size="170,70" />
+  <extendsEdge source="authority" target="base" routing="0" />
+</Struts2Diagram>
+

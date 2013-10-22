@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory name="ssh">
+  <property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+  <property name="hibernate.connection.password">ngcc_oto1</property>
+  <property name="hibernate.connection.url">jdbc:oracle:thin:@192.168.4.116:1521:ZXIN</property>
+  <property name="hibernate.connection.username">ngcc_oto1</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.Oracle</property>
+  <property name="hibernate.default_schema">NGCC_OTO1</property>
+ </session-factory>
+</hibernate-configuration>

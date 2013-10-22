@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+    
+                     
+	<!-- 指定【自动扫描指定包以及子包下的所有Bean类】路径 -->
+	<context:component-scan base-package="com"/>
+	
+	<!-- 指定【外在化应用参数的配置文件】路径 -->
+	<context:property-placeholder location="/WEB-INF/classes/base.properties"/>
+	
+	<!-- 数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		
+		<!-- 基本连接信息 -->
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<!-- 数据库用户名 -->
+		<property name="user" value="${jdbc.username}" />
+		<!-- 数据库密码 -->
+		<property name="password" value="${jdbc.password}" />
+		
+		<!-- 连接池信息 -->
+		<!-- 当连接池中的连接用完时，C3P0一次性创建新连接的数目 -->
+		<property name="acquireIncrement" value="${c3p0.acquireIncrement}" />
+		<!-- 初始化时创建的连接数，应在minPoolSize与maxPoolSize之间取值。默认为3； -->
+		<property name="initialPoolSize" value="${c3p0.initialPoolSize}" />
+		<!-- 最大空闲时间，超过空闲时间的连接将被丢弃。为0或负数则永不丢弃。默认为0； -->
+		<property name="maxIdleTime" value="${c3p0.maxIdleTime}" />
+		<!-- 连接池中保留的最小连接数。默认为15 -->
+		<property name="minPoolSize" value="${c3p0.minPoolSize}" />
+		<!-- 连接池中保留的最大连接数。默认为15； -->
+		<property name="maxPoolSize" value="${c3p0.maxPoolSize}" />
+		<!-- JDBC的标准参数，用以控制数据源内加载的PreparedStatement数量。但由于预缓存的Statement属 于单个Connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素，如果maxStatements与 maxStatementsPerConnection均为0，则缓存被关闭。默认为0；  -->
+		<property name="maxStatements" value="${c3p0.maxStatements}" />
+		<!-- 连接池内单个连接所拥有的最大缓存Statement数。默认为0；  -->
+		<property name="maxStatementsPerConnection" value="${c3p0.maxStatementsPerConnection}"/>
+		
+	</bean>
+	
+	<!-- 定义 Hibernate sessionFactory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.use_sql_comments">${hibernate.use_sql_comments}</prop>
+			</props>
+		</property>
+		<property name="mappingLocations">
+			<list>
+				<value>classpath:/com/fsti/o2o/entity/hibernate/*.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 配置Hibernate的局部事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 配置事务增强处理Bean -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<aop:pointcut id="daoPointCut" expression="execution(* com.o2o.dao.*.*Dao.*(..))"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="daoPointCut"/>
+	</aop:config>
+	
+	<!-- 初始缓存数据，初始化spring中定义的bean的前后都会用此实现类 -->
+    <bean id="cacheBeanPostProcessor" class="com.travel.spring.CacheBeanPostProcessor"/>
+</beans>
