@@ -9,13 +9,16 @@ package com.travel.utils;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -179,5 +182,16 @@ public class JsonBinder {
 			log.error("对象写入Json串不成功！" + object, e);
 			return null;
 		}
+	}
+	
+	public Object getValue(String json, String key){
+		 Map<?, ?> map = null;
+		try {
+			map = mapper.readValue(json, Map.class);
+		} catch (Exception e) {
+			log.error("解析json失败", e);
+			return null;
+		}
+		 return (Object) map.get(key);
 	}
 }

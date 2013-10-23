@@ -35,7 +35,7 @@ import com.travel.utils.JsonBinder;
 // 继承基本配置
 public class BaseAction extends ActionSupport implements ServletRequestAware,
 		ServletResponseAware, SessionAware {
-	private static final Logger log = LoggerFactory.getLogger(BaseAction.class);
+	protected static final Logger log = LoggerFactory.getLogger(BaseAction.class);
 	private static final long serialVersionUID = 1L;
 	protected HttpServletRequest request;
 	protected HttpServletResponse response;

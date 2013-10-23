@@ -61,11 +61,7 @@
 				<prop key="hibernate.use_sql_comments">${hibernate.use_sql_comments}</prop>
 			</props>
 		</property>
-		<property name="mappingLocations">
-			<list>
-				<value>classpath:/com/fsti/o2o/entity/hibernate/*.hbm.xml</value>
-			</list>
-		</property>
+		<property name="packagesToScan" value="com.travel.entity" /> 
 	</bean>
 	
 	<!-- 配置Hibernate的局部事务管理器 -->
