@@ -77,7 +77,7 @@
 		</tx:attributes>
 	</tx:advice>
 	<aop:config>
-		<aop:pointcut id="daoPointCut" expression="execution(* com.o2o.dao.*.*Dao.*(..))"/>
+		<aop:pointcut id="daoPointCut" expression="execution(* com.travel.dao.*.*Dao.*(..))"/>
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="daoPointCut"/>
 	</aop:config>
 	

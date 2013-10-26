@@ -16,5 +16,14 @@ public class MemberService
 	public MemberInf getMemberById(Long id){
 		return memberInfDao.findById(id);
 	}
+
+
+	/**
+	 * @param member
+	 * @return
+	 */
+	public int updateMember(MemberInf member) {
+		return memberInfDao.updateMember(member);
+	}
 	
 }

@@ -45,6 +45,7 @@ public class MemberInfDAO extends BaseDAO {
 		log.debug("saving MemberInf instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -75,127 +76,21 @@ public class MemberInfDAO extends BaseDAO {
 		}
 	}
 
-	public List<MemberInf> findByExample(MemberInf instance) {
-		log.debug("finding MemberInf instance by example");
+	/**
+	 * @param member
+	 * @return
+	 */
+	public int updateMember(MemberInf member) {
+		int result = 0;
+		log.debug("update MemberInf instance");
 		try {
-			List<MemberInf> results = (List<MemberInf>) getSession()
-					.createCriteria("com.travel.entity.MemberInf").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
+			getSession().update(member);
+			getSession().flush();
+			log.debug("save successful");
 		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
+			log.error("save failed", re);
+			result = -1;
 		}
-	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding MemberInf instance with property: " + propertyName
-				+ ", value: " + value);
-		try {
-			String queryString = "from MemberInf as model where model."
-					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
-			throw re;
-		}
-	}
-
-	public List<MemberInf> findByMemberName(Object memberName) {
-		return findByProperty(MEMBER_NAME, memberName);
-	}
-
-	public List<MemberInf> findByNickname(Object nickname) {
-		return findByProperty(NICKNAME, nickname);
-	}
-
-	public List<MemberInf> findByTravelerMobile(Object travelerMobile) {
-		return findByProperty(TRAVELER_MOBILE, travelerMobile);
-	}
-
-	public List<MemberInf> findByMemberType(Object memberType) {
-		return findByProperty(MEMBER_TYPE, memberType);
-	}
-
-	public List<MemberInf> findByPassword(Object password) {
-		return findByProperty(PASSWORD, password);
-	}
-
-	public List<MemberInf> findBySex(Object sex) {
-		return findByProperty(SEX, sex);
-	}
-
-	public List<MemberInf> findByAge(Object age) {
-		return findByProperty(AGE, age);
-	}
-
-	public List<MemberInf> findByIdType(Object idType) {
-		return findByProperty(ID_TYPE, idType);
-	}
-
-	public List<MemberInf> findByIdNo(Object idNo) {
-		return findByProperty(ID_NO, idNo);
-	}
-
-	public List<MemberInf> findByAvatarUrl(Object avatarUrl) {
-		return findByProperty(AVATAR_URL, avatarUrl);
-	}
-
-	public List<MemberInf> findByProfile(Object profile) {
-		return findByProperty(PROFILE, profile);
-	}
-
-	public List<MemberInf> findByInterest(Object interest) {
-		return findByProperty(INTEREST, interest);
-	}
-
-	public List findAll() {
-		log.debug("finding all MemberInf instances");
-		try {
-			String queryString = "from MemberInf";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public MemberInf merge(MemberInf detachedInstance) {
-		log.debug("merging MemberInf instance");
-		try {
-			MemberInf result = (MemberInf) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(MemberInf instance) {
-		log.debug("attaching dirty MemberInf instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(MemberInf instance) {
-		log.debug("attaching clean MemberInf instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
+		return result;
 	}
 }

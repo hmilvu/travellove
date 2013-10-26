@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.opensymphony.xwork2.ActionSupport;
 import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 import com.travel.utils.JsonBinder;
+import com.travel.utils.JsonUtils;
 
 /**
  * 
@@ -91,5 +92,22 @@ public class BaseAction extends ActionSupport implements ServletRequestAware,
 			log.error(e.getMessage(), e);
 		}
 		return null;
+	}
+	
+	protected String getMobileData(){
+		String data = request.getParameter("data");
+		log.info("客户端发送数据：  data = " + data);
+		return data;
+	}
+	
+	protected Object getMobileParameter(String data, String key){
+		Object value = binder.getValue(data, key);
+		return value;
+	}	
+	
+	protected <T> void sendToMobile(T result){
+		String jsonStr = binder.toJson(result);		
+		log.info("返回客户端数据 ：" + jsonStr);
+		JsonUtils.write(response, jsonStr);			
 	}
 }
