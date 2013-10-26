@@ -47,7 +47,6 @@
 		<property name="maxStatements" value="${c3p0.maxStatements}" />
 		<!-- 连接池内单个连接所拥有的最大缓存Statement数。默认为0；  -->
 		<property name="maxStatementsPerConnection" value="${c3p0.maxStatementsPerConnection}"/>
-		
 	</bean>
 	
 	<!-- 定义 Hibernate sessionFactory -->

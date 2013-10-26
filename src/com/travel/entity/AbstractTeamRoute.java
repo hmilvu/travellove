@@ -2,6 +2,7 @@ package com.travel.entity;
 
 import java.sql.Timestamp;
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,6 +12,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -25,6 +29,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 
 	private Long id;
 	private RouteInf routeInf;
+	private TeamInfo teamInfo;
 	private SysUser sysUser;
 	private Date date;
 	private Integer status;
@@ -38,7 +43,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 	}
 
 	/** full constructor */
-	public AbstractTeamRoute(RouteInf routeInf, SysUser sysUser, Date date,
+	public AbstractTeamRoute(RouteInf routeInf, TeamInfo teamInfo, SysUser sysUser, Date date,
 			Integer status, Timestamp createDate, Timestamp updateDate) {
 		this.routeInf = routeInf;
 		this.sysUser = sysUser;
@@ -46,6 +51,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 		this.status = status;
 		this.createDate = createDate;
 		this.updateDate = updateDate;
+		this.teamInfo = teamInfo;
 	}
 
 	// Property accessors
@@ -62,6 +68,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@Fetch(FetchMode.JOIN) 
 	@JoinColumn(name = "route_id", nullable = false)
 	public RouteInf getRouteInf() {
 		return this.routeInf;
@@ -69,6 +76,17 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 
 	public void setRouteInf(RouteInf routeInf) {
 		this.routeInf = routeInf;
+	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@Fetch(FetchMode.JOIN) 
+	@JoinColumn(name = "team_id", nullable = false)
+	public TeamInfo getTeamInfo() {
+		return this.teamInfo;
+	}
+
+	public void setTeamInfo(TeamInfo teamInfo) {
+		this.teamInfo = teamInfo;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

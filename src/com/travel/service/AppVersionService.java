@@ -1,4 +1,4 @@
-package com.travel.action.service;
+package com.travel.service;
 
 import java.util.List;
 

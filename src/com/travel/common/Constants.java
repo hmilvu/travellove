@@ -1,6 +1,7 @@
 package com.travel.common;
 
 public class Constants {
+	public static final int DEFAULT_PAGE_SIZE = 10;	
 	
 	//用户状态
 	public enum OS_TYPE {
@@ -12,5 +13,6 @@ public class Constants {
 		public int getValue(){
 			return this.value;
 		}
-	}	
+	}
+
 }

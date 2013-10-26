@@ -3,8 +3,12 @@ package com.travel.entity;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import com.travel.common.dto.TeamInfoDTO;
+import com.travel.utils.DateUtils;
 
 /**
  * TeamInfo entity. @author MyEclipse Persistence Tools
@@ -36,6 +40,17 @@ public class TeamInfo extends AbstractTeamInfo implements java.io.Serializable {
 		super(travelInf, sysUser, name, beginDate, endDate, status,
 				peopleCount, description, createDate, updateDate, messages,
 				locationLogs, memberInfs, orders);
+	}
+	
+	public TeamInfoDTO toDTO(){
+		TeamInfoDTO dto = new TeamInfoDTO();
+		dto.setName(getName());
+		dto.setStatus(getStatus());
+		dto.setDescription(getDescription());
+		dto.setPeopleCount(getPeopleCount());
+		dto.setBeginDate(DateUtils.toStr(getBeginDate()));
+		dto.setEndDate(DateUtils.toStr(getEndDate()));
+		return dto;		
 	}
 
 }

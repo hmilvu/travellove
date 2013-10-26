@@ -8,7 +8,11 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.TeamInfo;
 import com.travel.entity.TeamRoute;
 
 /**
@@ -22,7 +26,7 @@ import com.travel.entity.TeamRoute;
  * @see com.travel.entity.TeamRoute
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class TeamRouteDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(TeamRouteDAO.class);
@@ -63,82 +67,21 @@ public class TeamRouteDAO extends BaseDAO {
 		}
 	}
 
-	public List<TeamRoute> findByExample(TeamRoute instance) {
-		log.debug("finding TeamRoute instance by example");
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<TeamRoute> findByTeamId(Long teamId, PageInfoDTO pageInfo) {
 		try {
-			List<TeamRoute> results = (List<TeamRoute>) getSession()
-					.createCriteria("com.travel.entity.TeamRoute").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding TeamRoute instance with property: " + propertyName
-				+ ", value: " + value);
-		try {
-			String queryString = "from TeamRoute as model where model."
-					+ propertyName + "= ?";
+			String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.date desc";
 			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			queryObject.setMaxResults(maxResults);
+			queryObject.setParameter(0, teamId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
-			throw re;
-		}
-	}
-
-	public List<TeamRoute> findByStatus(Object status) {
-		return findByProperty(STATUS, status);
-	}
-
-	public List findAll() {
-		log.debug("finding all TeamRoute instances");
-		try {
-			String queryString = "from TeamRoute";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public TeamRoute merge(TeamRoute detachedInstance) {
-		log.debug("merging TeamRoute instance");
-		try {
-			TeamRoute result = (TeamRoute) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(TeamRoute instance) {
-		log.debug("attaching dirty TeamRoute instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(TeamRoute instance) {
-		log.debug("attaching clean TeamRoute instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
 			throw re;
 		}
 	}

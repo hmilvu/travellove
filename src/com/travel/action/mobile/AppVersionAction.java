@@ -10,11 +10,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.BaseAction;
-import com.travel.action.service.AppVersionService;
 import com.travel.common.dto.AppVersionDTO;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.AppVersion;
+import com.travel.service.AppVersionService;
 import com.travel.utils.JsonUtils;
 
 /**

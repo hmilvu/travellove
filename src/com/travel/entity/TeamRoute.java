@@ -2,8 +2,11 @@ package com.travel.entity;
 
 import java.sql.Timestamp;
 import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import com.travel.common.dto.TeamRouteDTO;
 
 /**
  * TeamRoute entity. @author MyEclipse Persistence Tools
@@ -20,9 +23,8 @@ public class TeamRoute extends AbstractTeamRoute implements
 	}
 
 	/** full constructor */
-	public TeamRoute(RouteInf routeInf, SysUser sysUser, Date date,
+	public TeamRoute(RouteInf routeInf, TeamInfo teamInfo, SysUser sysUser, Date date,
 			Integer status, Timestamp createDate, Timestamp updateDate) {
-		super(routeInf, sysUser, date, status, createDate, updateDate);
+		super(routeInf, teamInfo, sysUser, date, status, createDate, updateDate);
 	}
-
 }

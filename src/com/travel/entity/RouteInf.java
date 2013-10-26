@@ -2,8 +2,11 @@ package com.travel.entity;
 
 import java.sql.Timestamp;
 import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
+
+import com.travel.common.dto.RouteInfDTO;
 
 /**
  * RouteInf entity. @author MyEclipse Persistence Tools
@@ -36,6 +39,23 @@ public class RouteInf extends AbstractRouteInf implements java.io.Serializable {
 		super(sysUser, routeName, startAddress, startLongtitude, startLatitude,
 				endAddress, endLongitude, endLatitude, description, createDate,
 				updateDate, routeViewSpots, teamRoutes);
+	}
+
+	/**
+	 * @return
+	 */
+	public RouteInfDTO toDTO() {
+		RouteInfDTO dto = new RouteInfDTO();
+		dto.setId(getId());
+		dto.setRouteName(getRouteName());
+		dto.setDescription(getDescription());
+		dto.setStartAddress(getStartAddress());
+		dto.setEndAddress(getEndAddress());
+		dto.setStartLongtitude(getStartLongtitude());
+		dto.setStartLatitude(getStartLatitude());
+		dto.setEndLongitude(getEndLongitude());
+		dto.setEndLatitude(getEndLatitude());
+		return dto;
 	}
 
 }

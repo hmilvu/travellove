@@ -8,6 +8,7 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RouteInf;
 
@@ -22,7 +23,7 @@ import com.travel.entity.RouteInf;
  * @see com.travel.entity.RouteInf
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class RouteInfDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(RouteInfDAO.class);

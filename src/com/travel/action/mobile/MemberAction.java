@@ -8,11 +8,11 @@ package com.travel.action.mobile;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.BaseAction;
-import com.travel.action.service.MemberService;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
+import com.travel.service.MemberService;
 import com.travel.utils.JsonUtils;
 
 /**
