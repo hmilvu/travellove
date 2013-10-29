@@ -46,10 +46,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 	private Set<UserRole> userRoles = new HashSet<UserRole>(0);
 	private Set<AppVersion> appVersions = new HashSet<AppVersion>(0);
 	private Set<TeamRoute> teamRoutes = new HashSet<TeamRoute>(0);
-	private Set<LocationLog> locationLogs = new HashSet<LocationLog>(0);
 	private Set<MemberInf> memberInfs = new HashSet<MemberInf>(0);
 	private Set<Message> messages = new HashSet<Message>(0);
-	private Set<Reply> replies = new HashSet<Reply>(0);
 	private Set<RouteInf> routeInfs = new HashSet<RouteInf>(0);
 
 	// Constructors
@@ -89,8 +87,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 			Set<TeamInfo> teamInfos, Set<ViewSpotInfo> viewSpotInfos,
 			Set<Order> orders, Set<UserRole> userRoles,
 			Set<AppVersion> appVersions, Set<TeamRoute> teamRoutes,
-			Set<LocationLog> locationLogs, Set<MemberInf> memberInfs,
-			Set<Message> messages, Set<Reply> replies, Set<RouteInf> routeInfs) {
+			Set<MemberInf> memberInfs,
+			Set<Message> messages, Set<RouteInf> routeInfs) {
 		this.username = username;
 		this.password = password;
 		this.superAdmin = superAdmin;
@@ -114,10 +112,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 		this.userRoles = userRoles;
 		this.appVersions = appVersions;
 		this.teamRoutes = teamRoutes;
-		this.locationLogs = locationLogs;
 		this.memberInfs = memberInfs;
 		this.messages = messages;
-		this.replies = replies;
 		this.routeInfs = routeInfs;
 	}
 
@@ -342,15 +338,6 @@ public abstract class AbstractSysUser extends BaseEntity implements
 	}
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
-	public Set<LocationLog> getLocationLogs() {
-		return this.locationLogs;
-	}
-
-	public void setLocationLogs(Set<LocationLog> locationLogs) {
-		this.locationLogs = locationLogs;
-	}
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
 	public Set<MemberInf> getMemberInfs() {
 		return this.memberInfs;
 	}
@@ -366,16 +353,7 @@ public abstract class AbstractSysUser extends BaseEntity implements
 
 	public void setMessages(Set<Message> messages) {
 		this.messages = messages;
-	}
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
-	public Set<Reply> getReplies() {
-		return this.replies;
-	}
-
-	public void setReplies(Set<Reply> replies) {
-		this.replies = replies;
-	}
+	}	
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
 	public Set<RouteInf> getRouteInfs() {

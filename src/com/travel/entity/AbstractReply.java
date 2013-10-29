@@ -8,6 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -23,7 +26,6 @@ public abstract class AbstractReply extends BaseEntity implements
 	private Long id;
 	private MemberInf memberInf;
 	private Message message;
-	private SysUser sysUser;
 	private String content;
 	private Timestamp createDate;
 	private Timestamp updateDate;
@@ -35,21 +37,19 @@ public abstract class AbstractReply extends BaseEntity implements
 	}
 
 	/** minimal constructor */
-	public AbstractReply(MemberInf memberInf, Message message, SysUser sysUser,
+	public AbstractReply(MemberInf memberInf, Message message,
 			Timestamp createDate, Timestamp updateDate) {
 		this.memberInf = memberInf;
 		this.message = message;
-		this.sysUser = sysUser;
 		this.createDate = createDate;
 		this.updateDate = updateDate;
 	}
 
 	/** full constructor */
-	public AbstractReply(MemberInf memberInf, Message message, SysUser sysUser,
+	public AbstractReply(MemberInf memberInf, Message message,
 			String content, Timestamp createDate, Timestamp updateDate) {
 		this.memberInf = memberInf;
 		this.message = message;
-		this.sysUser = sysUser;
 		this.content = content;
 		this.createDate = createDate;
 		this.updateDate = updateDate;
@@ -86,16 +86,6 @@ public abstract class AbstractReply extends BaseEntity implements
 
 	public void setMessage(Message message) {
 		this.message = message;
-	}
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "create_user_id", nullable = false)
-	public SysUser getSysUser() {
-		return this.sysUser;
-	}
-
-	public void setSysUser(SysUser sysUser) {
-		this.sysUser = sysUser;
 	}
 
 	@Column(name = "content", length = 1024)

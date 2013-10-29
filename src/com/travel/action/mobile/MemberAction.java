@@ -7,6 +7,7 @@ package com.travel.action.mobile;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -14,9 +15,13 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
+import com.travel.common.dto.MessageDTO;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
+import com.travel.entity.Message;
 import com.travel.service.MemberService;
+import com.travel.service.MessageService;
 
 /**
  * @author Lenovo
@@ -29,8 +34,10 @@ public class MemberAction extends BaseAction {
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private MemberService memberService;
-
-	public String search() {
+	@Autowired
+	private MessageService messageService;
+	
+	public void search() {
 		String data = getMobileData();
 		Object id = getMobileParameter(data, "id");
 		Long idLong = Long.valueOf(0);
@@ -39,7 +46,7 @@ public class MemberAction extends BaseAction {
 		} catch (Exception e) {
 			FailureResult result = new FailureResult("id类型错误");
 			sendToMobile(result);
-			return null;
+			return;
 		}
 		MemberInf member = memberService.getMemberById(idLong);
 		if (member != null && member.getId() > 0) {
@@ -50,10 +57,9 @@ public class MemberAction extends BaseAction {
 			FailureResult result = new FailureResult("该用户不存在");
 			sendToMobile(result);
 		}
-		return null;
 	}
 
-	public String update() {
+	public void update() {
 		String data = getMobileData();
 		Object id = getMobileParameter(data, "id");
 		Long idLong = Long.valueOf(0);
@@ -62,7 +68,7 @@ public class MemberAction extends BaseAction {
 		} catch (Exception e) {
 			FailureResult result = new FailureResult("id类型错误");
 			sendToMobile(result);
-			return null;
+			return;
 		}
 		MemberInf member = memberService.getMemberById(idLong);
 		if (member != null && member.getId() > 0) {
@@ -116,6 +122,40 @@ public class MemberAction extends BaseAction {
 			FailureResult result = new FailureResult("id不存在");
 			sendToMobile(result);
 		}
-		return null;
 	}
+	
+	public void updateLocation(){
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "id");
+		Object latitudeObj = getMobileParameter(data, "latitude");
+		Object longitudeObj = getMobileParameter(data, "longitude");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("id类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Double latitude = null;
+		Double longitude = null;
+		try{
+			latitude = Double.valueOf(latitudeObj.toString());
+			longitude =Double.valueOf(longitudeObj.toString());
+		} catch(Throwable e){
+			FailureResult result = new FailureResult("经纬度类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(idLong);
+		if (member != null && member.getId() > 0 && member.getTeamInfo() != null && member.getTeamInfo().getId() > 0) {
+			memberService.updateMemberLocation(member, longitude, latitude);
+			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+			sendToMobile(result);
+		} else {
+			FailureResult result = new FailureResult("id不存在");
+			sendToMobile(result);
+		}
+	}
+	
 }

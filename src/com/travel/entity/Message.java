@@ -5,6 +5,9 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.travel.common.dto.MessageDTO;
+import com.travel.utils.DateUtils;
+
 /**
  * Message entity. @author MyEclipse Persistence Tools
  */
@@ -37,6 +40,20 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		super(teamInfo, sysUser, authorId, priority, status, type, topic,
 				content, receiverId, remindTime, remindMode, createDate,
 				updateDate, replies);
+	}
+
+	/**
+	 * @return
+	 */
+	public MessageDTO toDTO() {
+		MessageDTO dto = new MessageDTO();
+		dto.setId(getId());
+		dto.setPriority(getPriority());;
+		dto.setStatus(getStatus());
+		dto.setCreateDate(DateUtils.toStr(getCreateDate()));
+		dto.setTopic(getTopic());
+		dto.setContent(getContent());
+		return dto;
 	}
 
 }

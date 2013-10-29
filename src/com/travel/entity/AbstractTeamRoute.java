@@ -35,7 +35,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 	private Integer status;
 	private Timestamp createDate;
 	private Timestamp updateDate;
-
+	private Integer routeOrder;
 	// Constructors
 
 	/** default constructor */
@@ -134,6 +134,15 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
+	}
+	
+	@Column(name = "route_order", nullable = false)
+	public Integer getRouteOrder() {
+		return this.routeOrder;
+	}
+
+	public void setRouteOrder(Integer routeOrder) {
+		this.routeOrder = routeOrder;
 	}
 
 }

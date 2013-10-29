@@ -1,15 +1,18 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
+import java.sql.Timestamp;
 import java.util.List;
 
-import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
+import com.travel.entity.Reply;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -22,7 +25,7 @@ import com.travel.entity.Message;
  * @see com.travel.entity.Message
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class MessageDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory.getLogger(MessageDAO.class);
 	// property constants
@@ -69,21 +72,6 @@ public class MessageDAO extends BaseDAO {
 		}
 	}
 
-	public List<Message> findByExample(Message instance) {
-		log.debug("finding Message instance by example");
-		try {
-			List<Message> results = (List<Message>) getSession()
-					.createCriteria("com.travel.entity.Message").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
-
 	public List findByProperty(String propertyName, Object value) {
 		log.debug("finding Message instance with property: " + propertyName
 				+ ", value: " + value);
@@ -99,81 +87,38 @@ public class MessageDAO extends BaseDAO {
 		}
 	}
 
-	public List<Message> findByAuthorId(Object authorId) {
-		return findByProperty(AUTHOR_ID, authorId);
-	}
-
-	public List<Message> findByPriority(Object priority) {
-		return findByProperty(PRIORITY, priority);
-	}
-
-	public List<Message> findByStatus(Object status) {
-		return findByProperty(STATUS, status);
-	}
-
-	public List<Message> findByType(Object type) {
-		return findByProperty(TYPE, type);
-	}
-
-	public List<Message> findByTopic(Object topic) {
-		return findByProperty(TOPIC, topic);
-	}
-
-	public List<Message> findByContent(Object content) {
-		return findByProperty(CONTENT, content);
-	}
-
-	public List<Message> findByReceiverId(Object receiverId) {
-		return findByProperty(RECEIVER_ID, receiverId);
-	}
-
-	public List<Message> findByRemindMode(Object remindMode) {
-		return findByProperty(REMIND_MODE, remindMode);
-	}
-
-	public List findAll() {
-		log.debug("finding all Message instances");
+	public List<Message> findByReceiverId(Object receiverId, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from Message";
+			String queryString = "from Message as model where model.receiverId = ? order by model.remindTime desc";
 			Query queryObject = getSession().createQuery(queryString);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			queryObject.setParameter(0, receiverId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
+			log.error("find by receiverId failed", re);
 			throw re;
 		}
 	}
 
-	public Message merge(Message detachedInstance) {
-		log.debug("merging Message instance");
+	/**
+	 * @param messageId
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Object[]> findRepliesByMessageId(Long messageId,
+			PageInfoDTO pageInfo) {
 		try {
-			Message result = (Message) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
+			String queryString = "select r, r.memberInf, r.message from Reply r where r.message.id = ? order by r.createDate desc";
+			Query queryObject = getSession().createQuery(queryString);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			queryObject.setParameter(0, messageId);
+			return queryObject.list();
 		} catch (RuntimeException re) {
-			log.error("merge failed", re);
+			log.error("find by receiverId failed", re);
 			throw re;
 		}
 	}
 
-	public void attachDirty(Message instance) {
-		log.debug("attaching dirty Message instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(Message instance) {
-		log.debug("attaching clean Message instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
 }

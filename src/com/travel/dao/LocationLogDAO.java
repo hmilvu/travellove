@@ -8,7 +8,9 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
 import com.travel.entity.LocationLog;
 
 /**
@@ -22,23 +24,35 @@ import com.travel.entity.LocationLog;
  * @see com.travel.entity.LocationLog
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class LocationLogDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(LocationLogDAO.class);
-	// property constants
-	public static final String LONGITUDE = "longitude";
-	public static final String LATITUDE = "latitude";
-
+	
 	public void save(LocationLog transientInstance) {
 		log.debug("saving LocationLog instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
 			throw re;
 		}
+	}
+	
+	public int update(LocationLog transientInstance) {
+		log.debug("update LocationLog instance");
+		int result = 0;
+		try {
+			getSession().update(transientInstance);
+			getSession().flush();
+			log.debug("upate successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			result = -1;
+		}
+		return result;
 	}
 
 	public void delete(LocationLog persistentInstance) {
@@ -63,30 +77,15 @@ public class LocationLogDAO extends BaseDAO {
 			throw re;
 		}
 	}
-
-	public List<LocationLog> findByExample(LocationLog instance) {
-		log.debug("finding LocationLog instance by example");
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<LocationLog> findByTeamId(Long teamId) {
 		try {
-			List<LocationLog> results = (List<LocationLog>) getSession()
-					.createCriteria("com.travel.entity.LocationLog").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding LocationLog instance with property: " + propertyName
-				+ ", value: " + value);
-		try {
-			String queryString = "from LocationLog as model where model."
-					+ propertyName + "= ?";
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ?";
 			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
+			queryObject.setParameter(0, teamId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
@@ -94,57 +93,25 @@ public class LocationLogDAO extends BaseDAO {
 		}
 	}
 
-	public List<LocationLog> findByLongitude(Object longitude) {
-		return findByProperty(LONGITUDE, longitude);
-	}
-
-	public List<LocationLog> findByLatitude(Object latitude) {
-		return findByProperty(LATITUDE, latitude);
-	}
-
-	public List findAll() {
-		log.debug("finding all LocationLog instances");
+	/**
+	 * @param id
+	 * @param id2
+	 * @return
+	 */
+	public LocationLog getLocationByMember(Long teamId, Long memberId) {
 		try {
-			String queryString = "from LocationLog";
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ?";
 			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			queryObject.setParameter(0, teamId);
+			queryObject.setParameter(1, memberId);
+			List <LocationLog> list = queryObject.list();
+			if(list != null && list.size() > 0){
+				return list.get(0);
+			} else {
+				return null;
+			}
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public LocationLog merge(LocationLog detachedInstance) {
-		log.debug("merging LocationLog instance");
-		try {
-			LocationLog result = (LocationLog) getSession().merge(
-					detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(LocationLog instance) {
-		log.debug("attaching dirty LocationLog instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(LocationLog instance) {
-		log.debug("attaching clean LocationLog instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("find by property name failed", re);
 			throw re;
 		}
 	}

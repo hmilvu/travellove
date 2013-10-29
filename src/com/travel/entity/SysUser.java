@@ -38,14 +38,13 @@ public class SysUser extends AbstractSysUser implements java.io.Serializable {
 			Set<TeamInfo> teamInfos, Set<ViewSpotInfo> viewSpotInfos,
 			Set<Order> orders, Set<UserRole> userRoles,
 			Set<AppVersion> appVersions, Set<TeamRoute> teamRoutes,
-			Set<LocationLog> locationLogs, Set<MemberInf> memberInfs,
-			Set<Message> messages, Set<Reply> replies, Set<RouteInf> routeInfs) {
+			Set<MemberInf> memberInfs,
+			Set<Message> messages, Set<RouteInf> routeInfs) {
 		super(username, password, superAdmin, travelId, travelName, status,
 				name, mobile, email, telNumber, createDate, updateDate,
 				updateUserId, itemInfs, imgInfs, routeViewSpots, travelInfs,
 				teamInfos, viewSpotInfos, orders, userRoles, appVersions,
-				teamRoutes, locationLogs, memberInfs, messages, replies,
-				routeInfs);
+				teamRoutes, memberInfs, messages, routeInfs);
 	}
 
 }

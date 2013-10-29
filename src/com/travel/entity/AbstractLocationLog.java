@@ -12,6 +12,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -27,9 +30,7 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 	private Long id;
 	private TeamInfo teamInfo;
 	private MemberInf memberInf;
-	private SysUser sysUser;
-	private Date locateDate;
-	private Time locateTime;
+	private Timestamp locateTime;
 	private Double longitude;
 	private Double latitude;
 	private Timestamp createDate;
@@ -43,13 +44,11 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 
 	/** full constructor */
 	public AbstractLocationLog(TeamInfo teamInfo, MemberInf memberInf,
-			SysUser sysUser, Date locateDate, Time locateTime,
+			Timestamp locateTime,
 			Double longitude, Double latitude, Timestamp createDate,
 			Timestamp updateDate) {
 		this.teamInfo = teamInfo;
 		this.memberInf = memberInf;
-		this.sysUser = sysUser;
-		this.locateDate = locateDate;
 		this.locateTime = locateTime;
 		this.longitude = longitude;
 		this.latitude = latitude;
@@ -70,7 +69,8 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 		this.id = id;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
+	@Fetch(FetchMode.JOIN) 
 	@JoinColumn(name = "team_id", nullable = false)
 	public TeamInfo getTeamInfo() {
 		return this.teamInfo;
@@ -80,7 +80,8 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 		this.teamInfo = teamInfo;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
+	@Fetch(FetchMode.JOIN) 
 	@JoinColumn(name = "member_id", nullable = false)
 	public MemberInf getMemberInf() {
 		return this.memberInf;
@@ -90,32 +91,12 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 		this.memberInf = memberInf;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "create_user_id", nullable = false)
-	public SysUser getSysUser() {
-		return this.sysUser;
-	}
-
-	public void setSysUser(SysUser sysUser) {
-		this.sysUser = sysUser;
-	}
-
-	@Temporal(TemporalType.DATE)
-	@Column(name = "locate_date", nullable = false, length = 10)
-	public Date getLocateDate() {
-		return this.locateDate;
-	}
-
-	public void setLocateDate(Date locateDate) {
-		this.locateDate = locateDate;
-	}
-
 	@Column(name = "locate_time", nullable = false, length = 8)
-	public Time getLocateTime() {
+	public Timestamp getLocateTime() {
 		return this.locateTime;
 	}
 
-	public void setLocateTime(Time locateTime) {
+	public void setLocateTime(Timestamp locateTime) {
 		this.locateTime = locateTime;
 	}
 
