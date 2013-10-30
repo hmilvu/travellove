@@ -30,9 +30,9 @@ public class AppVersionAction extends BaseAction{
 	private AppVersionService appVersionService;
 
 	public String search(){
-		String data = request.getParameter("data");
-		Object appTypeStr = binder.getValue(data, "appType");
-		Object osTypeStr = binder.getValue(data, "osType");
+		String data = getMobileData();
+		Object appTypeStr = getMobileParameter(data, "appType");
+		Object osTypeStr =getMobileParameter(data, "osType");
 		int appType = 0;
 		int osType = 0;
 		try{

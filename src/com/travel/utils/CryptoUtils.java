@@ -32,6 +32,9 @@ import org.apache.log4j.Logger;
  */
 public class CryptoUtils {
 	private static final Logger log = Logger.getLogger(CryptoUtils.class);
+	
+	private final static String KEY = "9DEE8503748053FDF526835BA8819A6C";
+	private final static String SEPARATOR = "{array}";
 
 	/**
 	 * 字符集
@@ -68,8 +71,15 @@ public class CryptoUtils {
 	 * @return 解密后的字符串
 	 * 
 	 */
-	public static String decode(String str, String keyIn3DES) {
-		return CryptoUtils.decryptIn3DES(str, keyIn3DES);
+	public static String decode(String str) {
+		String data = CryptoUtils.decryptIn3DES(str, KEY);
+		String []dataArray = StringUtils.split(data, SEPARATOR);
+		String newDigest = digest(dataArray[1]);
+		if(StringUtils.equals(dataArray[0], newDigest)){
+			return dataArray[1];
+		} else {
+			return "";
+		}
 	}
 
 	/**
@@ -88,14 +98,11 @@ public class CryptoUtils {
 	 *            3DES 密钥
 	 * @return 加密后的字符串
 	 */
-	public static String encode(String str, String keyIn3DES) {
-		if (StringUtils.isBlank(keyIn3DES)) {
-			log.error("3DES 密钥不能为空串！");
-			return str;
-		}
-
-		// 加密数据 = URLEncoding (Base64 ( 3DES(数据 )))
-		return Base64.encodeBase64URLSafeString(encryptIn3DES(str, keyIn3DES));
+	public static String encode(String str) {
+		String digest = digest(str);
+		String data = digest + SEPARATOR + str;
+		String encryptedData = Base64.encodeBase64URLSafeString(encryptIn3DES(data, KEY));
+		return encryptedData;
 	}
 
 	/**
@@ -113,7 +120,7 @@ public class CryptoUtils {
 	 *            密钥
 	 * @return 解密后的字符串
 	 */
-	public static String decryptIn3DES(String value, String key) {
+	private static String decryptIn3DES(String value, String key) {
 		SecretKey secretKey = Encrypter(key);
 
 		try {
@@ -167,15 +174,6 @@ public class CryptoUtils {
 		}
 
 	}
-	
-	public static void main(String[] args) {
-		String value = "{\"user\":\"express\",\"pwd\":\"express\",\"message\":{\"phoneNumber\":\"119\"}}";
-		String key = "04890B9237D9F14A4564FED52926496804890B9237D9F14A";
-		byte[] aaa = encryptIn3DES(value, key);
-		System.out.println(Arrays.toString(aaa));
-		String bbb = Base64.encodeBase64URLSafeString(aaa);
-		System.out.println(bbb);
-	}
 
 	/**
 	 * 生成3DES 密钥
@@ -216,7 +214,7 @@ public class CryptoUtils {
 	 *            数据字符串
 	 * @return 数据摘要
 	 */
-	public static String digest(String str) {
+	private static String digest(String str) {
 		if (StringUtils.isBlank(str)) {
 			return str;
 		}

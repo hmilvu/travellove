@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.ActionSupport;
 import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+import com.travel.utils.CryptoUtils;
 import com.travel.utils.JsonBinder;
 import com.travel.utils.JsonUtils;
 
@@ -36,6 +37,7 @@ import com.travel.utils.JsonUtils;
 // 继承基本配置
 public class BaseAction extends ActionSupport implements ServletRequestAware,
 		ServletResponseAware, SessionAware {
+	private boolean encrypt = false;
 	protected static final Logger log = LoggerFactory.getLogger(BaseAction.class);
 	private static final long serialVersionUID = 1L;
 	protected HttpServletRequest request;
@@ -96,7 +98,11 @@ public class BaseAction extends ActionSupport implements ServletRequestAware,
 	
 	protected String getMobileData(){
 		String data = request.getParameter("data");
-		log.info("客户端发送数据：  data = " + data);
+		if(encrypt){
+			log.info("客户端发送密文：  data = " + data);
+			data = CryptoUtils.decode(data);
+		}
+		log.info("客户端发送明文：  data = " + data);
 		return data;
 	}
 	
@@ -106,8 +112,12 @@ public class BaseAction extends ActionSupport implements ServletRequestAware,
 	}	
 	
 	protected <T> void sendToMobile(T result){
-		String jsonStr = binder.toJson(result);		
-		log.info("返回客户端数据 ：" + jsonStr);
-		JsonUtils.write(response, jsonStr);			
+		String data = binder.toJson(result);		
+		log.info("返回客户端明文 ：" + data);
+		if(encrypt){
+			data = CryptoUtils.encode(data);
+			log.info("返回客户端密文 ：" + data);
+		}
+		JsonUtils.write(response, data);			
 	}
 }

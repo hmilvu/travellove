@@ -28,10 +28,10 @@ public class RouteInfAction extends BaseAction{
 	private TeamInfoService teamInfoService;
 
 	public String search(){
-		String data = request.getParameter("data");
-		Object id = binder.getValue(data, "id");
-		Object pageSize = binder.getValue(data, "pageSize");
-		Object pageNumber = binder.getValue(data, "pageNumber");
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "id");
+		Object pageSize = getMobileParameter(data, "pageSize");
+		Object pageNumber = getMobileParameter(data, "pageNumber");
 		Long idLong = Long.valueOf(0);
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		try{
