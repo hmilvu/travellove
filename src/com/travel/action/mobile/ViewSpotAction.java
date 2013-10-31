@@ -28,8 +28,8 @@ public class ViewSpotAction extends BaseAction{
 	private ViewSpotService viewSpotService;
 
 	public String search(){
-		String data = request.getParameter("data");
-		Object id = binder.getValue(data, "id");
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "id");
 		Long idLong = Long.valueOf(0);
 		try{
 			idLong = Long.valueOf(id.toString());

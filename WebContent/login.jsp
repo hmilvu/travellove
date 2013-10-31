@@ -1,53 +1,39 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-
-<%@include file="noCache.jsp" %>
-
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>o2o管理平台</title>
-
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>旅游关爱</title>
 <link rel="icon" href="favicon.ico" type="image/x-icon" /> 
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />  
-
-<link rel="stylesheet" type="text/css" href="lib/zebra/css/zebra_dialog.css" />
-<link rel="stylesheet" type="text/css" href="lib/dwz/themes/css/login.css"  />
-
-<script type="text/javascript" src="lib/dwz/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="lib/cookies/jquery.cookie.js"></script>
-<script type="text/javascript" src="lib/zebra/zebra_dialog.js"></script>
-
-<script src="js/base.js" type="text/javascript"></script>
-<script type="text/javascript" src="js/login.js"></script>
-
+<link href="themes/css/login.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="js/jquery.form.min.js"></script>
+<script type="text/javascript" src="js/admin/login.js"></script>
 </head>
 <body>
 	<div id="login">
 		<div id="login_header">
 			<h1 class="login_logo">
-				<a href="#"><img src="lib/dwz/themes/default/images/login_logo.jpg" /></a>
+				<a href="http://demo.dwzjs.com"><img src="themes/default/images/login_logo.gif" /></a>
 			</h1>
 			<div class="login_headerContent">
 				<div class="navList">
 					<ul>
-						<!-- 
 						<li><a href="#">设为首页</a></li>
-						<li><a href="#">反馈</a></li>
-						<li><a href="#" target="_blank">帮助</a></li>
-						 -->
+						<li><a href="http://bbs.dwzjs.com">反馈</a></li>
+						<li><a href="doc/dwz-user-guide.pdf" target="_blank">帮助</a></li>
 					</ul>
 				</div>
-				<h2 class="login_title"><img src="lib/dwz/themes/default/images/login_title.png" /></h2>
+				<h2 class="login_title"><img src="themes/default/images/login_title.png" /></h2>
 			</div>
 		</div>
 		<div id="login_content">
 			<div class="loginForm">
-				<form action="index.html">
+				<form action="javascript:login();">
 					<p>
-						<label>账号：</label>
-						<input type="text" name="account" id="account" size="20" class="login_input" />
+						<label>用户名：</label>
+						<input type="text" name="username" id="username" size="20" class="login_input" />
 					</p>
 					<p>
 						<label>密码：</label>
@@ -55,33 +41,33 @@
 					</p>
 					<p>
 						<label>验证码：</label>
-						<input class="login_input" type="text" size="20" id="valificationCode" />					
-					</p>
-					<p>
-						<span  style="cursor:pointer" onclick="changeValidateCode($('#valificationCodeImg'))">
-						<img id="valificationCodeImg"  src="valificationCode.action" alt="验证码" />&nbsp;看不清，换一张</span>
-					</p>
-					<p>
-						 <input id="rememberMe" type="checkbox"/>&nbsp;记住我一周
+						<input class="code" type="text" name="valificationCode" id="valificationCode" size="5" />
+						<span><img src="themes/default/images/header_bg.png" alt="" width="75" height="24" /></span>
 					</p>
 					<div class="login_bar">
-						<input class="sub" type="button" value=""  onclick="login();"/>
+						<input class="sub" type="submit" value=" " />
 					</div>
-					<p></p>
+					<br/>
 					<span id="msg"></span>
 				</form>
 			</div>
-			<div class="login_banner"><img src="lib/dwz/themes/default/images/login_banner.png" /></div>
+			<div class="login_banner"><img src="themes/default/images/login_banner.jpg" /></div>
 			<div class="login_main">
+				<ul class="helpList">
+					<li><a href="#">下载驱动程序</a></li>
+					<li><a href="#">如何安装密钥驱动程序？</a></li>
+					<li><a href="#">忘记密码怎么办？</a></li>
+					<li><a href="#">为什么登录失败？</a></li>
+				</ul>
 				<div class="login_inner">
-					<p>o2o管理平台，专业化服务管理平台</p>
-					<p>订单及时分派，灵活快速</p>
-					<p>服务全程掌握，高效管理</p>
+					<p>您可以使用 网易网盘 ，随时存，随地取</p>
+					<p>您还可以使用 闪电邮 在桌面随时提醒邮件到达，快速收发邮件。</p>
+					<p>在 百宝箱 里您可以查星座，订机票，看小说，学做菜…</p>
 				</div>
 			</div>
 		</div>
 		<div id="login_footer">
-			技术支持：福建邮科
+			Copyright &copy; 2009 www.dwzjs.com Inc. All Rights Reserved.
 		</div>
 	</div>
 </body>
