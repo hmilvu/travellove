@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,9 +24,11 @@ public abstract class AbstractRoleInf extends BaseEntity implements
 	// Fields
 
 	private Long id;
+	private RoleMenu roleMenu;
 	private String name;
 	private String description;
 	private Set<UserRole> userRoles = new HashSet<UserRole>(0);
+	private Set<RoleMenu> roleMenus = new HashSet<RoleMenu>(0);
 
 	// Constructors
 
@@ -33,17 +37,20 @@ public abstract class AbstractRoleInf extends BaseEntity implements
 	}
 
 	/** minimal constructor */
-	public AbstractRoleInf(String name, String description) {
+	public AbstractRoleInf(RoleMenu roleMenu, String name, String description) {
+		this.roleMenu = roleMenu;
 		this.name = name;
 		this.description = description;
 	}
 
 	/** full constructor */
-	public AbstractRoleInf(String name, String description,
-			Set<UserRole> userRoles) {
+	public AbstractRoleInf(RoleMenu roleMenu, String name, String description,
+			Set<UserRole> userRoles, Set<RoleMenu> roleMenus) {
+		this.roleMenu = roleMenu;
 		this.name = name;
 		this.description = description;
 		this.userRoles = userRoles;
+		this.roleMenus = roleMenus;
 	}
 
 	// Property accessors
@@ -57,6 +64,16 @@ public abstract class AbstractRoleInf extends BaseEntity implements
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id", unique = true, nullable = false, insertable = false, updatable = false)
+	public RoleMenu getRoleMenu() {
+		return this.roleMenu;
+	}
+
+	public void setRoleMenu(RoleMenu roleMenu) {
+		this.roleMenu = roleMenu;
 	}
 
 	@Column(name = "name", unique = true, nullable = false, length = 64)
@@ -84,6 +101,15 @@ public abstract class AbstractRoleInf extends BaseEntity implements
 
 	public void setUserRoles(Set<UserRole> userRoles) {
 		this.userRoles = userRoles;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "roleInf")
+	public Set<RoleMenu> getRoleMenus() {
+		return this.roleMenus;
+	}
+
+	public void setRoleMenus(Set<RoleMenu> roleMenus) {
+		this.roleMenus = roleMenus;
 	}
 
 }

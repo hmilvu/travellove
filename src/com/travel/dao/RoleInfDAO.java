@@ -8,6 +8,7 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RoleInf;
 
@@ -22,33 +23,52 @@ import com.travel.entity.RoleInf;
  * @see com.travel.entity.RoleInf
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class RoleInfDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory.getLogger(RoleInfDAO.class);
 	// property constants
 	public static final String NAME = "name";
 	public static final String DESCRIPTION = "description";
 
-	public void save(RoleInf transientInstance) {
+	public int save(RoleInf transientInstance) {
+		int result = 0;
 		log.debug("saving RoleInf instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
-			throw re;
+			result = -1;
 		}
+		return result;
+	}
+	
+	public int update(RoleInf transientInstance) {
+		int result = 0;
+		log.debug("saving RoleInf instance");
+		try {
+			getSession().update(transientInstance);
+			getSession().flush();
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			result = -1;
+		}
+		return result;
 	}
 
-	public void delete(RoleInf persistentInstance) {
+	public int delete(RoleInf persistentInstance) {
+		int result = 0;
 		log.debug("deleting RoleInf instance");
 		try {
 			getSession().delete(persistentInstance);
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
-			throw re;
+			result = -1;
 		}
+		return result;
 	}
 
 	public RoleInf findById(java.lang.Long id) {
@@ -62,22 +82,7 @@ public class RoleInfDAO extends BaseDAO {
 			throw re;
 		}
 	}
-
-	public List<RoleInf> findByExample(RoleInf instance) {
-		log.debug("finding RoleInf instance by example");
-		try {
-			List<RoleInf> results = (List<RoleInf>) getSession()
-					.createCriteria("com.travel.entity.RoleInf").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
-
+	
 	public List findByProperty(String propertyName, Object value) {
 		log.debug("finding RoleInf instance with property: " + propertyName
 				+ ", value: " + value);
@@ -97,10 +102,6 @@ public class RoleInfDAO extends BaseDAO {
 		return findByProperty(NAME, name);
 	}
 
-	public List<RoleInf> findByDescription(Object description) {
-		return findByProperty(DESCRIPTION, description);
-	}
-
 	public List findAll() {
 		log.debug("finding all RoleInf instances");
 		try {
@@ -109,40 +110,6 @@ public class RoleInfDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public RoleInf merge(RoleInf detachedInstance) {
-		log.debug("merging RoleInf instance");
-		try {
-			RoleInf result = (RoleInf) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(RoleInf instance) {
-		log.debug("attaching dirty RoleInf instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(RoleInf instance) {
-		log.debug("attaching clean RoleInf instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
 			throw re;
 		}
 	}

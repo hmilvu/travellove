@@ -89,10 +89,8 @@ $(function(){
 				<a class="logo" href="http://j-ui.com">标志</a>
 				<ul class="nav">					
 					<li><a href="changepwd.html" target="dialog" width="600">设置</a></li>
-					<li><a href="http://www.cnblogs.com/dwzjs" target="_blank">博客</a></li>
-					<li><a href="http://weibo.com/dwzui" target="_blank">微博</a></li>
-					<li><a href="http://bbs.dwzjs.com" target="_blank">论坛</a></li>
-					<li><a href="login.html">退出</a></li>
+					<li><a href="http://www.cnblogs.com/dwzjs" target="_blank">用户名</a></li>
+					<li><a href="login!logOut.action">退出</a></li>
 				</ul>				
 			</div>
 
@@ -111,13 +109,13 @@ $(function(){
 
 				<div class="accordion" fillSpace="sidebar">
 					<div class="accordionHeader">
-						<h2><span>Folder</span>业务管理</h2>
+						<h2><span>Folder</span>旅游关爱管理系统</h2>
 					</div>
 					<div class="accordionContent">
 						<ul class="tree treeFolder">
 							<li><a href="tabsPage.html" target="navTab">主框架面板</a>
 								<ul>
-									<li><a href="admin/travel-inf!list.action" target="navTab" rel="旅行社管理">旅行社管理</a></li>
+									<li><a href="admin/travel-inf!list.action" target="navTab" rel="travel">旅行社管理</a></li>
 									<li><a href="http://www.baidu.com" target="navTab" rel="page1">页面一(外部页面)</a></li>
 									<li><a href="demo_page2.html" target="navTab" rel="external" external="true">iframe navTab页面</a></li>
 									<li><a href="demo_page1.html" target="navTab" rel="page1" fresh="false">替换页面一</a></li>
@@ -168,26 +166,11 @@ $(function(){
 									<li><a href="demo/pagination/layout2.html" target="navTab" rel="pagination2">局部刷新分页2</a></li>
 								</ul>
 							</li>
-							<li><a>图表</a>
+							<li><a>系统管理</a>
 								<ul>
-									<li><a href="chart/test/barchart.html" target="navTab" rel="chart">柱状图(垂直)</a></li>
-									<li><a href="chart/test/hbarchart.html" target="navTab" rel="chart">柱状图(水平)</a></li>
-									<li><a href="chart/test/linechart.html" target="navTab" rel="chart">折线图</a></li>
-									<li><a href="chart/test/linechart2.html" target="navTab" rel="chart">曲线图</a></li>
-									<li><a href="chart/test/linechart3.html" target="navTab" rel="chart">曲线图(自定义X坐标)</a></li>
-									<li><a href="chart/test/piechart.html" target="navTab" rel="chart">饼图</a></li>
+									<li><a href="admin/role-inf!list.action" target="navTab" rel="role">角色管理</a></li>									
 								</ul>
-							</li>
-							<li><a href="dwz.frag.xml" target="navTab" external="true">dwz.frag.xml</a></li>
-						</ul>
-					</div>	
-					<div class="accordionHeader">
-						<h2><span>Folder</span>系统管理</h2>
-					</div>
-					<div class="accordionContent">
-						<ul class="tree">
-							<li><a href="newPage1.html" target="dialog" rel="dlg_page">列表</a></li>
-							<li><a href="newPage1.html" target="dialog" rel="dlg_page2">列表</a></li>
+							</li>							
 						</ul>
 					</div>				
 				</div>

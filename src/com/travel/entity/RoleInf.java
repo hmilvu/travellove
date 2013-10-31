@@ -18,13 +18,14 @@ public class RoleInf extends AbstractRoleInf implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public RoleInf(String name, String description) {
-		super(name, description);
+	public RoleInf(RoleMenu roleMenu, String name, String description) {
+		super(roleMenu, name, description);
 	}
 
 	/** full constructor */
-	public RoleInf(String name, String description, Set<UserRole> userRoles) {
-		super(name, description, userRoles);
+	public RoleInf(RoleMenu roleMenu, String name, String description,
+			Set<UserRole> userRoles, Set<RoleMenu> roleMenus) {
+		super(roleMenu, name, description, userRoles, roleMenus);
 	}
 
 }

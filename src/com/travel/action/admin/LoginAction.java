@@ -46,6 +46,11 @@ public class LoginAction extends BaseAction {
 		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		return null;
 	}
+	
+	public String logout(){
+		session.clear();
+		return Action.LOGIN;
+	}
 
 
 }
