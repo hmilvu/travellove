@@ -1,5 +1,6 @@
 package com.travel.dao;
 
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -15,4 +16,5 @@ public class BaseDAO extends HibernateDaoSupport {
 	public void setSuperSessionFactory(SessionFactory sessionFactory) {
 		super.setSessionFactory(sessionFactory);
 	}
+
 }

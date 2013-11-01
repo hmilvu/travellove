@@ -93,4 +93,22 @@ public class MemberInfDAO extends BaseDAO {
 		}
 		return result;
 	}
+
+	/**
+	 * @param username
+	 * @param password2
+	 * @return
+	 */
+	public MemberInf findByCredentials(String username, String password) {
+		try {
+			String queryString = "from MemberInf as m where m.username = ? and m.password = ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, username);
+			queryObject.setParameter(1, password);
+			return (MemberInf)queryObject.uniqueResult();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+	}
 }

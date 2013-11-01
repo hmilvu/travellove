@@ -1,14 +1,16 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.entity.MenuInf;
+import com.travel.entity.RoleInf;
 import com.travel.entity.SysUser;
 
 /**
@@ -23,6 +25,7 @@ import com.travel.entity.SysUser;
  * @author MyEclipse Persistence Tools
  */
 
+@Repository
 public class SysUserDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory.getLogger(SysUserDAO.class);
 	// property constants
@@ -42,6 +45,7 @@ public class SysUserDAO extends BaseDAO {
 		log.debug("saving SysUser instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -70,22 +74,7 @@ public class SysUserDAO extends BaseDAO {
 			log.error("get failed", re);
 			throw re;
 		}
-	}
-
-	public List<SysUser> findByExample(SysUser instance) {
-		log.debug("finding SysUser instance by example");
-		try {
-			List<SysUser> results = (List<SysUser>) getSession()
-					.createCriteria("com.travel.entity.SysUser").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
+	}	
 
 	public List findByProperty(String propertyName, Object value) {
 		log.debug("finding SysUser instance with property: " + propertyName
@@ -158,36 +147,61 @@ public class SysUserDAO extends BaseDAO {
 		}
 	}
 
-	public SysUser merge(SysUser detachedInstance) {
-		log.debug("merging SysUser instance");
+	/**
+	 * @param username2
+	 * @param password2
+	 * @return
+	 */
+	public SysUser findByCredentials(String username, String password) {
 		try {
-			SysUser result = (SysUser) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
+			String queryString = "from SysUser as m where m.username = ? and m.password = ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, username);
+			queryObject.setParameter(1, password);
+			return (SysUser)queryObject.uniqueResult();
 		} catch (RuntimeException re) {
-			log.error("merge failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
 	}
 
-	public void attachDirty(SysUser instance) {
-		log.debug("attaching dirty SysUser instance");
+	/**
+	 * @param user
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<MenuInf> findMenuRoles(List<RoleInf> roleList) {
+		if(roleList == null || roleList.size() == 0){
+			return new ArrayList<MenuInf>();
+		}
 		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
+			List<Long>roleIds = new ArrayList<Long>();
+			for(RoleInf role : roleList){
+				roleIds.add(role.getId());
+			}
+			String queryString = "select r.menuInf from RoleMenu as r where r.roleInf.id in (:roleIds)";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameterList("roleIds", roleIds);
+			return (List<MenuInf>)queryObject.list();
 		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
 	}
 
-	public void attachClean(SysUser instance) {
-		log.debug("attaching clean SysUser instance");
+	/**
+	 * @param user
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RoleInf> getRolesByUser(SysUser user) {
 		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
+			String queryString = "select r.roleInf from UserRole as r where r.sysUser.id = ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, user.getId());
+			return (List<RoleInf>)queryObject.list();
 		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
 	}

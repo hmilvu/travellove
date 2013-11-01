@@ -7,18 +7,19 @@ import org.springframework.stereotype.Service;
 
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberInfDAO;
+import com.travel.dao.MenuInfDAO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.MemberInf;
+import com.travel.entity.MenuInf;
 import com.travel.entity.TeamInfo;
 
 @Service
 public class MemberService
 {
 	@Autowired
-	private MemberInfDAO memberInfDao;
-	
+	private MemberInfDAO memberInfDao;	
 	@Autowired
-	private LocationLogDAO locationDao;
+	private LocationLogDAO locationDao;	
 	
 	
 	public MemberInf getMemberById(Long id){
@@ -64,5 +65,15 @@ public class MemberService
 		}
 		
 	}
-	
+
+
+	/**
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public MemberInf getMemberByCredentials(String username, String password) {
+		MemberInf member = memberInfDao.findByCredentials(username, password);
+		return member;
+	}	
 }

@@ -1,10 +1,13 @@
 package com.travel.action.admin;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
-import com.travel.action.ValificationCodeAction;
+import com.travel.common.Constants;
+import com.travel.entity.SysUser;
+import com.travel.service.MenuInfService;
+import com.travel.service.SysUserService;
 import com.travel.utils.JsonUtils;
 
 /**
@@ -13,9 +16,15 @@ import com.travel.utils.JsonUtils;
  * @author deniro
  */
 public class LoginAction extends BaseAction {
+	
+	@Autowired
+	private MenuInfService menuService;
+	
+	@Autowired
+	private SysUserService sysUserService;
 
 	public String login() {
-		String account = request.getParameter("account");
+		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		String valificationCode = request.getParameter("valificationCode");
 
@@ -29,28 +38,24 @@ public class LoginAction extends BaseAction {
 //		}
 
 		// 判断账号、密码；
-//		TBmAccount tBmAccount = accountDao.isPassword(account, password);
-//		if (StringUtils.isNotBlank(tBmAccount.getAccount())) {
-//			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
-//			session.put(ACCOUNT_SESSION_NAME, tBmAccount);
-//			
-//			TBmRole role=tBmAccount.getRole();
-//			if(role!=null){
-//				String menuInfor=getMenuInfor(role.getId());
-//				session.put("menuInfor", menuInfor);
-//			}
-//			
-//			return null;
-//		}
+		SysUser user = sysUserService.getSysUserByCredentials(username, password);
+		if (user != null && user.getId() > 0) {
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
+			session.put(Constants.SYS_USER_INF_IN_SESSION, user);
 
-		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
-		return null;
+			String menuInfor = sysUserService.generateMenuBySysUser(user);
+			session.put(Constants.MENU_INF_IN_SESSION, menuInfor);
+
+			return null;
+		} else {
+			JsonUtils.write(response, binder.toJson("result", Action.INPUT));
+			return null;
+		}
 	}
 	
 	public String logout(){
 		session.clear();
 		return Action.LOGIN;
 	}
-
 
 }

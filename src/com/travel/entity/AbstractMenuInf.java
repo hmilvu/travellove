@@ -89,7 +89,7 @@ public abstract class AbstractMenuInf extends BaseEntity implements
 		this.name = name;
 	}
 
-	@Column(name = "url", nullable = false, length = 20)
+	@Column(name = "url", nullable = false, length = 256)
 	public String getUrl() {
 		return this.url;
 	}

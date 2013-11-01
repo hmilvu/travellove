@@ -4,12 +4,15 @@ import static org.hibernate.criterion.Example.create;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.RoleInf;
 
 /**
@@ -110,6 +113,55 @@ public class RoleInfDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	
+	/**
+	 * @return
+	 */
+	public int getTotalNum(String roleName) {
+		try {
+			String queryString = null;
+			if(StringUtils.isBlank(roleName)){
+				queryString = "select count(r.id) from RoleInf as r order by r.name";
+			} else {
+				queryString = "select count(r.id) from RoleInf as r where r.name like '%?%' order by r.name";
+			}
+			Query queryObject = getSession().createQuery(queryString);
+			if(!StringUtils.isBlank(roleName)){
+				queryObject.setParameter(0, StringUtils.trim(roleName));
+			}
+			return  ((Number) queryObject.iterate().next()).intValue();
+		} catch (RuntimeException re) {
+			throw re;
+		}
+	}
+
+	/**
+	 * @param roleName
+	 * @param pageInfo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RoleInf> findRolesByName(String roleName, PageInfoDTO pageInfo) {
+		try {
+			String queryString = null;
+			if(StringUtils.isBlank(roleName)){
+				queryString = "from RoleInf as r order by r.name";
+			} else {
+				queryString = "from RoleInf as r where r.name like '%?%' order by r.name";
+			}
+			Query queryObject = getSession().createQuery(queryString);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			if(!StringUtils.isBlank(roleName)){
+				queryObject.setParameter(0, StringUtils.trim(roleName));
+			}
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by receiverId failed", re);
 			throw re;
 		}
 	}

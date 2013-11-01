@@ -66,7 +66,7 @@ function login() {
 					changeValidateCode($("#valificationCodeImg"));
 					break;
 				case "success":
-					tip="正在进入o2o管理平台，请稍候...";
+					tip="正在进入旅游关爱管理系统，请稍候...";
 					var	indexUrl="forward!dwz.action";
 					var appPath ="/"+location.pathname.split("/")[1] +"/";
 					window.location.href =appPath + indexUrl;

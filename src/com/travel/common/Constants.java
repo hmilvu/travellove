@@ -1,6 +1,8 @@
 package com.travel.common;
 
 public class Constants {
+	public static final String SYS_USER_INF_IN_SESSION = "SYS_USER_INF_IN_SESSION";
+	public static final String MENU_INF_IN_SESSION = "menuInforInSession";
 	public static final int DEFAULT_PAGE_SIZE = 10;	
 	
 	//用户状态
