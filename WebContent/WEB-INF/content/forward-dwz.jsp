@@ -21,6 +21,7 @@
 <![endif]-->
 
 <script src="js/jquery-1.7.2.js" type="text/javascript"></script>
+<script src="js/jquery.form.min.js" type="text/javascript"></script>
 <script src="js/jquery.cookie.js" type="text/javascript"></script>
 <script src="js/jquery.validate.js" type="text/javascript"></script>
 <script src="js/jquery.bgiframe.js" type="text/javascript"></script>

@@ -33,4 +33,37 @@ public class RoleService
 		List<RoleInf> roleList = roleDao.findRolesByName(roleName, pageInfo);
 		return roleList;
 	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public List<RoleInf> getRoleByName(String name) {
+		List<RoleInf> roleList = roleDao.findByName(name);
+		return roleList;
+	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public int deleteRoleById(Long idLong) {
+		return roleDao.deleteById(idLong);
+	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public RoleInf getRoleById(Long idLong) {
+		return roleDao.findById(idLong);
+	}
+
+	/**
+	 * @param role
+	 * @return
+	 */
+	public int updateRole(RoleInf role) {
+		return roleDao.update(role);
+	}
 }

@@ -37,6 +37,13 @@ public class MenuInfService
 		}
 		return menuInfStr.toString();
 	}
+
+	/**
+	 * @return
+	 */
+	public List<MenuInf> getAllMenuItem() {
+		return menuDao.findAll();
+	}
 	
 	
 }

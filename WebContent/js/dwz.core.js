@@ -109,7 +109,9 @@ var DWZ = {
 			if(alertMsg) alertMsg.error(json.message || DWZ.msg("sessionTimout"), {okCall:DWZ.loadLogin});
 			else DWZ.loadLogin();
 		} else {
-			if(json.message && alertMsg) alertMsg.correct(json.message);
+			if(json.message && alertMsg) {
+				alertMsg.correct(json.message);
+			}
 		};
 	},
 

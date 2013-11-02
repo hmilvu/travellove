@@ -1,12 +1,12 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.LockMode;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -123,17 +123,12 @@ public class RoleInfDAO extends BaseDAO {
 	 */
 	public int getTotalNum(String roleName) {
 		try {
-			String queryString = null;
-			if(StringUtils.isBlank(roleName)){
-				queryString = "select count(r.id) from RoleInf as r order by r.name";
-			} else {
-				queryString = "select count(r.id) from RoleInf as r where r.name like '%?%' order by r.name";
+			Criteria cr = getSession().createCriteria(RoleInf.class);
+			if (!StringUtils.isBlank(roleName)) {
+				cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
 			}
-			Query queryObject = getSession().createQuery(queryString);
-			if(!StringUtils.isBlank(roleName)){
-				queryObject.setParameter(0, StringUtils.trim(roleName));
-			}
-			return  ((Number) queryObject.iterate().next()).intValue();
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
 		} catch (RuntimeException re) {
 			throw re;
 		}
@@ -147,21 +142,33 @@ public class RoleInfDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public List<RoleInf> findRolesByName(String roleName, PageInfoDTO pageInfo) {
 		try {
-			String queryString = null;
-			if(StringUtils.isBlank(roleName)){
-				queryString = "from RoleInf as r order by r.name";
-			} else {
-				queryString = "from RoleInf as r where r.name like '%?%' order by r.name";
+			Criteria cr = getSession().createCriteria(RoleInf.class);
+			if (!StringUtils.isBlank(roleName)) {
+				cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
 			}
-			Query queryObject = getSession().createQuery(queryString);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
-			if(!StringUtils.isBlank(roleName)){
-				queryObject.setParameter(0, StringUtils.trim(roleName));
-			}
-			return queryObject.list();
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public int deleteById(Long idLong) {
+		try {
+			String sql = "delete from role_inf where id = ?";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.setParameter(0, idLong);
+			int result = queryObject.executeUpdate();
+			return result;
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
 			throw re;
 		}
 	}
