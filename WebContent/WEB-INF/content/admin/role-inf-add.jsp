@@ -44,12 +44,13 @@ function save(){
 		</div>
 		<div class="pageFormContent">	
 				<label>角色描述：</label>
-				<textarea name="description" id="description" style="width:40%;height:120px"></textarea>		
-		</div>
+				<textarea name="description" id="description" cols="80" rows="4"></textarea>
+				<!--<textarea name="description" id="description" style="width:40%;height:120px"></textarea>		
+		--></div>
 		
 		<div class="pageFormContent">	
 			<label>可访问页面：</label>				
-			<div style="float:left; display:block; margin:0px; overflow:auto; width:200px; height:243px; overflow:auto; border:solid 1px #CCC; line-height:21px; background:#FFF;">
+			<div style="float:left; display:block; margin:0px; overflow:auto; width:200px; height:264px; overflow:auto; border:solid 1px #CCC; line-height:21px; background:#FFF;">
 				<ul id="allMenuItem" name="allMenuItem" class="tree treeFolder treeCheck expand" oncheck="kkk">
 							
 				</ul>		

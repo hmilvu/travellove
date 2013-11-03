@@ -4,6 +4,7 @@ public class Constants {
 	public static final String SYS_USER_INF_IN_SESSION = "SYS_USER_INF_IN_SESSION";
 	public static final String MENU_INF_IN_SESSION = "menuInforInSession";
 	public static final String ALL_MENU_INF_STR = "ALL_MENU_INF_STR";
+	public static final String ALL_MENU_INF_STR_FOR_EDIT = "ALL_MENU_INF_STR_FOR_EDIT";
 	public static final int DEFAULT_PAGE_SIZE = 10;	
 	public static final int ADMIN_DEFAULT_PAGE_SIZE = 15;
 	

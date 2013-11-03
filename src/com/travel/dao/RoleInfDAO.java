@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -149,6 +150,7 @@ public class RoleInfDAO extends BaseDAO {
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 			cr.setMaxResults(maxResults);
 			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.addOrder(Order.desc("id"));
 			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);

@@ -4,10 +4,10 @@ import static org.hibernate.criterion.Example.create;
 
 import java.util.List;
 
-import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RoleMenu;
 
@@ -22,7 +22,7 @@ import com.travel.entity.RoleMenu;
  * @see com.travel.entity.RoleMenu
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class RoleMenuDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(RoleMenuDAO.class);
@@ -78,7 +78,7 @@ public class RoleMenuDAO extends BaseDAO {
 		}
 	}
 
-	public List findByProperty(String propertyName, Object value) {
+	public List<RoleMenu> findByProperty(String propertyName, Object value) {
 		log.debug("finding RoleMenu instance with property: " + propertyName
 				+ ", value: " + value);
 		try {
@@ -93,49 +93,19 @@ public class RoleMenuDAO extends BaseDAO {
 		}
 	}
 
-	public List findAll() {
-		log.debug("finding all RoleMenu instances");
+	/**
+	 * @param id
+	 */
+	public void deleteByRoleId(Long roleId) {
 		try {
-			String queryString = "from RoleMenu";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			String sql = "delete from role_menu where role_id = ?";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.setParameter(0, roleId);
+			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
+			log.error("find by property name failed", re);
 			throw re;
 		}
-	}
-
-	public RoleMenu merge(RoleMenu detachedInstance) {
-		log.debug("merging RoleMenu instance");
-		try {
-			RoleMenu result = (RoleMenu) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(RoleMenu instance) {
-		log.debug("attaching dirty RoleMenu instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(RoleMenu instance) {
-		log.debug("attaching clean RoleMenu instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
+		
 	}
 }

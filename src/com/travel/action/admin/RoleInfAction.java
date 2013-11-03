@@ -5,8 +5,12 @@
  */
 package com.travel.action.admin;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
@@ -61,23 +65,32 @@ public class RoleInfAction extends AuthorityAction{
 	
 	public String add(){
 		List<MenuInf> menuList = menuService.getAllMenuItem();
-		String allMenuInfStr = menuService.generateMenuInfor(menuList);
+		String allMenuInfStr = menuService.generateMenuInforSelect(menuList);
 		request.setAttribute(Constants.ALL_MENU_INF_STR, allMenuInfStr);
 		return "add";
 	}
 	
 	public void create(){
 		String name = request.getParameter("name");
-		String description = request.getParameter("description");
 		List<RoleInf> roleInf = roleService.getRoleByName(name);
 		if(roleInf != null && roleInf.size() > 0){
 			JsonUtils.write(response, binder.toJson("result", Action.INPUT));	
 			return;
 		}
+		String description = request.getParameter("description");
+		
+		List <String> menuIdList = new ArrayList<String>();
+		Enumeration<?> en =  request.getParameterNames();
+		while(en.hasMoreElements()){
+			String menuIdKey = (String) en.nextElement();
+			if(menuIdKey.startsWith("treeMenuId")){
+				menuIdList.add(request.getParameter(menuIdKey));
+			}
+		}
 		RoleInf role = new RoleInf();
 		role.setName(name);
 		role.setDescription(description);
-		if(roleService.addRole(role) == 0){
+		if(roleService.addRole(role, menuIdList) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
@@ -110,6 +123,10 @@ public class RoleInfAction extends AuthorityAction{
 		if(role != null && role.getId() > 0){
 			request.setAttribute("editRole", role);
 		}
+		List<MenuInf> selectedMenuList = menuService.getMenuItemByRoleId(role.getId());
+		List<MenuInf> menuList = menuService.getAllMenuItem();
+		String allMenuInfStr = menuService.generateMenuInforSelect(menuList, selectedMenuList);
+		request.setAttribute(Constants.ALL_MENU_INF_STR_FOR_EDIT, allMenuInfStr);
 		return "edit";
 	}
 	
@@ -134,7 +151,15 @@ public class RoleInfAction extends AuthorityAction{
 			role.setName(name);
 			role.setDescription(description);
 		}
-		if(roleService.updateRole(role) == 0){
+		List <String> menuIdList = new ArrayList<String>();
+		Enumeration<?> en =  request.getParameterNames();
+		while(en.hasMoreElements()){
+			String menuIdKey = (String) en.nextElement();
+			if(menuIdKey.startsWith("treeMenuId")){
+				menuIdList.add(request.getParameter(menuIdKey));
+			}
+		}
+		if(roleService.updateRole(role, menuIdList) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		

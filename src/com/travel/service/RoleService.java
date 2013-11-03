@@ -1,21 +1,41 @@
 package com.travel.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.dao.MenuInfDAO;
 import com.travel.dao.RoleInfDAO;
+import com.travel.dao.RoleMenuDAO;
+import com.travel.entity.MenuInf;
 import com.travel.entity.RoleInf;
+import com.travel.entity.RoleMenu;
 
 @Service
 public class RoleService
 {
 	@Autowired
-	private RoleInfDAO roleDao;
+	private RoleInfDAO roleDao;	
+	@Autowired
+	private RoleMenuDAO roleMenuDao;
+	@Autowired
+	private MenuInfDAO menuDao;
 
-	public int addRole(RoleInf role){
+	public int addRole(RoleInf role, List <String> menuIdList){
+		Set<RoleMenu> list = new HashSet<RoleMenu>();
+		for(String menuId : menuIdList){
+			Long id = Long.valueOf(menuId);
+			MenuInf menuInf = menuDao.findById(id);
+			RoleMenu roleMenu = new RoleMenu();
+			roleMenu.setMenuInf(menuInf);
+			roleMenu.setRoleInf(role);			
+			list.add(roleMenu);
+		}
+		role.setRoleMenus(list);
 		return roleDao.save(role);
 	}	
 	
@@ -63,7 +83,18 @@ public class RoleService
 	 * @param role
 	 * @return
 	 */
-	public int updateRole(RoleInf role) {
+	public int updateRole(RoleInf role, List<String> menuIdList) {
+		roleMenuDao.deleteByRoleId(role.getId());
+		Set<RoleMenu> list = new HashSet<RoleMenu>();
+		for(String menuId : menuIdList){
+			Long id = Long.valueOf(menuId);
+			MenuInf menuInf = menuDao.findById(id);
+			RoleMenu roleMenu = new RoleMenu();
+			roleMenu.setMenuInf(menuInf);
+			roleMenu.setRoleInf(role);			
+			list.add(roleMenu);
+		}
+		role.setRoleMenus(list);
 		return roleDao.update(role);
 	}
 }

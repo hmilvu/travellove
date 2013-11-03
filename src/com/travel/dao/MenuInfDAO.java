@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.travel.entity.MenuInf;
+import com.travel.entity.RoleMenu;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -31,6 +32,34 @@ public class MenuInfDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	public MenuInf findById(java.lang.Long id) {
+		log.debug("getting MenuInf instance with id: " + id);
+		try {
+			MenuInf instance = (MenuInf) getSession().get(
+					"com.travel.entity.MenuInf", id);
+			return instance;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<MenuInf> findMenuByRoleId(Long roleId) {
+		try {
+			String queryString = "select r.menuInf from RoleMenu r where r.roleInf.id = ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, roleId);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("findMenuByRoleId failed", re);
 			throw re;
 		}
 	}
