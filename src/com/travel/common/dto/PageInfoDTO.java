@@ -12,7 +12,7 @@ package com.travel.common.dto;
 public class PageInfoDTO {
 
 	private int pageSize;
-	private int pageNumber;
+	private int pageNumber = 1;
 	public int getPageSize() {
 		return pageSize;
 	}

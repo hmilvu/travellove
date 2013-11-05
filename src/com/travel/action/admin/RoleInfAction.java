@@ -8,9 +8,7 @@ package com.travel.action.admin;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
@@ -19,6 +17,7 @@ import com.travel.common.Constants;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MenuInf;
 import com.travel.entity.RoleInf;
+import com.travel.entity.UserRole;
 import com.travel.service.MenuInfService;
 import com.travel.service.RoleService;
 import com.travel.utils.JsonUtils;
@@ -107,7 +106,12 @@ public class RoleInfAction extends AuthorityAction{
 			JsonUtils.write(response, "{\"statusCode\":\"300\",\"message\":\"删除失败，请选择角色后重试\"}");
 			return;
 		}
-		int result = roleService.deleteRoleById(idLong);
+		List<UserRole> list = roleService.getUserByRoleId(idLong);
+		if(list != null && list.size() > 0){
+			JsonUtils.write(response, "{\"statusCode\":\"300\",\"message\":\"该角色已有用户在使用，不能删除\"}");
+			return;
+		}
+		roleService.deleteRoleById(idLong);		
 		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"角色管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
 	}
 	

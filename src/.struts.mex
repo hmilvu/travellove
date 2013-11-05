@@ -3,7 +3,10 @@
   <package name="base" location="10,115" size="180,70">
     <action name="defaultAction" location="15,23" size="150,40" />
   </package>
-  <package name="authority" location="15,10" size="170,70" />
-  <extendsEdge source="authority" target="base" routing="0" />
+  <package name="valificationCode" location="0,0" size="0,0">
+    <action name="valificationCode" location="0,0" size="0,0">
+      <result name="success" />
+    </action>
+  </package>
 </Struts2Diagram>
 

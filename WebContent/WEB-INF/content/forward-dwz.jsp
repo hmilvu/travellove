@@ -93,7 +93,7 @@ $(function(){
 				<ul class="nav">					
 					<li><a href="changepwd.html" target="dialog" width="600">设置</a></li>
 					<li><a href="http://www.cnblogs.com/dwzjs" target="_blank">用户名</a></li>
-					<li><a href="login!logOut.action">退出</a></li>
+					<li><a href="login!logout.action">退出</a></li>
 				</ul>				
 			</div>
 

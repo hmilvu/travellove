@@ -8,7 +8,7 @@ public class Constants {
 	public static final int DEFAULT_PAGE_SIZE = 10;	
 	public static final int ADMIN_DEFAULT_PAGE_SIZE = 15;
 	
-	//用户状态
+	//客户端类型
 	public enum OS_TYPE {
 		ANDROID(0), IOS(1), WP(2);
 		private int value;
@@ -19,5 +19,27 @@ public class Constants {
 			return this.value;
 		}
 	}
+	
+	public enum SYS_USER_TYPE {
+		SUPER_ADMIN(0), SYSTEM_USER(1), TRAVEL_USER(2);
+		private int value;
+		private SYS_USER_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
+	public enum SYS_USER_STATUS {
+		IN_ACTIVE(0), ACTIVE(1), INVALID(2);
+		private int value;
+		private SYS_USER_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 
 }

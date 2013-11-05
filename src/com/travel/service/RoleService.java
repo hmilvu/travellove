@@ -11,9 +11,11 @@ import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.MenuInfDAO;
 import com.travel.dao.RoleInfDAO;
 import com.travel.dao.RoleMenuDAO;
+import com.travel.dao.UserRoleDAO;
 import com.travel.entity.MenuInf;
 import com.travel.entity.RoleInf;
 import com.travel.entity.RoleMenu;
+import com.travel.entity.UserRole;
 
 @Service
 public class RoleService
@@ -24,6 +26,8 @@ public class RoleService
 	private RoleMenuDAO roleMenuDao;
 	@Autowired
 	private MenuInfDAO menuDao;
+	@Autowired
+	private UserRoleDAO userRoleDao;
 
 	public int addRole(RoleInf role, List <String> menuIdList){
 		Set<RoleMenu> list = new HashSet<RoleMenu>();
@@ -96,5 +100,14 @@ public class RoleService
 		}
 		role.setRoleMenus(list);
 		return roleDao.update(role);
+	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public List<UserRole> getUserByRoleId(Long roleId) {
+		List<UserRole> list = userRoleDao.findByProperty("roleInf.id", roleId);
+		return list;
 	}
 }

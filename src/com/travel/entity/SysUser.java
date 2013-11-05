@@ -19,18 +19,18 @@ public class SysUser extends AbstractSysUser implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public SysUser(String username, String password, Integer superAdmin,
-			Long travelId, String travelName, Integer status, String name,
+	public SysUser(String username, String password, Integer userType,
+			TravelInf travelInf, Integer status, String name,
 			String mobile, String email, String telNumber,
 			Timestamp createDate, Timestamp updateDate, Long updateUserId) {
-		super(username, password, superAdmin, travelId, travelName, status,
+		super(username, password, userType, travelInf, status,
 				name, mobile, email, telNumber, createDate, updateDate,
 				updateUserId);
 	}
 
 	/** full constructor */
-	public SysUser(String username, String password, Integer superAdmin,
-			Long travelId, String travelName, Integer status, String name,
+	public SysUser(String username, String password, Integer userType,
+			TravelInf travelInf, Integer status, String name,
 			String mobile, String email, String telNumber,
 			Timestamp createDate, Timestamp updateDate, Long updateUserId,
 			Set<ItemInf> itemInfs, Set<ImgInf> imgInfs,
@@ -40,7 +40,7 @@ public class SysUser extends AbstractSysUser implements java.io.Serializable {
 			Set<AppVersion> appVersions, Set<TeamRoute> teamRoutes,
 			Set<MemberInf> memberInfs,
 			Set<Message> messages, Set<RouteInf> routeInfs) {
-		super(username, password, superAdmin, travelId, travelName, status,
+		super(username, password, userType, travelInf, status,
 				name, mobile, email, telNumber, createDate, updateDate,
 				updateUserId, itemInfs, imgInfs, routeViewSpots, travelInfs,
 				teamInfos, viewSpotInfos, orders, userRoles, appVersions,

@@ -8,6 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,9 +27,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 	private Long id;
 	private String username;
 	private String password;
-	private Integer superAdmin;
-	private Long travelId;
-	private String travelName;
+	private Integer userType;
+	private TravelInf travelInf;
 	private Integer status;
 	private String name;
 	private String mobile;
@@ -58,15 +59,14 @@ public abstract class AbstractSysUser extends BaseEntity implements
 
 	/** minimal constructor */
 	public AbstractSysUser(String username, String password,
-			Integer superAdmin, Long travelId, String travelName,
+			Integer userType, TravelInf travelInf,
 			Integer status, String name, String mobile, String email,
 			String telNumber, Timestamp createDate, Timestamp updateDate,
 			Long updateUserId) {
 		this.username = username;
 		this.password = password;
-		this.superAdmin = superAdmin;
-		this.travelId = travelId;
-		this.travelName = travelName;
+		this.userType = userType;
+		this.travelInf = travelInf;
 		this.status = status;
 		this.name = name;
 		this.mobile = mobile;
@@ -79,7 +79,7 @@ public abstract class AbstractSysUser extends BaseEntity implements
 
 	/** full constructor */
 	public AbstractSysUser(String username, String password,
-			Integer superAdmin, Long travelId, String travelName,
+			Integer userType, TravelInf travelInf,
 			Integer status, String name, String mobile, String email,
 			String telNumber, Timestamp createDate, Timestamp updateDate,
 			Long updateUserId, Set<ItemInf> itemInfs, Set<ImgInf> imgInfs,
@@ -91,9 +91,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 			Set<Message> messages, Set<RouteInf> routeInfs) {
 		this.username = username;
 		this.password = password;
-		this.superAdmin = superAdmin;
-		this.travelId = travelId;
-		this.travelName = travelName;
+		this.userType = userType;
+		this.travelInf = travelInf;
 		this.status = status;
 		this.name = name;
 		this.mobile = mobile;
@@ -148,33 +147,25 @@ public abstract class AbstractSysUser extends BaseEntity implements
 		this.password = password;
 	}
 
-	@Column(name = "super_admin", nullable = false)
-	public Integer getSuperAdmin() {
-		return this.superAdmin;
+	@Column(name = "user_type", nullable = false)
+	public Integer getUserType() {
+		return this.userType;
 	}
 
-	public void setSuperAdmin(Integer superAdmin) {
-		this.superAdmin = superAdmin;
+	public void setUserType(Integer userType) {
+		this.userType = userType;
 	}
 
-	@Column(name = "travel_id", nullable = false)
-	public Long getTravelId() {
-		return this.travelId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "travel_id", nullable = true, insertable = false, updatable = false)
+	public TravelInf getTravelInf() {
+		return this.travelInf;
 	}
 
-	public void setTravelId(Long travelId) {
-		this.travelId = travelId;
+	public void setTravelInf(TravelInf travelInf) {
+		this.travelInf = travelInf;
 	}
-
-	@Column(name = "travel_name", nullable = false, length = 64)
-	public String getTravelName() {
-		return this.travelName;
-	}
-
-	public void setTravelName(String travelName) {
-		this.travelName = travelName;
-	}
-
+	
 	@Column(name = "status", nullable = false)
 	public Integer getStatus() {
 		return this.status;

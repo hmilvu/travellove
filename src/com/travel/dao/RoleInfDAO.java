@@ -124,15 +124,24 @@ public class RoleInfDAO extends BaseDAO {
 	 */
 	public int getTotalNum(String roleName) {
 		try {
-			Criteria cr = getSession().createCriteria(RoleInf.class);
-			if (!StringUtils.isBlank(roleName)) {
-				cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
-			}
+			Criteria cr = buildSearchCriteria(roleName);
 			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
 			return  total.intValue();
 		} catch (RuntimeException re) {
 			throw re;
 		}
+	}
+
+	/**
+	 * @param roleName
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(String roleName) {
+		Criteria cr = getSession().createCriteria(RoleInf.class);
+		if (!StringUtils.isBlank(roleName)) {
+			cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
+		}
+		return cr;
 	}
 
 	/**
@@ -143,10 +152,7 @@ public class RoleInfDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public List<RoleInf> findRolesByName(String roleName, PageInfoDTO pageInfo) {
 		try {
-			Criteria cr = getSession().createCriteria(RoleInf.class);
-			if (!StringUtils.isBlank(roleName)) {
-				cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
-			}
+			Criteria cr = buildSearchCriteria(roleName);
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 			cr.setMaxResults(maxResults);
 			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);

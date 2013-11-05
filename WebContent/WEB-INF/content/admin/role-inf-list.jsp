@@ -1,27 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
-<script type="text/javascript">
-function deleteRole(){
-	$.ajax({
-			type:"POST",
-			url:"admin/role-inf!delete.action",
-			data:"aaaa=123",
-			success: function(data){				
-				switch(data.result){
-						case "success":	
-							alert(1);
-							dialogAjaxDone({"statusCode":"200", "message":"保存成功", "navTabId":"角色管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
-							break;
-						default:
-						    alert(2);
-							dialogAjaxDone({"statusCode":"300", "message":"保存失败，请重试", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
-							break;	
-					}
-			}
-			});
-}
-</script>
   
 <form id="pagerForm" method="post" action="admin/role-inf!list.action">
 	<input type="hidden" name="roleName" value="<s:property value='%{#request.roleName}'/>" />

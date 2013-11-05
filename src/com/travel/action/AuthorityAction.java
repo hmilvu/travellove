@@ -2,12 +2,15 @@ package com.travel.action;
 
 import org.apache.struts2.convention.annotation.ParentPackage;
 
+import com.travel.common.Constants;
+import com.travel.entity.SysUser;
+
 /**
  * 包含权限判断
  * 
  * @author Zhang Zhipeng
  */
-//@ParentPackage("authority")
+@ParentPackage("authority")
 public class AuthorityAction extends BaseAction {
 
 	/**
@@ -20,9 +23,9 @@ public class AuthorityAction extends BaseAction {
 	 * 
 	 * @return
 	 */
-//	public TBmAccount getAccount() {
-//		return (TBmAccount) session.get("");
-//
-//	}
+	public SysUser getCurrentUser() {
+		return (SysUser) session.get(Constants.SYS_USER_INF_IN_SESSION);
+
+	}
 
 }

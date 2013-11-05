@@ -52,7 +52,7 @@ function login() {
 	}
 	$.ajax({
 		  type: "POST",
-		  url: "admin/login!login.action",
+		  url: "login!login.action",
 		  data: "username="+username+"&password="+password+"&valificationCode="+valificationCode, 
 		  dataType: "json",
 		  success: function(data, textStatus){ 
@@ -60,6 +60,12 @@ function login() {
 	        	switch(data.result){
 				case "input":
 					tip="<font color='red'>账号或密码错误！</font>";
+					break;
+				case "INACTIVE":
+					tip="<font color='red'>账号未激活！</font>";
+					break;
+				case "INVALID":
+					tip="<font color='red'>账号已失效！</font>";
 					break;
 				case "error":
 					tip="<font color='red'>验证码错误！</font>";
@@ -79,4 +85,15 @@ function login() {
 		   },
 		  async: true
 		});
+}
+
+
+//验证码
+function changeValidateCode(obj) {  
+ //获取当前的时间作为参数，无具体意义  
+ var timenow = new Date().getTime();  
+ 
+ //每次请求需要一个不同的参数，否则可能会返回同样的验证码  
+ //这和浏览器的缓存机制有关系，也可以把页面设置为不缓存，这样就不用这个参数了。  
+ obj.attr("src","valificationCode.action?d="+timenow);
 }

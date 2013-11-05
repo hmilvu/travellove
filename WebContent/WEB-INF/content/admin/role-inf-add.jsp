@@ -39,12 +39,12 @@ function save(){
 		<div class="pageFormContent">
 			<p>
 				<label>角色名称：</label>
-				<input name="name" id="name" class="required" type="text" size="30" value="" alt="请输入角色名称"/>
+				<input name="name" id="name" class="required" type="text" size="30" value="" alt="请输入角色名称" maxlength="64"/>
 			</p>
 		</div>
 		<div class="pageFormContent">	
 				<label>角色描述：</label>
-				<textarea name="description" id="description" cols="80" rows="4"></textarea>
+				<textarea name="description" id="description" cols="80" rows="4" maxlength="128"></textarea>
 				<!--<textarea name="description" id="description" style="width:40%;height:120px"></textarea>		
 		--></div>
 		

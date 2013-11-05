@@ -1,10 +1,11 @@
-package com.travel.action.admin;
+package com.travel.action;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
-import com.travel.action.BaseAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.SYS_USER_STATUS;
 import com.travel.entity.SysUser;
 import com.travel.service.MenuInfService;
 import com.travel.service.SysUserService;
@@ -30,22 +31,27 @@ public class LoginAction extends BaseAction {
 
 		// 判断验证码
 
-//		String valificationCodeSessionValue = (String) session
-//				.get(ValificationCodeAction.VALIFICATION_CODE_SESSION_NAME);
-//		if (!StringUtils.equals(valificationCode, valificationCodeSessionValue)) {
-//			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-//			return null;
-//		}
+		String valificationCodeSessionValue = (String) session
+				.get(ValificationCodeAction.VALIFICATION_CODE_SESSION_NAME);
+		if (!StringUtils.equals(valificationCode, valificationCodeSessionValue)) {
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+			return null;
+		}
 
 		// 判断账号、密码；
 		SysUser user = sysUserService.getSysUserByCredentials(username, password);
 		if (user != null && user.getId() > 0) {
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
-			session.put(Constants.SYS_USER_INF_IN_SESSION, user);
-
-			String menuInfor = sysUserService.generateMenuBySysUser(user);
-			session.put(Constants.MENU_INF_IN_SESSION, menuInfor);
-
+			if(user.getStatus() == SYS_USER_STATUS.ACTIVE.getValue()){
+				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
+				session.put(Constants.SYS_USER_INF_IN_SESSION, user);
+	
+				String menuInfor = sysUserService.generateMenuBySysUser(user);
+				session.put(Constants.MENU_INF_IN_SESSION, menuInfor);
+			} else if(user.getStatus() == SYS_USER_STATUS.IN_ACTIVE.getValue()){
+				JsonUtils.write(response, binder.toJson("result", "INACTIVE"));			
+			} else if(user.getStatus() == SYS_USER_STATUS.INVALID.getValue()){
+				JsonUtils.write(response, binder.toJson("result", "INVALID"));			
+			}
 			return null;
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.INPUT));

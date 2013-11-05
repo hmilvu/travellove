@@ -8,6 +8,7 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import com.travel.entity.UserRole;
 
@@ -22,7 +23,7 @@ import com.travel.entity.UserRole;
  * @see com.travel.entity.UserRole
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class UserRoleDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(UserRoleDAO.class);
@@ -33,6 +34,7 @@ public class UserRoleDAO extends BaseDAO {
 		log.debug("saving UserRole instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -89,52 +91,6 @@ public class UserRoleDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
-			throw re;
-		}
-	}
-
-	public List findAll() {
-		log.debug("finding all UserRole instances");
-		try {
-			String queryString = "from UserRole";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public UserRole merge(UserRole detachedInstance) {
-		log.debug("merging UserRole instance");
-		try {
-			UserRole result = (UserRole) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(UserRole instance) {
-		log.debug("attaching dirty UserRole instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(UserRole instance) {
-		log.debug("attaching clean UserRole instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
 			throw re;
 		}
 	}
