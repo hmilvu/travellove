@@ -102,6 +102,60 @@ public class SysUserService
 	public List<SysUser> findUserByUsername(String name) {		
 		return sysUserDao.findByUsername(name);
 	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public SysUser getSysUserById(Long id) {
+		return sysUserDao.findById(id);
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<RoleInf> getUserRoleByUserId(Long id) {
+		List<RoleInf> list = userRoleDao.findRoleByUserId(id);
+		return list;
+	}
+
+	/**
+	 * @param user
+	 * @param roleIdList
+	 * @return
+	 */
+	public int updateUser(SysUser user, List<Long> roleIdList, boolean needUpdateRole) {
+		user.setUpdateDate(new Timestamp(new Date().getTime()));
+		int result = sysUserDao.update(user);
+		if(result == 0){
+			if(needUpdateRole){
+				result = userRoleDao.deleteByUserId(user.getId());
+				if(result == 0){
+					for(Long roleId : roleIdList){
+						UserRole userRole = new UserRole();
+						userRole.setSysUser(user);
+						RoleInf role = new RoleInf();
+						role.setId(roleId);
+						userRole.setRoleInf(role);
+						userRoleDao.save(userRole);
+					}
+				}
+			}
+			return 0;
+		} else {
+			return -1;
+		}
+	}
+
+	/**
+	 * @param user
+	 */
+	public void updateUser(SysUser user) {
+		user.setUpdateDate(new Timestamp(new Date().getTime()));
+		sysUserDao.update(user);
+		
+	}
 	
 	
 	

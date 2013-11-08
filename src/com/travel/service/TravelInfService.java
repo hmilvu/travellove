@@ -21,6 +21,11 @@ public class TravelInfService
 	private TravelInfDAO travelDao;
 	@Autowired
 	private TeamInfoDAO teamDao;
+	
+	public List<TravelInf> findAllTravels() {
+		List<TravelInf> list = travelDao.findAll();
+		return list;
+	} 
 
 	/**
 	 * @param dto

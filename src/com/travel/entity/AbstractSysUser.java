@@ -156,8 +156,8 @@ public abstract class AbstractSysUser extends BaseEntity implements
 		this.userType = userType;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "travel_id", nullable = true, insertable = false, updatable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "travel_id", nullable = true)
 	public TravelInf getTravelInf() {
 		return this.travelInf;
 	}

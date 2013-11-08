@@ -14,6 +14,8 @@ public class SearchSysUserDTO {
 	private String username;
 	private String name;
 	private int userType;
+	private int currentUserType;
+	private Long travelId;
 	public String getTravelName() {
 		return travelName;
 	}
@@ -37,6 +39,18 @@ public class SearchSysUserDTO {
 	}
 	public void setUserType(int userType) {
 		this.userType = userType;
+	}
+	public int getCurrentUserType() {
+		return currentUserType;
+	}
+	public void setCurrentUserType(int currentUserType) {
+		this.currentUserType = currentUserType;
+	}
+	public Long getTravelId() {
+		return travelId;
+	}
+	public void setTravelId(Long travelId) {
+		this.travelId = travelId;
 	}
 	
 

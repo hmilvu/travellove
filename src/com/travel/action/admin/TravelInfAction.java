@@ -5,6 +5,7 @@
  */
 package com.travel.action.admin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.admin.dto.SearchTravelDTO;
+import com.travel.common.admin.dto.SelectListTravelDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.TravelInf;
@@ -59,6 +61,18 @@ public class TravelInfAction extends AuthorityAction{
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
 		return "list";
+	}
+	
+	public void selectList(){
+		List<TravelInf> allList = travelService.findAllTravels();
+		List<SelectListTravelDTO> list = new ArrayList<SelectListTravelDTO>();
+		for(TravelInf travelInf : allList){
+			SelectListTravelDTO dto = new SelectListTravelDTO();
+			dto.setId(travelInf.getId().toString());
+			dto.setTravelName(travelInf.getName());
+			list.add(dto);
+		}
+		JsonUtils.write(response, binder.toJson(list));	
 	}
 	
 	public String add(){

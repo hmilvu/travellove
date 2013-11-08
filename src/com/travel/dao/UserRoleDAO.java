@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.travel.entity.RoleInf;
 import com.travel.entity.UserRole;
 
 /**
@@ -93,5 +94,41 @@ public class UserRoleDAO extends BaseDAO {
 			log.error("find by property name failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RoleInf> findRoleByUserId(Long id) {
+		try {
+			String queryString = "select r.roleInf from UserRole as r where r.sysUser.id = ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, id);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public int deleteByUserId(Long id) {
+		int result = 0;
+		try {
+			String sql = "delete from user_role where user_id = ?";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.setParameter(0, id);
+			queryObject.executeUpdate();
+		} catch (RuntimeException re) {
+			log.error("delete failed", re);
+			result = -1;
+			throw re;
+		}
+		return result;
 	}
 }

@@ -1,6 +1,7 @@
 package com.travel.action;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
@@ -41,7 +42,9 @@ public class LoginAction extends BaseAction {
 		// 判断账号、密码；
 		SysUser user = sysUserService.getSysUserByCredentials(username, password);
 		if (user != null && user.getId() > 0) {
+			user.setPassword(null);
 			if(user.getStatus() == SYS_USER_STATUS.ACTIVE.getValue()){
+//				Hibernate.initialize(user.getTravelInf());
 				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 				session.put(Constants.SYS_USER_INF_IN_SESSION, user);
 	

@@ -51,12 +51,13 @@
 			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0}">
 				<li><a class="add" href="admin/sys-user!addAdmin.action" target="navTab" title="添加系统管理员"><span>添加系统管理员</span></a></li>
 			</s:if>
-			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || session.SYS_USER_INF_IN_SESSION.userType == 1}">
+			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">
 				<li><a class="add" href="admin/sys-user!addSysUser.action" target="navTab" title="添加系统用户"><span>添加系统用户</span></a></li>
 			</s:if>
 			<li><a class="add" href="admin/sys-user!addTravelUser.action" target="navTab" title="添加旅行社用户"><span>添加系旅行社用户</span></a></li>
-			<li><a class="delete" href="admin/sys-user!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="admin/sys-user!edit.action?uid={sid_user}" target="navTab" title="修改用户"><span>修改</span></a></li>
+			<li><a class="edit" href="admin/sys-user!edit.action?uid={sid_user}" target="navTab" title="修改用户"><span>修改用户</span></a></li>
+			<li><a class="edit" href="admin/sys-user!changePassword.action?uid={sid_user}" target="dialog" mask="true" title="修改用户"><span>修改密码</span></a></li>
+			<li><a class="delete" href="admin/sys-user!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除用户</span></a></li>
 			<li class="line">line</li>
 		</ul>
 	</div>
@@ -91,7 +92,10 @@
 					<s:elseif test="%{#user.userType == 2}">旅行社用户</s:elseif>
 				</td>
 				<td>
-					<s:property value='%{#user.travelName}' />
+					<s:if test="%{#user.userType == 2}">
+						<s:property value='%{#user.travelInf.name}' />
+					</s:if>
+					<s:else>&nbsp;</s:else>
 				</td>
 				<td>
 					<s:if test="%{#user.status == 0}">未激活</s:if>

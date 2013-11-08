@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.Constants.SYS_USER_STATUS;
+import com.travel.common.Constants.SYS_USER_TYPE;
 import com.travel.common.admin.dto.SearchSysUserDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MenuInf;
@@ -236,7 +237,8 @@ public class SysUserDAO extends BaseDAO {
 	private Criteria buildSearchCriteria(SearchSysUserDTO dto) {
 		Criteria cr = getSession().createCriteria(SysUser.class);
 		if (!StringUtils.isBlank(dto.getTravelName())) {
-			cr.add(Restrictions.like("travelInf.name", StringUtils.trim(dto.getTravelName()) + "%").ignoreCase());
+			cr.createAlias("travelInf", "c");
+			cr.add(Restrictions.like("c.name", StringUtils.trim(dto.getTravelName()) + "%").ignoreCase());
 		}
 		if (!StringUtils.isBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
@@ -247,6 +249,12 @@ public class SysUserDAO extends BaseDAO {
 		if (!StringUtils.isBlank(dto.getUsername())) {
 			cr.add(Restrictions.like("username", StringUtils.trim(dto.getUsername()) + "%").ignoreCase());
 		}
+//		if(dto.getCurrentUserType() == SYS_USER_TYPE.SYSTEM_USER.getValue()){
+//			cr.add(Restrictions.gt("userType", SYS_USER_TYPE.SUPER_ADMIN.getValue()));
+//		} else if(dto.getCurrentUserType() == SYS_USER_TYPE.TRAVEL_USER.getValue()){
+//			cr.add(Restrictions.eq("userType", SYS_USER_TYPE.TRAVEL_USER.getValue()));
+//			cr.add(Restrictions.eq("travelInf.id", dto.getTravelId()));
+//		}
 		cr.add(Restrictions.ne("status", Integer.valueOf(SYS_USER_STATUS.INVALID.getValue())));
 		return cr;
 	}
@@ -265,10 +273,29 @@ public class SysUserDAO extends BaseDAO {
 			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
 			cr.addOrder(Order.desc("userType"));
 			cr.addOrder(Order.desc("travelInf.id"));
+			cr.addOrder(Order.desc("username"));
 			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param user
+	 * @return
+	 */
+	public int update(SysUser user) {
+		int result = 0;
+		try {
+			getSession().update(user);
+			getSession().flush();
+			log.debug("update successful");
+		} catch (RuntimeException re) {
+			log.error("update failed", re);
+			result = -1;
+			throw re;
+		}
+		return result;
 	}
 }

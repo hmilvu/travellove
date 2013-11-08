@@ -11,7 +11,7 @@ function save(){
 	}
 	$.ajax({
 			type:'POST',
-			url:'admin/sys-user!createSysUser.action',
+			url:'admin/sys-user!createTravelUser.action',
 			data:$("#userForm").formSerialize(),//序列化表单里所有的内容
 			success: function(data){				
 				switch(data.result){
@@ -58,6 +58,13 @@ function save(){
 						<option value="0">未激活</option>
 						<option value="1" selected>正常</option>						
 					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt>旅行社：</dt>
+				<dd>
+					<input type="hidden" name="travelLookup.id" value="${travelLookup.id}"/>
+					<input type="text" readonly="readonly" class="required" name="travelLookup.travelName" value="" suggestFields="travelName" suggestUrl="admin/travel-inf!selectList.action" lookupGroup="travelLookup" />
 				</dd>
 			</dl>
 			<dl>

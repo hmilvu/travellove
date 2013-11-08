@@ -23,9 +23,13 @@ public class AuthorityAction extends BaseAction {
 	 * 
 	 * @return
 	 */
-	public SysUser getCurrentUser() {
+	protected SysUser getCurrentUser() {
 		return (SysUser) session.get(Constants.SYS_USER_INF_IN_SESSION);
 
+	}
+	
+	protected boolean isSessionUser(SysUser user){
+		return user.getId().longValue() != getCurrentUser().getId().longValue();
 	}
 
 }

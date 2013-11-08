@@ -171,4 +171,19 @@ public class TravelInfDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @return
+	 */
+	public List<TravelInf> findAll() {
+		log.debug("finding all TravelInf instances");
+		try {
+			String queryString = "from TravelInf order by id desc";
+			Query queryObject = getSession().createQuery(queryString);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
 }

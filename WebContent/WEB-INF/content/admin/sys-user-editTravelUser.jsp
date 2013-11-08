@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
-
 <script type="text/javascript">
 function save(){
 	var $form = $($("#userForm"));
@@ -11,7 +10,7 @@ function save(){
 	}
 	$.ajax({
 			type:'POST',
-			url:'admin/sys-user!createSysUser.action',
+			url:'admin/sys-user!updateTravelUser.action',
 			data:$("#userForm").formSerialize(),//序列化表单里所有的内容
 			success: function(data){				
 				switch(data.result){
@@ -32,56 +31,52 @@ function save(){
 
 <div class="pageContent">
 	<form name="userForm" id="userForm" method="post" action="" class="pageForm required-validate">
+		<input type="hidden" id="userId" name="userId" value="<s:property value='%{#request.editUser.id}'/>"/>
 		<div class="pageFormContent nowrap" layoutH="56">			
 			<dl>
 				<dt>登陆名：</dt>
 				<dd>
-					<input type="text" name="username" maxlength="20" class="required" />
+					<input type="text" name="username" maxlength="20" class="required" value="<s:property value='%{#request.editUser.username}'/>"/>
 				</dd>
-			</dl>
-			<dl>
-				<dt>密码：</dt>
-				<dd>
-					<input id="password" type="password" name="password" class="required alphanumeric" minlength="6" maxlength="20" alt="字母、数字、下划线 6-20位"/>
-				</dd>
-			</dl>
-			<dl>
-				<dt>确认密码：</dt>
-				<dd>
-					<input type="password" name="repassword" class="required" equalto="#password"/>
-				</dd>
-			</dl>
+			</dl>			
 			<dl>
 				<dt>用户状态：</dt>
 				<dd>
 					<select id="status" name="status" class="combox">
-						<option value="0">未激活</option>
-						<option value="1" selected>正常</option>						
+						<option <s:if test="%{#request.editUser.status == 0}">selected</s:if> value="0">未激活</option>
+						<option <s:if test="%{#request.editUser.status == 1}">selected</s:if> value="1">正常</option>						
 					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt>旅行社：</dt>
+				<dd>
+					<input type="hidden" name="travelLookup.id" value="${travelLookup.id}"/>
+					<input type="text" readonly="readonly" class="required" name="travelLookup.travelName" value="<s:property value='%{#request.editUser.travelInf.name}'/>" suggestFields="travelName" suggestUrl="admin/travel-inf!selectList.action" lookupGroup="travelLookup" />
 				</dd>
 			</dl>
 			<dl>
 				<dt>姓名：</dt>
 				<dd>
-					<input type="text" name="name" maxlength="20" class="required" />
+					<input type="text" name="name" maxlength="20" class="required" value="<s:property value='%{#request.editUser.name}'/>"/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>手机号：</dt>
 				<dd>
-					<input type="text" name="mobile" maxlength="20" class="required phone" alt="请输入您的手机号"/>
+					<input type="text" name="mobile" maxlength="20" class="required phone" alt="请输入您的手机号" value="<s:property value='%{#request.editUser.mobile}'/>"/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>电话：</dt>
 				<dd>
-					<input type="text" name="telNumber" maxlength="20" class="required phone" alt="请输入您的固话号码"/>
+					<input type="text" name="telNumber" maxlength="20" class="required phone" alt="请输入您的固话号码" value="<s:property value='%{#request.editUser.telNumber}'/>"/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>Email：</dt>
 				<dd>
-					<input type="text" name="email" maxlength="20" class="required email" />
+					<input type="text" name="email" maxlength="20" class="required email" value="<s:property value='%{#request.editUser.email}'/>"/>
 				</dd>
 			</dl>	
 			<dl>
@@ -102,7 +97,7 @@ function save(){
 			<tbody>
 				<s:iterator var="role" value="%{#request.roleList}" status="statu">		
 					<tr target="sid_user" rel="<s:property value="%{#role.id}"/>">
-						<td><input name='roleIds<s:property value="%{#role.id}"/>' value="<s:property value="%{#role.id}"/>" type="checkbox"></td>
+						<td><input name='roleIds<s:property value="%{#role.id}"/>' value="<s:property value="%{#role.id}"/>" type="checkbox" <s:if test="%{#role.checkRole}">checked</s:if>></td>
 						<td>
 						    <s:property value="%{#statu.index+1}"/>
 						</td>
