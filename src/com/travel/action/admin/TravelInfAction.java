@@ -52,7 +52,7 @@ public class TravelInfAction extends AuthorityAction{
 		SearchTravelDTO dto = new SearchTravelDTO();
 		dto.setTravelName(travelName);
 		dto.setPersonName(personName);
-		int totalNum = travelService.getTotalRoleNum(dto);
+		int totalNum = travelService.getTotalTravelNum(dto);
 		List<TravelInf> list = travelService.findTravels(dto, pageInfo);
 		request.setAttribute("travelList", list);
 		request.setAttribute("travelTotalCount", totalNum+"");

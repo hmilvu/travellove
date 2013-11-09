@@ -72,8 +72,8 @@ public class MemberService
 	 * @param password
 	 * @return
 	 */
-	public MemberInf getMemberByCredentials(String username, String password) {
-		MemberInf member = memberInfDao.findByCredentials(username, password);
+	public MemberInf getMemberByCredentials(Long teamId, String mobile, String password) {
+		MemberInf member = memberInfDao.findByCredentials(teamId, mobile, password);
 		return member;
 	}	
 }

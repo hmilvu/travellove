@@ -1,6 +1,8 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -48,6 +50,13 @@ public class SysUserService
 		} else {
 			List<RoleInf> roleList = sysUserDao.getRolesByUser(user);
 			menuList = sysUserDao.findMenuRoles(roleList);
+			Collections.sort(menuList, new Comparator<MenuInf>(){
+				@Override
+				public int compare(MenuInf m1, MenuInf m2) {
+					return m1.getMenuOrder().compareTo(m2.getMenuOrder());
+				}
+				
+			});
 		}
 		String menuInfor = menuService.generateMenuInfor(menuList);
 		return menuInfor;

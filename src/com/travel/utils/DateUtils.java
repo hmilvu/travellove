@@ -182,8 +182,8 @@ public class DateUtils {
 	public static Date toDate(String str) {
 		try {
 			return DATE_FORMAT.parse(str);
-		} catch (ParseException e) {
-			log.info("无法转换为日期格式！", e);
+		} catch (Throwable e) {
+			//log.info("无法转换为日期格式！", e);
 		}
 		return null;
 	}

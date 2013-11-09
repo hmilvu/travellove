@@ -99,12 +99,13 @@ public class MemberInfDAO extends BaseDAO {
 	 * @param password2
 	 * @return
 	 */
-	public MemberInf findByCredentials(String username, String password) {
+	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
-			String queryString = "from MemberInf as m where m.username = ? and m.password = ?";
+			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
 			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, username);
-			queryObject.setParameter(1, password);
+			queryObject.setParameter(0, teamId);
+			queryObject.setParameter(1, mobile);
+			queryObject.setParameter(2, password);
 			return (MemberInf)queryObject.uniqueResult();
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);

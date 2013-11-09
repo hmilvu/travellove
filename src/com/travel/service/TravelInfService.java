@@ -31,7 +31,7 @@ public class TravelInfService
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalRoleNum(SearchTravelDTO dto) {
+	public int getTotalTravelNum(SearchTravelDTO dto) {
 		int totalNum = travelDao.getTotalNum(dto);
 		return totalNum;
 	}
