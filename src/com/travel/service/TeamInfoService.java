@@ -85,5 +85,24 @@ public class TeamInfoService
 		int result = teamDao.save(team);
 		return result;
 	}
+
+
+	/**
+	 * @param teamIdLong
+	 * @return
+	 */
+	public TeamInfo getTeamById(Long teamIdLong) {
+		return teamDao.findById(teamIdLong);
+	}
+
+
+	/**
+	 * @param team
+	 */
+	public int updateTeam(TeamInfo team) {
+		team.setUpdateDate(new Timestamp(new Date().getTime()));
+		return teamDao.update(team);
+		
+	}
 	
 }

@@ -13,11 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
-import com.travel.common.admin.dto.SearchTravelDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TeamInfo;
-import com.travel.entity.TravelInf;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -132,6 +131,7 @@ public class TeamInfoDAO extends BaseDAO {
 		if(dto.getTravelId() != null){
 			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
 		}
+		cr.add(Restrictions.eq("status", Integer.valueOf(TEAM_STATUS.ACTIVE.getValue())));
 		return cr;
 	}
 
@@ -153,5 +153,24 @@ public class TeamInfoDAO extends BaseDAO {
 			log.error("find teams failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param team
+	 */
+	public int update(TeamInfo team) {
+		log.debug("update TeamInfo instance");
+		int result = 0;
+		try {
+			getSession().update(team);
+			getSession().flush();
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("update failed", re);
+			result = -1;
+			throw re;
+		}
+		return result;
+		
 	}
 }

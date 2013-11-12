@@ -50,7 +50,7 @@
 			<li><a class="delete" href="admin/team-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除旅行团</span></a></li>
 			<li><a class="edit" href="admin/team-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行团"><span>修改旅行团</span></a></li>
 			<li class="line">line</li>
-			<li><a class="edit" href="admin/member-inf!list.action" target="navTab" title="团员管理"><span>团员管理</span></a></li>
+			<li><a class="edit" href="admin/member-inf!upload.action" target="navTab" title="导入团员"><span>导入团员</span></a></li>
 		</ul>
 	</div>
 	<table class="table" width="100%" layoutH="138">

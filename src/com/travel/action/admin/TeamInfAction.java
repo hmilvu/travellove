@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TeamInfo;
@@ -102,6 +103,69 @@ public class TeamInfAction extends AuthorityAction{
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
+		}
+	}
+	
+	public void delete(){
+		String id = request.getParameter("uid");
+		Long idLong = 0L;
+		try{
+			idLong = Long.valueOf(id);
+		}catch(Throwable ignore){	
+			JsonUtils.write(response, "{\"statusCode\":\"300\",\"message\":\"删除失败，请选择旅行团后重试\"}");
+			return;
+		}
+		TeamInfo team = teamService.getTeamById(idLong);	
+		team.setStatus(TEAM_STATUS.INACTIVE.getValue());
+		teamService.updateTeam(team);
+		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"旅行团管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
+	}
+	
+	public String edit(){
+		String id = request.getParameter("uid");
+		Long idLong = 0L;
+		try{
+			idLong = Long.valueOf(id);
+		}catch(Throwable ignore){	
+			return "edit";
+		}
+		TeamInfo team = teamService.getTeamById(idLong);	
+		if(team != null && team.getId() > 0){
+			request.setAttribute("editTeam", team);
+		}
+		return "edit";
+	}
+	
+	@SuppressWarnings("static-access")
+	public void update(){
+		String id = request.getParameter("teamId");
+		Long idLong = 0L;
+		try{
+			idLong = Long.valueOf(id);
+		}catch(Throwable ignore){	
+			JsonUtils.write(response, binder.toJson("result", Action.INPUT));	
+			return;
+		}
+		String name = request.getParameter("name");
+		String peopleCount = request.getParameter("peopleCount");
+		String startDate = request.getParameter("startDate");
+		String endDate = request.getParameter("endDate");
+		String description = request.getParameter("description");		
+		
+		TeamInfo team = teamService.getTeamById(idLong);		
+		if(team != null && team.getId() > 0){
+			team.setName(name);
+			team.setPeopleCount(Integer.valueOf(peopleCount));
+			team.setBeginDate(DateUtils.toDate(startDate));
+			team.setEndDate(DateUtils.toDate(endDate));
+			team.setDescription(description);			
+			if(teamService.updateTeam(team) == 0){
+				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+			} else {
+				JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+			}
+		} else {
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
 		}
 	}
 	

@@ -41,5 +41,15 @@ public class Constants {
 			return this.value;
 		}
 	} 
-
+	
+	public enum TEAM_STATUS {
+		ACTIVE(0), INACTIVE(1);
+		private int value;
+		private TEAM_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

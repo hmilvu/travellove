@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.travel.entity.BaseEntity;
 import com.travel.utils.CryptoUtils;
 import com.travel.utils.JsonBinder;
 import com.travel.utils.JsonUtils;
