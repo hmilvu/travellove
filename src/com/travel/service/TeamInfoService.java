@@ -104,5 +104,13 @@ public class TeamInfoService
 		return teamDao.update(team);
 		
 	}
+
+
+	/**
+	 * @return
+	 */
+	public List<TeamInfo> findAllTeams(Long travelid) {
+		return teamDao.findAll(travelid);
+	}
 	
 }

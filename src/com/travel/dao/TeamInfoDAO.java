@@ -173,4 +173,21 @@ public class TeamInfoDAO extends BaseDAO {
 		return result;
 		
 	}
+
+	/**
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<TeamInfo> findAll(Long travelId) {
+		log.debug("finding all TeamInfo instances");
+		try {
+			String queryString = "from TeamInfo where travelInf.id = ? and status=0 order by createDate desc";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, travelId);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
 }

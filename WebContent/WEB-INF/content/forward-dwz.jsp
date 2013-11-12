@@ -29,7 +29,6 @@
 <script src="xheditor/xheditor_lang/zh-cn.js" type="text/javascript"></script>
 <script src="uploadify/scripts/jquery.uploadify.js" type="text/javascript"></script>
 
-<!-- svg图表  supports Firefox 3.0+, Safari 3.0+, Chrome 5.0+, Opera 9.5+ and Internet Explorer 6.0+ -->
 <script src="js/dwz.core.js" type="text/javascript"></script>
 <script src="js/dwz.util.date.js" type="text/javascript"></script>
 <script src="js/dwz.validate.method.js" type="text/javascript"></script>

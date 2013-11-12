@@ -1,16 +1,18 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberInfDAO;
-import com.travel.dao.MenuInfDAO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.MemberInf;
-import com.travel.entity.MenuInf;
 import com.travel.entity.TeamInfo;
 
 @Service
@@ -75,5 +77,35 @@ public class MemberService
 	public MemberInf getMemberByCredentials(Long teamId, String mobile, String password) {
 		MemberInf member = memberInfDao.findByCredentials(teamId, mobile, password);
 		return member;
-	}	
+	}
+
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalMemberNum(SearchMemberDTO dto) {
+		return memberInfDao.getTotalNum(dto);
+	}
+
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<MemberInf> findMembers(SearchMemberDTO dto, PageInfoDTO pageInfo) {
+		return memberInfDao.findMembers(dto, pageInfo);
+	}
+
+
+	/**
+	 * @param memberInf
+	 * @return
+	 */
+	public int addMember(MemberInf memberInf) {
+		memberInf.setCreateDate(new Timestamp(new Date().getTime()));
+		memberInf.setUpdateDate(memberInf.getCreateDate());
+		return memberInfDao.save(memberInf);
+	}
 }

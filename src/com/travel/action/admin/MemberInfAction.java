@@ -5,7 +5,6 @@
  */
 package com.travel.action.admin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.TEAM_STATUS;
-import com.travel.common.admin.dto.SearchTeamDTO;
-import com.travel.common.admin.dto.SelectListTeamDTO;
+import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
-import com.travel.entity.TravelInf;
+import com.travel.service.MemberService;
 import com.travel.service.TeamInfoService;
 import com.travel.utils.DateUtils;
 import com.travel.utils.JsonUtils;
@@ -28,19 +28,22 @@ import com.travel.utils.JsonUtils;
  * @author Lenovo
  *
  */
-public class TeamInfAction extends AuthorityAction{
+public class MemberInfAction extends AuthorityAction{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private TeamInfoService teamService;
+	@Autowired
+	private MemberService memberService;
 
 	public String list(){
-		String travelName = request.getParameter("travelName");
+		String name = request.getParameter("name");
 		String teamName = request.getParameter("teamName");
-		String startDate = request.getParameter("startDate");
-		String endDate = request.getParameter("endDate");
+		String phoneNumber = request.getParameter("phoneNumber");
+		String idNumber = request.getParameter("idNumber");
+		String memberType = request.getParameter("memberType");
 		String pageSize = request.getParameter("numPerPage");
 		String pageNumber = request.getParameter("pageNum");
 		PageInfoDTO pageInfo = new PageInfoDTO();
@@ -54,37 +57,29 @@ public class TeamInfAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			pageInfo.setPageSize(Constants.ADMIN_DEFAULT_PAGE_SIZE);
 		}
-		SearchTeamDTO dto = new SearchTeamDTO();
-		if(isTravelUser()){
-			dto.setTravelId(getCurrentUser().getTravelInf().getId());
-		}
-		dto.setTravelName(travelName);
+		SearchMemberDTO dto = new SearchMemberDTO();		
 		dto.setTeamName(teamName);
-		dto.setStartDate(DateUtils.toDate(startDate));
-		dto.setEndDate(DateUtils.toDate(endDate));
-		int totalNum = teamService.getTotalTeamNum(dto);
-		List<TeamInfo> list = teamService.findTeams(dto, pageInfo);
-		request.setAttribute("teamList", list);
-		request.setAttribute("teamTotalCount", totalNum+"");
-		request.setAttribute("travelName", travelName);
+		dto.setName(name);
+		dto.setIdNumber(idNumber);
+		dto.setPhoneNumber(phoneNumber);
+		if(StringUtils.isNotBlank(memberType)){
+			dto.setMemberType(Integer.valueOf(memberType));
+		}
+		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		int totalNum = memberService.getTotalMemberNum(dto);
+		List<MemberInf> list = memberService.findMembers(dto, pageInfo);
+		request.setAttribute("memberList", list);
+		request.setAttribute("totalCount", totalNum+"");
+		request.setAttribute("name", name);
+		if(StringUtils.isNotBlank(memberType)){
+			request.setAttribute("memberType", Integer.valueOf(memberType));
+		}
 		request.setAttribute("teamName", teamName);
-		request.setAttribute("startDate", startDate);
-		request.setAttribute("endDate", endDate);
+		request.setAttribute("phoneNumber", phoneNumber);
+		request.setAttribute("idNumber", idNumber);
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
 		return "list";
-	}
-	
-	public void selectList(){
-		List<TeamInfo> allList = teamService.findAllTeams(getCurrentUser().getTravelInf().getId());
-		List<SelectListTeamDTO> list = new ArrayList<SelectListTeamDTO>();
-		for(TeamInfo teamInf : allList){
-			SelectListTeamDTO dto = new SelectListTeamDTO();
-			dto.setId(teamInf.getId().toString());
-			dto.setTeamName(teamInf.getName());
-			list.add(dto);
-		}
-		JsonUtils.write(response, binder.toJson(list));	
 	}
 	
 	public String add(){
@@ -92,29 +87,37 @@ public class TeamInfAction extends AuthorityAction{
 	}
 	
 	public void create(){
-		String travelId = request.getParameter("travelLookup.id");
+		String teamId = request.getParameter("teamLookup.id");
 		String name = request.getParameter("name");
-		String peopleCount = request.getParameter("peopleCount");
-		String startDate = request.getParameter("startDate");
-		String endDate = request.getParameter("endDate");
-		String description = request.getParameter("description");		
+		String memberType = request.getParameter("memberType");
+		String nickname = request.getParameter("nickname");
+		String phoneNumber = request.getParameter("phoneNumber");
+		String password = request.getParameter("password");		
+		String sex = request.getParameter("sex");	
+		String age = request.getParameter("age");	
+		String idType = request.getParameter("idType");	
+		String idNo = request.getParameter("idNo");	
+		String interest = request.getParameter("interest");	
+		String profile = request.getParameter("profile");	
 		
 		TeamInfo team = new TeamInfo();
-		team.setName(name);
-		team.setPeopleCount(Integer.valueOf(peopleCount));
-		team.setBeginDate(DateUtils.toDate(startDate));
-		team.setEndDate(DateUtils.toDate(endDate));
-		team.setDescription(description);
-		team.setStatus(TEAM_STATUS.ACTIVE.getValue());
-		team.setSysUser(getCurrentUser());
-		TravelInf travelInf = new TravelInf();
-		if(StringUtils.isBlank(travelId)){
-			travelInf.setId(getCurrentUser().getTravelInf().getId());
-		} else{
-			travelInf.setId(Long.valueOf(travelId));
-		}
-		team.setTravelInf(travelInf);
-		if(teamService.addTeamInf(team) == 0){
+		team.setId(Long.valueOf(teamId));
+		MemberInf memberInf = new MemberInf();
+		memberInf.setMemberName(name);
+		memberInf.setMemberType(Integer.valueOf(memberType));
+		memberInf.setNickname(nickname);
+		memberInf.setTravelerMobile(phoneNumber);
+		memberInf.setPassword(password);
+		memberInf.setSex(Integer.valueOf(sex));
+		memberInf.setAge(Integer.valueOf(age));
+		memberInf.setIdType(Integer.valueOf(idType));
+		memberInf.setIdNo(idNo);
+		memberInf.setInterest(interest);
+		memberInf.setProfile(profile);
+		memberInf.setTeamInfo(team);
+		memberInf.setStatus(MEMBER_STATUS.ACTIVE.getValue());
+		memberInf.setSysUser(getCurrentUser());
+		if(memberService.addMember(memberInf) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
@@ -183,5 +186,11 @@ public class TeamInfAction extends AuthorityAction{
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
 		}
 	}
+//	
+//	public String profile(){
+//		String memberId = request.getParameter("memberId");
+//		request.setAttribute("memberId", memberId);
+//		return "profile";
+//	}
 	
 }

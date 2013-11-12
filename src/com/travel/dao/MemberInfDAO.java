@@ -1,15 +1,21 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
 import java.util.List;
 
-import org.hibernate.LockMode;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 
 /**
@@ -41,16 +47,19 @@ public class MemberInfDAO extends BaseDAO {
 	public static final String PROFILE = "profile";
 	public static final String INTEREST = "interest";
 
-	public void save(MemberInf transientInstance) {
+	public int save(MemberInf transientInstance) {
 		log.debug("saving MemberInf instance");
+		int result = 0;
 		try {
 			getSession().save(transientInstance);
 			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
+			result = -1;
 			throw re;
 		}
+		return result;
 	}
 
 	public void delete(MemberInf persistentInstance) {
@@ -109,6 +118,68 @@ public class MemberInfDAO extends BaseDAO {
 			return (MemberInf)queryObject.uniqueResult();
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(SearchMemberDTO dto) {
+		try {
+			Criteria cr = buildSearchCriteria(dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
+		} catch (RuntimeException re) {
+			throw re;
+		}
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(SearchMemberDTO dto) {
+		Criteria cr = getSession().createCriteria(MemberInf.class);
+		cr.createAlias("teamInfo", "t");
+		cr.createAlias("sysUser", "s");
+		if (StringUtils.isNotBlank(dto.getTeamName())) {
+			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
+		}
+		if (StringUtils.isNotBlank(dto.getName())) {
+			cr.add(Restrictions.like("memberName", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+		}
+		if (StringUtils.isNotBlank(dto.getPhoneNumber())){
+			cr.add(Restrictions.like("travelerMobile", StringUtils.trim(dto.getPhoneNumber()) + "%").ignoreCase());
+		}
+		if (StringUtils.isNotBlank(dto.getIdNumber())){
+			cr.add(Restrictions.like("idNo", StringUtils.trim(dto.getIdNumber()) + "%").ignoreCase());
+		}
+		if(dto.getMemberType() != null){
+			cr.add(Restrictions.eq("idType", dto.getMemberType()));
+		}
+		cr.add(Restrictions.eq("status", Integer.valueOf(MEMBER_STATUS.ACTIVE.getValue())));
+		return cr;
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<MemberInf> findMembers(SearchMemberDTO dto, PageInfoDTO pageInfo) {
+		try {
+			Criteria cr = buildSearchCriteria(dto);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.addOrder(Order.asc("t.name"));
+			cr.addOrder(Order.asc("memberType"));
+			cr.addOrder(Order.asc("memberName"));
+			return cr.list();
+		} catch (RuntimeException re) {
+			log.error("find teams failed", re);
 			throw re;
 		}
 	}

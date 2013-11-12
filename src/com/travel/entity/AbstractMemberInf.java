@@ -44,7 +44,7 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 	private Set<Reply> replies = new HashSet<Reply>(0);
 	private Set<LocationLog> locationLogs = new HashSet<LocationLog>(0);
 	private Set<Order> orders = new HashSet<Order>(0);
-
+	private Integer status;
 	// Constructors
 
 	/** default constructor */
@@ -282,6 +282,15 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 
 	public void setOrders(Set<Order> orders) {
 		this.orders = orders;
+	}
+
+	@Column(name = "status", nullable = false)
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 }
