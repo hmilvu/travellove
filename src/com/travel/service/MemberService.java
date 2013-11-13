@@ -34,6 +34,7 @@ public class MemberService
 	 * @return
 	 */
 	public int updateMember(MemberInf member) {
+		member.setUpdateDate(new Timestamp(new Date().getTime()));
 		return memberInfDao.updateMember(member);
 	}
 
@@ -107,5 +108,14 @@ public class MemberService
 		memberInf.setCreateDate(new Timestamp(new Date().getTime()));
 		memberInf.setUpdateDate(memberInf.getCreateDate());
 		return memberInfDao.save(memberInf);
+	}
+
+
+	/**
+	 * @param ids
+	 */
+	public void deleteMemberByIds(String ids) {
+		memberInfDao.deleteByIds(ids);
+		
 	}
 }

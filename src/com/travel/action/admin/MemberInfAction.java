@@ -125,18 +125,9 @@ public class MemberInfAction extends AuthorityAction{
 	}
 	
 	public void delete(){
-		String id = request.getParameter("uid");
-		Long idLong = 0L;
-		try{
-			idLong = Long.valueOf(id);
-		}catch(Throwable ignore){	
-			JsonUtils.write(response, "{\"statusCode\":\"300\",\"message\":\"删除失败，请选择旅行团后重试\"}");
-			return;
-		}
-		TeamInfo team = teamService.getTeamById(idLong);	
-		team.setStatus(TEAM_STATUS.INACTIVE.getValue());
-		teamService.updateTeam(team);
-		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"旅行团管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
+		String ids = request.getParameter("ids");
+		memberService.deleteMemberByIds(ids);
+		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"团员管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
 	}
 	
 	public String edit(){
@@ -147,44 +138,52 @@ public class MemberInfAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			return "edit";
 		}
-		TeamInfo team = teamService.getTeamById(idLong);	
-		if(team != null && team.getId() > 0){
-			request.setAttribute("editTeam", team);
+		MemberInf memberInf = memberService.getMemberById(idLong);	
+		if(memberInf != null && memberInf.getId() > 0){
+			request.setAttribute("editMember", memberInf);
 		}
 		return "edit";
 	}
 	
 	@SuppressWarnings("static-access")
 	public void update(){
-		String id = request.getParameter("teamId");
-		Long idLong = 0L;
-		try{
-			idLong = Long.valueOf(id);
-		}catch(Throwable ignore){	
-			JsonUtils.write(response, binder.toJson("result", Action.INPUT));	
-			return;
-		}
-		String name = request.getParameter("name");
-		String peopleCount = request.getParameter("peopleCount");
-		String startDate = request.getParameter("startDate");
-		String endDate = request.getParameter("endDate");
-		String description = request.getParameter("description");		
+		String id = request.getParameter("memberId");		
+		String teamId = request.getParameter("teamLookup.id");
+		String name = request.getParameter("memberName");
+		String memberType = request.getParameter("memberType");
+		String nickname = request.getParameter("nickname");
+		String phoneNumber = request.getParameter("phoneNumber");
+		String password = request.getParameter("password");		
+		String sex = request.getParameter("sex");	
+		String age = request.getParameter("age");	
+		String idType = request.getParameter("idType");	
+		String idNo = request.getParameter("idNo");	
+		String interest = request.getParameter("interest");	
+		String profile = request.getParameter("profile");	
 		
-		TeamInfo team = teamService.getTeamById(idLong);		
-		if(team != null && team.getId() > 0){
-			team.setName(name);
-			team.setPeopleCount(Integer.valueOf(peopleCount));
-			team.setBeginDate(DateUtils.toDate(startDate));
-			team.setEndDate(DateUtils.toDate(endDate));
-			team.setDescription(description);			
-			if(teamService.updateTeam(team) == 0){
-				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
-			} else {
-				JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-			}
+		MemberInf memberInf = memberService.getMemberById(Long.valueOf(id));
+		memberInf.setMemberName(name);
+		memberInf.setMemberType(Integer.valueOf(memberType));
+		memberInf.setNickname(nickname);
+		memberInf.setTravelerMobile(phoneNumber);
+		memberInf.setPassword(password);
+		memberInf.setSex(Integer.valueOf(sex));
+		memberInf.setAge(Integer.valueOf(age));
+		memberInf.setIdType(Integer.valueOf(idType));
+		memberInf.setIdNo(idNo);
+		memberInf.setInterest(interest);
+		memberInf.setProfile(profile);
+		if(StringUtils.isNotBlank(teamId)){
+			TeamInfo team = new TeamInfo();
+			team.setId(Long.valueOf(teamId));			
+			memberInf.setTeamInfo(team);
+		}
+		if(memberService.updateMember(memberInf) == 0){
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
 		}
+		
 	}
 //	
 //	public String profile(){

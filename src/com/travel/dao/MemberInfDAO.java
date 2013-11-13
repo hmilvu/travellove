@@ -183,4 +183,19 @@ public class MemberInfDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @param ids
+	 */
+	public void deleteByIds(String ids) {
+		try {
+			String sql = "update member_inf set status = " + MEMBER_STATUS.INACTIVE.getValue() + " where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+		
+	}
 }

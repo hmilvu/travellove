@@ -51,7 +51,7 @@
 	<div class="panelBar">
 		<ul class="toolBar">
 			<li><a class="add" href="admin/member-inf!add.action" target="navTab" title="添加团员"><span>添加团员</span></a></li>
-			<li><a title="确实要删除这些会员吗?" target="selectedTodo" rel="ids" postType="string" href="admin/member-inf!delete.action" class="delete"><span>批量删除逗号分隔</span></a></li>
+			<li><a title="确实要删除这些会员吗?" target="selectedTodo" rel="ids" postType="string" href="admin/member-inf!delete.action" class="delete"><span>批量删除</span></a></li>
 			<li><a class="edit" href="admin/member-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一个团员"><span>修改</span></a></li>
 			<li class="line">line</li>
 			<li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些团员吗?"><span>导出EXCEL</span></a></li>
@@ -67,7 +67,7 @@
 				<th width="40">类型</th>
 				<th width="80">证件号码</th>
 				<th width="40">创建人</th>
-				<th width="70">建档日期</th>
+				<th width="70">创建日期</th>
 				<!-- th width="70">操作</th> -->
 			</tr>
 		</thead>
