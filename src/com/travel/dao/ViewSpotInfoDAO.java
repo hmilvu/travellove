@@ -1,15 +1,21 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
 import java.util.List;
 
-import org.hibernate.LockMode;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.admin.dto.SearchViewSpotDTO;
+import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.ViewSpotInfo;
 
 /**
@@ -33,26 +39,19 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	public static final String LATITUDE = "latitude";
 	public static final String DESCRIPTION = "description";
 
-	public void save(ViewSpotInfo transientInstance) {
+	public int save(ViewSpotInfo transientInstance) {
 		log.debug("saving ViewSpotInfo instance");
+		int result = 0;
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
+			result = -1;
 			throw re;
 		}
-	}
-
-	public void delete(ViewSpotInfo persistentInstance) {
-		log.debug("deleting ViewSpotInfo instance");
-		try {
-			getSession().delete(persistentInstance);
-			log.debug("delete successful");
-		} catch (RuntimeException re) {
-			log.error("delete failed", re);
-			throw re;
-		}
+		return result;
 	}
 
 	public ViewSpotInfo findById(java.lang.Long id) {
@@ -67,96 +66,107 @@ public class ViewSpotInfoDAO extends BaseDAO {
 		}
 	}
 
-	public List<ViewSpotInfo> findByExample(ViewSpotInfo instance) {
-		log.debug("finding ViewSpotInfo instance by example");
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(SearchViewSpotDTO dto) {
 		try {
-			List<ViewSpotInfo> results = (List<ViewSpotInfo>) getSession()
-					.createCriteria("com.travel.entity.ViewSpotInfo").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
+			Criteria cr = buildSearchCriteria(dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
 		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
 			throw re;
 		}
 	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding ViewSpotInfo instance with property: "
-				+ propertyName + ", value: " + value);
+	
+	/**
+	 * @param username
+	 * @param password2
+	 * @return
+	 */
+	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
-			String queryString = "from ViewSpotInfo as model where model."
-					+ propertyName + "= ?";
+			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
 			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			queryObject.setParameter(0, teamId);
+			queryObject.setParameter(1, mobile);
+			queryObject.setParameter(2, password);
+			return (MemberInf)queryObject.uniqueResult();
 		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
 	}
 
-	public List<ViewSpotInfo> findByName(Object name) {
-		return findByProperty(NAME, name);
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(SearchViewSpotDTO dto) {
+		Criteria cr = getSession().createCriteria(ViewSpotInfo.class);
+//		cr.createAlias("travelInf", "t");
+//		if (StringUtils.isNotBlank(dto.getTeamName())) {
+//			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
+//		}
+		if (StringUtils.isNotBlank(dto.getName())) {
+			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+		}
+		return cr;
 	}
 
-	public List<ViewSpotInfo> findByLongitude(Object longitude) {
-		return findByProperty(LONGITUDE, longitude);
-	}
-
-	public List<ViewSpotInfo> findByLatitude(Object latitude) {
-		return findByProperty(LATITUDE, latitude);
-	}
-
-	public List<ViewSpotInfo> findByDescription(Object description) {
-		return findByProperty(DESCRIPTION, description);
-	}
-
-	public List findAll() {
-		log.debug("finding all ViewSpotInfo instances");
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<ViewSpotInfo> findViewSpots(SearchViewSpotDTO dto, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from ViewSpotInfo";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			Criteria cr = buildSearchCriteria(dto);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+//			cr.addOrder(Order.asc("t.name"));
+			cr.addOrder(Order.asc("name"));
+			return cr.list();
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
+			log.error("find view spots failed", re);
 			throw re;
 		}
 	}
 
-	public ViewSpotInfo merge(ViewSpotInfo detachedInstance) {
-		log.debug("merging ViewSpotInfo instance");
+	/**
+	 * @param ids
+	 */
+	public void deleteByIds(String ids) {
 		try {
-			ViewSpotInfo result = (ViewSpotInfo) getSession().merge(
-					detachedInstance);
-			log.debug("merge successful");
-			return result;
+			String sql = "delete from view_spot_info where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
-			log.error("merge failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
+		
 	}
 
-	public void attachDirty(ViewSpotInfo instance) {
-		log.debug("attaching dirty ViewSpotInfo instance");
+	/**
+	 * @param view
+	 * @return
+	 */
+	public int update(ViewSpotInfo view) {
+		log.debug("updating ViewSpotInfo instance");
+		int result = 0;
 		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
+			getSession().save(view);
+			getSession().flush();
+			log.debug("updating successful");
 		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("updating failed", re);
+			result = -1;
 			throw re;
 		}
-	}
-
-	public void attachClean(ViewSpotInfo instance) {
-		log.debug("attaching clean ViewSpotInfo instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
+		return result;
 	}
 }

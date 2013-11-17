@@ -65,7 +65,9 @@
 <script src="bin/dwz.min.js" type="text/javascript"></script>
 -->
 <script src="js/dwz.regional.zh.js" type="text/javascript"></script>
-
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.3"></script>
+<!--<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=${sessionScope.BAIDU_MAP_AK}"></script>
+-->
 <script type="text/javascript">
 $(function(){
 	DWZ.init("js/dwz.frag.xml", {
@@ -88,7 +90,7 @@ $(function(){
 	<div id="layout">
 		<div id="header">
 			<div class="headerNav">
-				<a class="logo" href="http://j-ui.com">标志</a>
+				<a class="logo" href="#">标志</a>
 				<ul class="nav">	
 					<li><a href="admin/sys-user!editSessionUser.action" target="navTab" title="修改用户">欢迎您：${sessionScope.SYS_USER_INF_IN_SESSION.name}</a></li>
 					<li><a href="admin/sys-user!changePassword.action" target="dialog" width="600" mask="true" rel="dlg_page10" title="修改密码">修改密码</a></li>

@@ -1,6 +1,7 @@
 package com.travel.common;
 
 public class Constants {
+	public static final String BADU_MAP_AK_KEY = "BAIDU_MAP_AK";
 	public static final String BAIDU_MAP_AK = "C1fb0a7eb5bbb52a841675e1bbc5f69d";
 	public static final String SYS_USER_INF_IN_SESSION = "SYS_USER_INF_IN_SESSION";
 	public static final String MENU_INF_IN_SESSION = "menuInforInSession";

@@ -1,13 +1,11 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
 import java.util.List;
 
-import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RouteViewSpot;
 
@@ -22,7 +20,7 @@ import com.travel.entity.RouteViewSpot;
  * @see com.travel.entity.RouteViewSpot
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class RouteViewSpotDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory
 			.getLogger(RouteViewSpotDAO.class);
@@ -63,79 +61,20 @@ public class RouteViewSpotDAO extends BaseDAO {
 		}
 	}
 
-	public List<RouteViewSpot> findByExample(RouteViewSpot instance) {
-		log.debug("finding RouteViewSpot instance by example");
+	/**
+	 * @param idList
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RouteViewSpot> findByViewSpotIds(List<Long> idList) {
+		log.debug("findByViewSpotIds");
 		try {
-			List<RouteViewSpot> results = (List<RouteViewSpot>) getSession()
-					.createCriteria("com.travel.entity.RouteViewSpot").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding RouteViewSpot instance with property: "
-				+ propertyName + ", value: " + value);
-		try {
-			String queryString = "from RouteViewSpot as model where model."
-					+ propertyName + "= ?";
+			String queryString = "from RouteViewSpot as r where r.viewSpotInfo.id in (:ids)";
 			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
+			queryObject.setParameterList("ids", idList);
 			return queryObject.list();
 		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
-			throw re;
-		}
-	}
-
-	public List findAll() {
-		log.debug("finding all RouteViewSpot instances");
-		try {
-			String queryString = "from RouteViewSpot";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public RouteViewSpot merge(RouteViewSpot detachedInstance) {
-		log.debug("merging RouteViewSpot instance");
-		try {
-			RouteViewSpot result = (RouteViewSpot) getSession().merge(
-					detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(RouteViewSpot instance) {
-		log.debug("attaching dirty RouteViewSpot instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(RouteViewSpot instance) {
-		log.debug("attaching clean RouteViewSpot instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("findByViewSpotIds failed", re);
 			throw re;
 		}
 	}

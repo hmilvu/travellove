@@ -50,6 +50,7 @@ public class LoginAction extends BaseAction {
 	
 				String menuInfor = sysUserService.generateMenuBySysUser(user);
 				session.put(Constants.MENU_INF_IN_SESSION, menuInfor);
+				session.put(Constants.BADU_MAP_AK_KEY, Constants.BAIDU_MAP_AK);
 			} else if(user.getStatus() == SYS_USER_STATUS.IN_ACTIVE.getValue()){
 				JsonUtils.write(response, binder.toJson("result", "INACTIVE"));			
 			} else if(user.getStatus() == SYS_USER_STATUS.INVALID.getValue()){
