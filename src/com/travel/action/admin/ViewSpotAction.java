@@ -151,7 +151,11 @@ public class ViewSpotAction extends AuthorityAction{
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-		}
-		
+		}		
 	}	
+	
+	public String selectView(){
+		list();
+		return "select";
+	}
 }

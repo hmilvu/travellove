@@ -1,9 +1,11 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -111,6 +113,21 @@ public class TeamInfoService
 	 */
 	public List<TeamInfo> findAllTeams(Long travelid) {
 		return teamDao.findAll(travelid);
+	}
+
+
+	/**
+	 * @param ids
+	 * @return
+	 */
+	public List<TeamRoute> findRouteByIds(String routeIds) {
+		String []ids = StringUtils.split(routeIds, ",");
+		List<Long> idList = new ArrayList<Long>();
+		for(String id : ids){
+			idList.add(Long.valueOf(id));
+		}
+		List <TeamRoute> list = teamRouteDao.findByRouteIds(idList);
+		return list;
 	}
 	
 }

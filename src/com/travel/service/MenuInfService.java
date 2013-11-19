@@ -78,10 +78,10 @@ public class MenuInfService
 		StringBuilder menuInfStr = new StringBuilder();
 		for(int i = 0; i < menuList.size(); i++){
 			MenuInf menu = menuList.get(i);
-			String checkStr = "";
+			String checkStr = "checked=\"unchecked\"";
 			for(MenuInf selectedMenu : selectedMenuList){
 				if(selectedMenu.getId().longValue() == menu.getId().longValue()){
-					checkStr = "checked=\"true\"";
+					checkStr = "checked=\"checked\"";
 					break;
 				}
 			}

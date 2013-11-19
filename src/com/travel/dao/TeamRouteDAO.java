@@ -85,4 +85,21 @@ public class TeamRouteDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @param idList
+	 * @return
+	 */
+	public List<TeamRoute> findByRouteIds(List<Long> idList) {
+		log.debug("findByRouteIds");
+		try {
+			String queryString = "from TeamRoute as r where r.routeInf.id in (:ids)";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameterList("ids", idList);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("findByRouteIds failed", re);
+			throw re;
+		}
+	}
 }

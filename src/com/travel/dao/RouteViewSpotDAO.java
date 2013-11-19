@@ -78,4 +78,19 @@ public class RouteViewSpotDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @param ids
+	 */
+	public void deleteByRouteIds(String ids) {
+		try {
+			String sql = "delete from route_view_spot where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+		
+	}
 }

@@ -20,8 +20,8 @@ public class RouteViewSpot extends AbstractRouteViewSpot implements
 
 	/** full constructor */
 	public RouteViewSpot(ViewSpotInfo viewSpotInfo, RouteInf routeInf,
-			SysUser sysUser, Timestamp createDate, Timestamp updateDate) {
-		super(viewSpotInfo, routeInf, sysUser, createDate, updateDate);
+			SysUser sysUser, Timestamp createDate, Timestamp updateDate, Integer order) {
+		super(viewSpotInfo, routeInf, sysUser, createDate, updateDate, order);
 	}
 
 }

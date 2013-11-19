@@ -39,7 +39,7 @@ function save(){
 		<div class="pageFormContent">
 			<p>
 				<label>角色名称：</label>
-				<input name="name" id="name" class="required" type="text" size="30" value="" alt="请输入角色名称" maxlength="64"/>
+				<input name="name" class="required" type="text" size="30" value="" alt="请输入角色名称" maxlength="64"/>
 			</p>
 		</div>
 		<div class="pageFormContent">	
@@ -50,7 +50,7 @@ function save(){
 		
 		<div class="pageFormContent">	
 			<label>可访问页面：</label>				
-			<div style="float:left; display:block; margin:0px; overflow:auto; width:200px; height:264px; overflow:auto; border:solid 1px #CCC; line-height:21px; background:#FFF;">
+			<div style="float:left; display:block; margin:0px; overflow:auto; width:200px; height:244px; overflow:auto; border:solid 1px #CCC; line-height:21px; background:#FFF;">
 				<ul id="allMenuItem" name="allMenuItem" class="tree treeFolder treeCheck expand" oncheck="kkk">
 							
 				</ul>		

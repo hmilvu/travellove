@@ -4,13 +4,24 @@ import static org.hibernate.criterion.Example.create;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.admin.dto.SearchRouteDTO;
+import com.travel.common.admin.dto.SearchViewSpotDTO;
+import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.RouteInf;
+import com.travel.entity.ViewSpotInfo;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -37,15 +48,19 @@ public class RouteInfDAO extends BaseDAO {
 	public static final String END_LATITUDE = "endLatitude";
 	public static final String DESCRIPTION = "description";
 
-	public void save(RouteInf transientInstance) {
+	public int save(RouteInf transientInstance) {
 		log.debug("saving RouteInf instance");
+		int result = 0;
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
+			result = -1;
 			throw re;
 		}
+		return result;
 	}
 
 	public void delete(RouteInf persistentInstance) {
@@ -71,111 +86,90 @@ public class RouteInfDAO extends BaseDAO {
 		}
 	}
 
-	public List<RouteInf> findByExample(RouteInf instance) {
-		log.debug("finding RouteInf instance by example");
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(SearchRouteDTO dto) {
 		try {
-			List<RouteInf> results = (List<RouteInf>) getSession()
-					.createCriteria("com.travel.entity.RouteInf").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
+			Criteria cr = buildSearchCriteria(dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
 		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
 			throw re;
 		}
 	}
 
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding RouteInf instance with property: " + propertyName
-				+ ", value: " + value);
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(SearchRouteDTO dto) {
+		Criteria cr = getSession().createCriteria(RouteInf.class);
+//		cr.createAlias("travelInf", "t");
+//		if (StringUtils.isNotBlank(dto.getTeamName())) {
+//			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
+//		}
+		if (StringUtils.isNotBlank(dto.getName())) {
+			cr.add(Restrictions.like("routeName", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+		}
+		return cr;
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RouteInf> findRoutes(SearchRouteDTO dto, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from RouteInf as model where model."
-					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			Criteria cr = buildSearchCriteria(dto);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+//			cr.addOrder(Order.asc("t.name"));
+			cr.addOrder(Order.asc("routeName"));
+			return cr.list();
 		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
+			log.error("find view spots failed", re);
 			throw re;
 		}
 	}
 
-	public List<RouteInf> findByRouteName(Object routeName) {
-		return findByProperty(ROUTE_NAME, routeName);
-	}
-
-	public List<RouteInf> findByStartAddress(Object startAddress) {
-		return findByProperty(START_ADDRESS, startAddress);
-	}
-
-	public List<RouteInf> findByStartLongtitude(Object startLongtitude) {
-		return findByProperty(START_LONGTITUDE, startLongtitude);
-	}
-
-	public List<RouteInf> findByStartLatitude(Object startLatitude) {
-		return findByProperty(START_LATITUDE, startLatitude);
-	}
-
-	public List<RouteInf> findByEndAddress(Object endAddress) {
-		return findByProperty(END_ADDRESS, endAddress);
-	}
-
-	public List<RouteInf> findByEndLongitude(Object endLongitude) {
-		return findByProperty(END_LONGITUDE, endLongitude);
-	}
-
-	public List<RouteInf> findByEndLatitude(Object endLatitude) {
-		return findByProperty(END_LATITUDE, endLatitude);
-	}
-
-	public List<RouteInf> findByDescription(Object description) {
-		return findByProperty(DESCRIPTION, description);
-	}
-
-	public List findAll() {
-		log.debug("finding all RouteInf instances");
+	/**
+	 * @param ids
+	 */
+	public void deleteByRouteIds(String ids) {
 		try {
-			String queryString = "from RouteInf";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			String sql = "delete from route_inf where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
+			log.error("find by credentials failed", re);
+			throw re;
+		}		
+	}
+	
+
+	/**
+	 * @param view
+	 * @return
+	 */
+	public int update(RouteInf view) {
+		log.debug("updating RouteInf instance");
+		int result = 0;
+		try {
+			getSession().save(view);
+			getSession().flush();
+			log.debug("updating successful");
+		} catch (RuntimeException re) {
+			log.error("updating failed", re);
+			result = -1;
 			throw re;
 		}
+		return result;
 	}
 
-	public RouteInf merge(RouteInf detachedInstance) {
-		log.debug("merging RouteInf instance");
-		try {
-			RouteInf result = (RouteInf) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(RouteInf instance) {
-		log.debug("attaching dirty RouteInf instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(RouteInf instance) {
-		log.debug("attaching clean RouteInf instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
 }

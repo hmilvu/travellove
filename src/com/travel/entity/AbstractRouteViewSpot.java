@@ -26,7 +26,7 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 	private SysUser sysUser;
 	private Timestamp createDate;
 	private Timestamp updateDate;
-
+	private Integer order;
 	// Constructors
 
 	/** default constructor */
@@ -35,12 +35,13 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 
 	/** full constructor */
 	public AbstractRouteViewSpot(ViewSpotInfo viewSpotInfo, RouteInf routeInf,
-			SysUser sysUser, Timestamp createDate, Timestamp updateDate) {
+			SysUser sysUser, Timestamp createDate, Timestamp updateDate, Integer order) {
 		this.viewSpotInfo = viewSpotInfo;
 		this.routeInf = routeInf;
 		this.sysUser = sysUser;
 		this.createDate = createDate;
 		this.updateDate = updateDate;
+		this.order = order;
 	}
 
 	// Property accessors
@@ -103,5 +104,16 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
 	}
+	
+	@Column(name = "view_spot_order", nullable = false)
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
+	}
+	
+	
 
 }
