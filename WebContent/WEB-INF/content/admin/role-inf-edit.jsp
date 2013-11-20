@@ -39,7 +39,7 @@ function save(){
 		<div class="pageFormContent">
 			<p>
 				<label>角色名称：</label>
-				<input name="name" id="name" class="required" type="text" size="30" value="<s:property value='%{#request.editRole.name}'/>" alt="请输入角色名称"/>
+				<input name="name" class="required" type="text" size="30" value="<s:property value='%{#request.editRole.name}'/>" alt="请输入角色名称"/>
 			</p>
 		</div>
 		<div class="pageFormContent">	
