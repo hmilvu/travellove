@@ -47,10 +47,12 @@
 	<div class="panelBar">
 		<ul class="toolBar">
 			<li><a class="add" href="admin/team-inf!add.action" target="navTab" title="添加旅行团"><span>添加旅行团</span></a></li>
-			<li><a class="delete" href="admin/team-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除旅行团</span></a></li>
-			<li><a class="edit" href="admin/team-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行团"><span>修改旅行团</span></a></li>
+			<li><a class="delete" href="admin/team-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
+			<li><a class="edit" href="admin/team-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行团" warn="请选择一个旅行团"><span>修改旅行团</span></a></li>
 			<li class="line">line</li>
-			<li><a class="edit" href="admin/member-inf!upload.action" target="navTab" title="导入团员"><span>导入团员</span></a></li>
+			<!-- li><a class="add" href="admin/member-inf!assign.action?teamId={sid_user}" target="navTab" title="分配团员"><span>分配团员</span></a></li> -->
+			<li><a class="icon" href="downloadMemberTemplate.action" target="dwzExport" targetType="navTab"><span>下载会员模板</span></a></li>
+			<li><a class="edit" href="admin/team-inf!upload.action?uid={sid_user}" target="dialog" mask="true"  title="导入团员" warn="请选择一个旅行团"><span>导入团员</span></a></li>
 		</ul>
 	</div>
 	<table class="table" width="100%" layoutH="138">

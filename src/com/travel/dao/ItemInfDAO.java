@@ -1,15 +1,24 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
 import java.util.List;
 
-import org.hibernate.LockMode;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.admin.dto.SearchItemDTO;
+import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ItemInf;
+import com.travel.entity.MemberInf;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -22,7 +31,7 @@ import com.travel.entity.ItemInf;
  * @see com.travel.entity.ItemInf
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class ItemInfDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory.getLogger(ItemInfDAO.class);
 	// property constants
@@ -34,15 +43,19 @@ public class ItemInfDAO extends BaseDAO {
 	public static final String CONTACT_PHONE = "contactPhone";
 	public static final String CONTACT_NAME = "contactName";
 
-	public void save(ItemInf transientInstance) {
+	public int save(ItemInf transientInstance) {
 		log.debug("saving ItemInf instance");
+		int result = 0;
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
+			result = -1;
 			throw re;
 		}
+		return result;
 	}
 
 	public void delete(ItemInf persistentInstance) {
@@ -55,7 +68,7 @@ public class ItemInfDAO extends BaseDAO {
 			throw re;
 		}
 	}
-
+	
 	public ItemInf findById(java.lang.Long id) {
 		log.debug("getting ItemInf instance with id: " + id);
 		try {
@@ -68,107 +81,87 @@ public class ItemInfDAO extends BaseDAO {
 		}
 	}
 
-	public List<ItemInf> findByExample(ItemInf instance) {
-		log.debug("finding ItemInf instance by example");
+	/**
+	 * @param member
+	 * @return
+	 */
+	public int update(ItemInf item) {
+		int result = 0;
+		log.debug("update ItemInf instance");
 		try {
-			List<ItemInf> results = (List<ItemInf>) getSession()
-					.createCriteria("com.travel.entity.ItemInf").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
+			getSession().update(item);
+			getSession().flush();
+			log.debug("save successful");
 		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
+			log.error("save failed", re);
+			result = -1;
+		}
+		return result;
+	}
+	
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(SearchItemDTO dto) {
+		try {
+			Criteria cr = buildSearchCriteria(dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
+		} catch (RuntimeException re) {
 			throw re;
 		}
 	}
 
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding ItemInf instance with property: " + propertyName
-				+ ", value: " + value);
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(SearchItemDTO dto) {
+		Criteria cr = getSession().createCriteria(ItemInf.class);
+		cr.createAlias("sysUser", "s");
+		if (StringUtils.isNotBlank(dto.getName())) {
+			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+		}
+		if (StringUtils.isNotBlank(dto.getBrands())){
+			cr.add(Restrictions.like("brands", StringUtils.trim(dto.getBrands()) + "%").ignoreCase());
+		}
+		return cr;
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<ItemInf> findItems(SearchItemDTO dto, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from ItemInf as model where model."
-					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			Criteria cr = buildSearchCriteria(dto);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.addOrder(Order.asc("brands"));
+			cr.addOrder(Order.asc("name"));
+			return cr.list();
 		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
+			log.error("find teams failed", re);
 			throw re;
 		}
 	}
 
-	public List<ItemInf> findByName(Object name) {
-		return findByProperty(NAME, name);
-	}
-
-	public List<ItemInf> findByBrands(Object brands) {
-		return findByProperty(BRANDS, brands);
-	}
-
-	public List<ItemInf> findBySpecification(Object specification) {
-		return findByProperty(SPECIFICATION, specification);
-	}
-
-	public List<ItemInf> findByPrice(Object price) {
-		return findByProperty(PRICE, price);
-	}
-
-	public List<ItemInf> findByDescription(Object description) {
-		return findByProperty(DESCRIPTION, description);
-	}
-
-	public List<ItemInf> findByContactPhone(Object contactPhone) {
-		return findByProperty(CONTACT_PHONE, contactPhone);
-	}
-
-	public List<ItemInf> findByContactName(Object contactName) {
-		return findByProperty(CONTACT_NAME, contactName);
-	}
-
-	public List findAll() {
-		log.debug("finding all ItemInf instances");
+	/**
+	 * @param ids
+	 */
+	public void deleteByIds(String ids) {
 		try {
-			String queryString = "from ItemInf";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			String sql = "delete from item_inf where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
-			log.error("find all failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
+		
 	}
 
-	public ItemInf merge(ItemInf detachedInstance) {
-		log.debug("merging ItemInf instance");
-		try {
-			ItemInf result = (ItemInf) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(ItemInf instance) {
-		log.debug("attaching dirty ItemInf instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(ItemInf instance) {
-		log.debug("attaching clean ItemInf instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
 }

@@ -29,9 +29,9 @@
 <div class="pageContent">
 	<div class="panelBar">
 		<ul class="toolBar">
-			<li><a class="add" href="admin/role-inf!add.action" title="添加角色" target="navTab"><span>添加</span></a></li>
+			<li><a class="add" href="admin/role-inf!add.action" title="添加角色" target="navTab"><span>添加角色</span></a></li>
 			<li><a class="delete" href="admin/role-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="admin/role-inf!edit.action?uid={sid_user}" target="navTab" title="修改角色"><span>修改</span></a></li>
+			<li><a class="edit" href="admin/role-inf!edit.action?uid={sid_user}" target="navTab" title="修改角色"><span>修改角色</span></a></li>
 			<li class="line">line</li>
 		</ul>
 	</div>

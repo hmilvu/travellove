@@ -29,7 +29,7 @@ public abstract class AbstractReply extends BaseEntity implements
 	private String content;
 	private Timestamp createDate;
 	private Timestamp updateDate;
-
+	private SysUser sysUser;
 	// Constructors
 
 	/** default constructor */
@@ -69,7 +69,7 @@ public abstract class AbstractReply extends BaseEntity implements
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id", nullable = false)
+	@JoinColumn(name = "member_id", nullable = true)
 	public MemberInf getMemberInf() {
 		return this.memberInf;
 	}
@@ -114,5 +114,13 @@ public abstract class AbstractReply extends BaseEntity implements
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
 	}
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sys_user_id", nullable = true)
+	public SysUser getSysUser() {
+		return this.sysUser;
+	}
 
+	public void setSysUser(SysUser sysUser) {
+		this.sysUser = sysUser;
+	}
 }

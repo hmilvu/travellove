@@ -8,7 +8,9 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.entity.Reply;
 
 /**
@@ -22,21 +24,25 @@ import com.travel.entity.Reply;
  * @see com.travel.entity.Reply
  * @author MyEclipse Persistence Tools
  */
-
+@Repository
 public class ReplyDAO extends BaseDAO {
 	private static final Logger log = LoggerFactory.getLogger(ReplyDAO.class);
 	// property constants
 	public static final String CONTENT = "content";
 
-	public void save(Reply transientInstance) {
+	public int save(Reply transientInstance) {
 		log.debug("saving Reply instance");
+		int result = 0;
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
+			result = -1;
 			throw re;
 		}
+		return result;
 	}
 
 	public void delete(Reply persistentInstance) {
@@ -62,82 +68,18 @@ public class ReplyDAO extends BaseDAO {
 		}
 	}
 
-	public List<Reply> findByExample(Reply instance) {
-		log.debug("finding Reply instance by example");
+	/**
+	 * @param idList
+	 */
+	public void deleteByIds(String ids) {
 		try {
-			List<Reply> results = (List<Reply>) getSession().createCriteria(
-					"com.travel.entity.Reply").add(create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
+			String sql = "delete from reply where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
+			log.error("find by credentials failed", re);
 			throw re;
 		}
-	}
-
-	public List findByProperty(String propertyName, Object value) {
-		log.debug("finding Reply instance with property: " + propertyName
-				+ ", value: " + value);
-		try {
-			String queryString = "from Reply as model where model."
-					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
-			throw re;
-		}
-	}
-
-	public List<Reply> findByContent(Object content) {
-		return findByProperty(CONTENT, content);
-	}
-
-	public List findAll() {
-		log.debug("finding all Reply instances");
-		try {
-			String queryString = "from Reply";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public Reply merge(Reply detachedInstance) {
-		log.debug("merging Reply instance");
-		try {
-			Reply result = (Reply) getSession().merge(detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(Reply instance) {
-		log.debug("attaching dirty Reply instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(Reply instance) {
-		log.debug("attaching clean Reply instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
+		
 	}
 }

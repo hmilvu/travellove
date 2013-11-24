@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.travel.common.dto.RouteInfDTO;
 
@@ -57,5 +58,28 @@ public class RouteInf extends AbstractRouteInf implements java.io.Serializable {
 		dto.setEndLatitude(getEndLatitude());
 		return dto;
 	}
+	
+	@Transient
+	private String startLongandlati;
+	@Transient
+	private String endLongandlati;
+	@Transient
+	public String getStartLongandlati() {	
+		startLongandlati = getStartLongtitude() + ", " + getStartLatitude();
+		return startLongandlati;
+	}
+	@Transient
+	public void setStartLongandlati(String startLongandlati) {
+		this.startLongandlati = startLongandlati;
+	}
+	@Transient
+	public String getEndLongandlati() {
+		endLongandlati = getEndLongitude() + ", " + getEndLatitude();
+		return endLongandlati;
+	}
+	@Transient
+	public void setEndLongandlati(String endLongandlati) {
+		this.endLongandlati = endLongandlati;
+	}	
 
 }

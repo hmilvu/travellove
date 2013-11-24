@@ -34,9 +34,9 @@
 <div class="pageContent">
 	<div class="panelBar">
 		<ul class="toolBar">
-			<li><a class="add" href="admin/travel-inf!add.action" target="navTab" title="添加旅行社"><span>添加</span></a></li>
+			<li><a class="add" href="admin/travel-inf!add.action" target="navTab" title="添加旅行社"><span>添加旅行社</span></a></li>
 			<li><a class="delete" href="admin/travel-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="admin/travel-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行社"><span>修改</span></a></li>
+			<li><a class="edit" href="admin/travel-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行社"><span>修改旅行社</span></a></li>
 			<li class="line">line</li>
 		</ul>
 	</div>

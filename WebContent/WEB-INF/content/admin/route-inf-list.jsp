@@ -31,7 +31,7 @@
 		<ul class="toolBar">
 			<li><a class="add" href="admin/route-inf!add.action" target="navTab" title="创建线路"><span>创建线路</span></a></li>
 			<li><a title="确实要删除这些景点吗?" target="selectedTodo" rel="ids" postType="string" href="admin/route-inf!delete.action" class="delete"><span>批量删除</span></a></li>
-			<li><a class="edit" href="admin/route-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一条线路"><span>修改</span></a></li>
+			<li><a class="edit" href="admin/route-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一条线路"><span>修改线路</span></a></li>
 			<li class="line">line</li>			
 		</ul>
 	</div>

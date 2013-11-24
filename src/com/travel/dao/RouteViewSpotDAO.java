@@ -1,6 +1,7 @@
 package com.travel.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class RouteViewSpotDAO extends BaseDAO {
 		log.debug("saving RouteViewSpot instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -84,7 +86,7 @@ public class RouteViewSpotDAO extends BaseDAO {
 	 */
 	public void deleteByRouteIds(String ids) {
 		try {
-			String sql = "delete from route_view_spot where id in ("+ids+")";
+			String sql = "delete from route_view_spot where route_id in ("+ids+")";
 			Query queryObject = getSession().createSQLQuery(sql);
 			queryObject.executeUpdate();
 		} catch (RuntimeException re) {
@@ -92,5 +94,22 @@ public class RouteViewSpotDAO extends BaseDAO {
 			throw re;
 		}
 		
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<Object[]> findByRouteId(Long id) {
+		log.debug("findByViewSpotIds");
+		try {
+			String queryString = "select r, r.viewSpotInfo from RouteViewSpot r inner join r.viewSpotInfo where r.routeInf.id = ? order by r.order";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, id);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("findByViewSpotIds failed", re);
+			throw re;
+		}
 	}
 }

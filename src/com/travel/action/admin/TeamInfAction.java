@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
+import com.travel.action.admin.form.RouteItemForm;
 import com.travel.common.Constants;
 import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.admin.dto.SelectListTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TeamInfo;
+import com.travel.entity.TeamRoute;
 import com.travel.entity.TravelInf;
 import com.travel.service.TeamInfoService;
 import com.travel.utils.DateUtils;
@@ -35,6 +37,16 @@ public class TeamInfAction extends AuthorityAction{
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private TeamInfoService teamService;
+
+	private List<RouteItemForm>items;
+	
+	public List<RouteItemForm> getItems() {
+		return items;
+	}
+
+	public void setItems(List<RouteItemForm> items) {
+		this.items = items;
+	}
 
 	public String list(){
 		String travelName = request.getParameter("travelName");
@@ -114,7 +126,7 @@ public class TeamInfAction extends AuthorityAction{
 			travelInf.setId(Long.valueOf(travelId));
 		}
 		team.setTravelInf(travelInf);
-		if(teamService.addTeamInf(team) == 0){
+		if(teamService.addTeamInf(team, items) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
@@ -145,7 +157,9 @@ public class TeamInfAction extends AuthorityAction{
 			return "edit";
 		}
 		TeamInfo team = teamService.getTeamById(idLong);	
+		List<TeamRoute> list = teamService.getRouteInfByTeamId(team.getId());
 		if(team != null && team.getId() > 0){
+			request.setAttribute("teamRouteList", list);
 			request.setAttribute("editTeam", team);
 		}
 		return "edit";
@@ -174,7 +188,7 @@ public class TeamInfAction extends AuthorityAction{
 			team.setBeginDate(DateUtils.toDate(startDate));
 			team.setEndDate(DateUtils.toDate(endDate));
 			team.setDescription(description);			
-			if(teamService.updateTeam(team) == 0){
+			if(teamService.updateTeam(team, items) == 0){
 				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 			} else {
 				JsonUtils.write(response, binder.toJson("result", Action.ERROR));
@@ -184,4 +198,14 @@ public class TeamInfAction extends AuthorityAction{
 		}
 	}
 	
+	public void status(){
+		String dropDownList= "<select class=\"combox\" name=\"items[#index#].routeForm.status\"><option value=\"0\">未完成</option><option value=\"1\">已完成</option></select>";
+		JsonUtils.write(response, dropDownList);
+	}
+	
+	public String upload(){
+		String teamId = request.getParameter("uid");
+		request.setAttribute("teamId", teamId);
+		return "upload";
+	}
 }

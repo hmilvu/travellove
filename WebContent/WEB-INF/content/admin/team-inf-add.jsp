@@ -59,7 +59,24 @@ function save(){
 			<dl>
 				<dt>备注：</dt>
 				<dd><textarea name="description" id="description" cols="112" rows="4" maxlength="1024"></textarea></dd>
-			</dl>			
+			</dl>	
+			<div class="panel" defH="150">
+				<h1>旅行团线路</h1>
+					<div>
+						<table class="list nowrap itemDetail" addButton="添加线路" width="100%">
+							<thead>
+								<tr>
+									<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
+									<th type="lookup" name="items[#index#].routeForm.routeName" lookupGroup="items[#index#].routeForm" lookupUrl="admin/route-inf!selectView.action" postField="keywords" size="60" fieldClass="required readonly">线路名称</th>
+									<th type="date" name="items[#index#].routeForm.date" size="12" fieldClass="required">开始日期</th>
+									<th type="enum" name="items[#index#].routeForm.status" enumUrl="admin/team-inf!status.action" size="22">状态</th>
+									<th type="del" width="60">操作</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+			</div>		
 		</div>
 		<div class="formBar">
 			<ul>

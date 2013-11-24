@@ -57,5 +57,5 @@
  	</package>  
 	
 	<!-- 导入其他配置文件 -->
-	<!--<include file="resource/struts/download.xml"/>
---></struts>
+	<include file="download.xml"/>
+</struts>

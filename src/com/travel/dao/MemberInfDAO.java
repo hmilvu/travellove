@@ -159,6 +159,9 @@ public class MemberInfDAO extends BaseDAO {
 		if(dto.getMemberType() != null){
 			cr.add(Restrictions.eq("idType", dto.getMemberType()));
 		}
+		if(dto.getTeamId() != null){
+			cr.add(Restrictions.eq("t.id", dto.getTeamId()));
+		}
 		cr.add(Restrictions.eq("status", Integer.valueOf(MEMBER_STATUS.ACTIVE.getValue())));
 		return cr;
 	}

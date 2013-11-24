@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.travel.common.dto.TeamInfoDTO;
 import com.travel.utils.DateUtils;

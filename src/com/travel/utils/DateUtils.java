@@ -226,4 +226,15 @@ public class DateUtils {
 				DayOverflow.LastDay);
 		return time.format(DATE_TIME_FORMAT_DATE4J);
 	}
+
+	/**
+	 * @param date
+	 * @return
+	 */
+	public static String toSimpleStr(Date date) {
+		if (date == null) {
+			return "";
+		}
+		return DATE_FORMAT.format(date);
+	}
 }

@@ -48,19 +48,18 @@ public class RouteInfDAO extends BaseDAO {
 	public static final String END_LATITUDE = "endLatitude";
 	public static final String DESCRIPTION = "description";
 
-	public int save(RouteInf transientInstance) {
+	public Long save(RouteInf transientInstance) {
 		log.debug("saving RouteInf instance");
-		int result = 0;
+		Long id  = null;
 		try {
-			getSession().save(transientInstance);
+			id = (Long)getSession().save(transientInstance);
 			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
-			result = -1;
 			throw re;
 		}
-		return result;
+		return id;
 	}
 
 	public void delete(RouteInf persistentInstance) {

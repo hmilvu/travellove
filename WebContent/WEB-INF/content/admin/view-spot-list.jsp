@@ -31,7 +31,7 @@
 		<ul class="toolBar">
 			<li><a class="add" href="admin/view-spot!add.action" target="navTab" title="添加景点"><span>添加景点</span></a></li>
 			<li><a title="确实要删除这些景点吗?" target="selectedTodo" rel="ids" postType="string" href="admin/view-spot!delete.action" class="delete"><span>批量删除</span></a></li>
-			<li><a class="edit" href="admin/view-spot!edit.action?uid={sid_user}" target="navTab" warn="请选择一个景点"><span>修改</span></a></li>
+			<li><a class="edit" href="admin/view-spot!edit.action?uid={sid_user}" target="navTab" warn="请选择一个景点"><span>修改景点</span></a></li>
 			<li class="line">line</li>			
 		</ul>
 	</div>

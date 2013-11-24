@@ -6,16 +6,21 @@
 package com.travel.action.admin;
 
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
+import com.travel.action.admin.form.LocationForm;
+import com.travel.action.admin.form.ViewSpotItemForm;
 import com.travel.common.Constants;
 import com.travel.common.admin.dto.SearchRouteDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.RouteInf;
+import com.travel.entity.RouteViewSpot;
 import com.travel.entity.TeamRoute;
 import com.travel.service.RouteInfService;
 import com.travel.service.TeamInfoService;
@@ -34,6 +39,34 @@ public class RouteInfAction extends AuthorityAction{
 	private RouteInfService routeService;
 	@Autowired
 	private TeamInfoService teamService;
+	
+	private List<ViewSpotItemForm>items;
+	private LocationForm startLocation;
+	private LocationForm endLocation;
+
+	public List<ViewSpotItemForm> getItems() {
+		return items;
+	}
+
+	public void setItems(List<ViewSpotItemForm> items) {
+		this.items = items;
+	}
+
+	public LocationForm getStartLocation() {
+		return startLocation;
+	}
+
+	public void setStartLocation(LocationForm startLocation) {
+		this.startLocation = startLocation;
+	}
+
+	public LocationForm getEndLocation() {
+		return endLocation;
+	}
+
+	public void setEndLocation(LocationForm endLocation) {
+		this.endLocation = endLocation;
+	}
 
 	public String list(){
 		String name = request.getParameter("name");		
@@ -63,34 +96,35 @@ public class RouteInfAction extends AuthorityAction{
 		return "list";
 	}
 	
+	public String selectView(){
+		list();
+		return "select";
+	}
+	
 	public String add(){
 		return "add";
 	}
 	
 	@SuppressWarnings("static-access")
 	public void create(){
-		Enumeration ee = request.getParameterNames();
+		Enumeration<?>ee = request.getParameterNames();
 		while(ee.hasMoreElements()){
 			String key = ee.nextElement().toString();
 			System.out.println(key + " = " + request.getParameter(key));
 		}
 		String name = request.getParameter("name");
-		String startAddress = request.getParameter("startAddress");
-		String startLngStr = request.getParameter("startLng");
-		String startLatStr = request.getParameter("startLat");
-		String endAddress = request.getParameter("endAddress");
-		String endLngStr = request.getParameter("endLng");
-		String endLatStr = request.getParameter("endLat");
 		String description = request.getParameter("description");
 		Double startLng = null;
 		Double startLat = null;
 		Double endLng = null;
 		Double endLat = null;
 		try{
-			startLng = Double.valueOf(startLngStr);
-			startLat = Double.valueOf(startLatStr);
-			endLng = Double.valueOf(endLngStr);
-			endLat = Double.valueOf(endLatStr);
+			String []startL = StringUtils.split(startLocation.getLongandlati(), ",");
+			String []endL = StringUtils.split(endLocation.getLongandlati(), ",");
+			startLng = Double.valueOf(startL[0]);
+			startLat = Double.valueOf(startL[1]);
+			endLng = Double.valueOf(endL[0]);
+			endLat = Double.valueOf(endL[1]);
 		} catch(Throwable e){
 			log.error("线路经纬度错误 ", e);
 			JsonUtils.write(response, binder.toJson("result", Action.INPUT));
@@ -100,14 +134,14 @@ public class RouteInfAction extends AuthorityAction{
 		RouteInf route = new RouteInf();
 		route.setRouteName(name);
 		route.setDescription(description);
-		route.setStartAddress(startAddress);
-		route.setEndAddress(endAddress);
+		route.setStartAddress(startLocation.getName());
+		route.setEndAddress(endLocation.getName());
 		route.setStartLongtitude(startLng);
 		route.setEndLongitude(endLng);
 		route.setStartLatitude(startLat);
 		route.setEndLatitude(endLat);
 		route.setSysUser(getCurrentUser());
-		if(routeService.addRoute(route) == 0){
+		if(routeService.addRoute(route, items) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
@@ -133,32 +167,30 @@ public class RouteInfAction extends AuthorityAction{
 			return "edit";
 		}
 		RouteInf route = routeService.getRouteInfById(idLong);	
+		List<RouteViewSpot> list = routeService.getRouteViewSpots(route.getId());
 		if(route != null && route.getId() > 0){
 			request.setAttribute("editRoute", route);
+			request.setAttribute("routeViewSpotList", list);
 		}
 		return "edit";
 	}
 	
 	@SuppressWarnings("static-access")
 	public void update(){
-		String id = request.getParameter("viewSpotId");		
-		String name = request.getParameter("name");
-		String startAddress = request.getParameter("startAddress");
-		String startLngStr = request.getParameter("startLng");
-		String startLatStr = request.getParameter("startLat");
-		String endAddress = request.getParameter("endAddress");
-		String endLngStr = request.getParameter("endLng");
-		String endLatStr = request.getParameter("endLat");
+		String id = request.getParameter("routeId");		
+		String name = request.getParameter("name");		
 		String description = request.getParameter("description");
 		Double startLng = null;
 		Double startLat = null;
 		Double endLng = null;
 		Double endLat = null;
 		try{
-			startLng = Double.valueOf(startLngStr);
-			startLat = Double.valueOf(startLatStr);
-			endLng = Double.valueOf(endLngStr);
-			endLat = Double.valueOf(endLatStr);
+			String []startL = StringUtils.split(startLocation.getLongandlati(), ",");
+			String []endL = StringUtils.split(endLocation.getLongandlati(), ",");
+			startLng = Double.valueOf(startL[0]);
+			startLat = Double.valueOf(startL[1]);
+			endLng = Double.valueOf(endL[0]);
+			endLat = Double.valueOf(endL[1]);
 		} catch(Throwable e){
 			log.error("线路经纬度错误 ", e);
 			JsonUtils.write(response, binder.toJson("result", Action.INPUT));
@@ -168,14 +200,14 @@ public class RouteInfAction extends AuthorityAction{
 		RouteInf route = routeService.getRouteInfById(Long.valueOf(id));
 		route.setRouteName(name);
 		route.setDescription(description);
-		route.setStartAddress(startAddress);
-		route.setEndAddress(endAddress);
+		route.setStartAddress(startLocation.getName());
+		route.setEndAddress(endLocation.getName());
 		route.setStartLongtitude(startLng);
 		route.setEndLongitude(endLng);
 		route.setStartLatitude(startLat);
 		route.setEndLatitude(endLat);
 
-		if(routeService.updateRoute(route) == 0){
+		if(routeService.updateRoute(route, items) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));

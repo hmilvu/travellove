@@ -1,16 +1,22 @@
 package com.travel.dao;
 
-import java.sql.Timestamp;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
-import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
 
@@ -92,7 +98,7 @@ public class MessageDAO extends BaseDAO {
 			String queryString = "from Message as model where model.receiverId = ? order by model.remindTime desc";
 			Query queryObject = getSession().createQuery(queryString);
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
 			queryObject.setParameter(0, receiverId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
@@ -112,13 +118,138 @@ public class MessageDAO extends BaseDAO {
 			String queryString = "select r, r.memberInf, r.message from Reply r where r.message.id = ? order by r.createDate desc";
 			Query queryObject = getSession().createQuery(queryString);
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+			queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			queryObject.setMaxResults(maxResults);
 			queryObject.setParameter(0, messageId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(SearchMessageDTO dto) {
+		try {
+			Criteria cr = buildSearchCriteria(dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
+		} catch (RuntimeException re) {
+			throw re;
+		}
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(SearchMessageDTO dto) {
+		Criteria cr = getSession().createCriteria(Message.class);
+		cr.createAlias("teamInfo", "t");
+		if (dto.getTravelId() != null) {
+			cr.add(Restrictions.eq("t.travelInf.id", dto.getTravelId()));
+		}
+		if (!StringUtils.isBlank(dto.getTeamName())) {
+			cr.add(Restrictions.like("name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
+		}
+		if (dto.getTopic() != null){
+			cr.add(Restrictions.like("topic", "%" + StringUtils.trim(dto.getTopic()) + "%").ignoreCase());
+		}
+		if (dto.getPriority() != null){
+			cr.add(Restrictions.eq("priority", dto.getPriority()));
+		}
+		if(dto.getType() != null){
+			cr.add(Restrictions.eq("type", dto.getType()));
+		}
+		if(dto.getStatus() != null){
+			cr.add(Restrictions.eq("status", dto.getStatus()));
+		}
+		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
+		return cr;
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Message> findMessages(SearchMessageDTO dto, PageInfoDTO pageInfo) {
+		try {
+			Criteria cr = buildSearchCriteria(dto);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.addOrder(Order.asc("status"));
+			cr.addOrder(Order.desc("t.id"));
+			cr.addOrder(Order.desc("updateDate"));
+			return cr.list();
+		} catch (RuntimeException re) {
+			log.error("find teams failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param idList
+	 */
+	public void deleteByIds(String ids) {
+		try {
+			String sql = "update message set status = "+MESSAGE_STATUS.DELETED.getValue()+" where id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+		
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public int getTotalReplyNum(Long id) {
+		try {
+			Criteria cr = buildReplyCriteria(id);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
+		} catch (RuntimeException re) {
+			throw re;
+		}
+	}
+	
+	/**
+	 * @param messageId
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Reply> findAdminRepliesByMessageId(Long messageId,
+			PageInfoDTO pageInfo) {
+		try {
+			Criteria cr = buildReplyCriteria(messageId);
+			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+			cr.setMaxResults(maxResults);
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.addOrder(Order.desc("createDate"));
+			return cr.list();
+		} catch (RuntimeException re) {
+			log.error("find by receiverId failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param messageId
+	 * @return
+	 */
+	private Criteria buildReplyCriteria(Long messageId) {
+		Criteria cr = getSession().createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
+		cr.add(Restrictions.eq("message.id", messageId));
+		return cr;
 	}
 
 }

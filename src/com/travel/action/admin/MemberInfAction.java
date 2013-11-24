@@ -34,8 +34,6 @@ public class MemberInfAction extends AuthorityAction{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	private TeamInfoService teamService;
-	@Autowired
 	private MemberService memberService;
 
 	public String list(){
@@ -46,6 +44,7 @@ public class MemberInfAction extends AuthorityAction{
 		String memberType = request.getParameter("memberType");
 		String pageSize = request.getParameter("numPerPage");
 		String pageNumber = request.getParameter("pageNum");
+		String teamId = request.getParameter("teamId");
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		try{
 			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
@@ -60,6 +59,9 @@ public class MemberInfAction extends AuthorityAction{
 		SearchMemberDTO dto = new SearchMemberDTO();		
 		dto.setTeamName(teamName);
 		dto.setName(name);
+		if(StringUtils.isNotBlank(teamId)){
+			dto.setTeamId(Long.valueOf(teamId));
+		}
 		dto.setIdNumber(idNumber);
 		dto.setPhoneNumber(phoneNumber);
 		if(StringUtils.isNotBlank(memberType)){
@@ -77,6 +79,7 @@ public class MemberInfAction extends AuthorityAction{
 		request.setAttribute("teamName", teamName);
 		request.setAttribute("phoneNumber", phoneNumber);
 		request.setAttribute("idNumber", idNumber);
+		request.setAttribute("teamId", teamId);
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
 		return "list";
@@ -185,11 +188,16 @@ public class MemberInfAction extends AuthorityAction{
 		}
 		
 	}
-//	
-//	public String profile(){
-//		String memberId = request.getParameter("memberId");
-//		request.setAttribute("memberId", memberId);
-//		return "profile";
-//	}
 	
+	public String assign(){
+		list();
+		return "teamlist";
+	}
+	
+	public void upload(){
+		String teamId = request.getParameter("teamId");
+		System.out.println("teamId = " + teamId);
+		JsonUtils.write(response, "{\"id\":\"1000\",\"fileName\":\"测试文件.txt\"}");
+		
+	}
 }

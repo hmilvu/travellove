@@ -45,7 +45,7 @@
 				<td><s:property value="%{#viewSpot.name}"/></td>				
 				<td><s:property value="%{#viewSpot.sysUser.name}"/></td>
 				<td><s:date name="#viewSpot.createDate" format="yyyy-MM-dd" /></td>
-				<td><a class="btnSelect" href="javascript:$.bringBack({id:'<s:property value="%{#viewSpot.id}"/>', orgName:'<s:property value="%{#viewSpot.name}"/>', orgNum:'<s:property value="#longandlati"/>'})" title="添加此景点">选择</a></td>
+				<td><a class="btnSelect" href="javascript:$.bringBack({id:'<s:property value="%{#viewSpot.id}"/>', viewName:'<s:property value="%{#viewSpot.name}"/>', viewLocation:'<s:property value="#longandlati"/>'})" title="添加此景点">选择</a></td>
 				<!-- td><a class="btnAttach" href="admin/member-inf!profile.action?memberId=<s:property value='%{#member.id}'/>" lookupGroup="attachment" width="560" height="300" title="上传头像">上传头像</a></td> -->
 			</tr>
 			</s:iterator>

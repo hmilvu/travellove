@@ -39,16 +39,15 @@ public class TeamInfoDAO extends BaseDAO {
 	public static final String PEOPLE_COUNT = "peopleCount";
 	public static final String DESCRIPTION = "description";
 
-	public int save(TeamInfo transientInstance) {
+	public Long save(TeamInfo transientInstance) {
 		log.debug("saving TeamInfo instance");
-		int result = 0;
+		Long result = null;
 		try {
-			getSession().save(transientInstance);
+			result = (Long)getSession().save(transientInstance);
 			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
-			result = -1;
 			throw re;
 		}
 		return result;

@@ -65,4 +65,15 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum MESSAGE_STATUS {
+		IN_ACTIVE(0), ACTIVE(1), DELETED(2);
+		private int value;
+		private MESSAGE_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

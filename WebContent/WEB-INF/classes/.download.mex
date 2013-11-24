@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Struts2Diagram version="2.0">
+  <package name="download" location="10,9" size="180,351">
+    <action name="downloadMemberTemplate" location="0,0" size="0,0">
+      <result name="success" />
+    </action>
+  </package>
+</Struts2Diagram>
+

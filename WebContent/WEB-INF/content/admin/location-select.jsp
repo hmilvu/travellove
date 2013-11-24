@@ -1,17 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
-<script src="js/admin/view-spot-add.js" type="text/javascript"></script>
+<script src="js/admin/location-select.js" type="text/javascript"></script>
 <div class="pageContent">
 	<form name="viewForm" id="viewForm" method="post" action="" class="pageForm required-validate">
-		<div class="pageFormContent" layoutH="56" style="height: 125px; overflow: auto;">			
-			<dl>
-				<dt>景点名称：</dt>
-				<dd>
-					<input type="text" name="name" maxlength="64" class="required" size="35"/>
-				</dd>
-			</dl>
-			<dl></dl>				
+		<div class="pageFormContent" layoutH="56" style="height: 125px; overflow: auto;">						
 			<dl>
 				<dt>位置：</dt>
 				<dd>
@@ -45,7 +38,7 @@
 		<div class="formBar">
 			<ul>
 				<!--<li><a class="buttonActive" href="javascript:;"><span>保存</span></a></li>-->
-				<li><div class="buttonActive"><div class="buttonContent"><button type="button" onclick="save();">保存</button></div></div></li>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="button" onclick="javascript:bringBackLocation();">选择带回</button></div></div></li>
 				<li>
 					<div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div>
 				</li>

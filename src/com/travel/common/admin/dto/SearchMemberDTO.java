@@ -5,7 +5,6 @@
  */
 package com.travel.common.admin.dto;
 
-import java.util.Date;
 
 /**
  * @author Lenovo
@@ -17,6 +16,7 @@ public class SearchMemberDTO extends BaseAdminDTO{
 	private String idNumber;
 	private String phoneNumber;
 	private Integer memberType;
+	private Long teamId;
 	public String getName() {
 		return name;
 	}
@@ -46,6 +46,12 @@ public class SearchMemberDTO extends BaseAdminDTO{
 	}
 	public void setMemberType(Integer memberType) {
 		this.memberType = memberType;
+	}
+	public Long getTeamId() {
+		return teamId;
+	}
+	public void setTeamId(Long teamId) {
+		this.teamId = teamId;
 	}
 	
 	

@@ -34,65 +34,61 @@ function save(){
 		<dl class="nowrap">
 			<dt>线路名称：</dt>
 			<dd>
-				<input type="text" name="name" maxlength="64" class="required"/>
+				<input type="text" name="name" maxlength="64" class="required" size="50"/>
 			</dd>
 		</dl>
 		<dl class="nowrap">
 			<dt>出发地址：</dt>
 			<dd>
-				<input name="org3.id" value="" type="hidden">
-				<input name="org3.orgName" type="text"/>
-				<a class="btnLook" href="location!select.action" lookupGroup="org3">查找带回</a>
-				<span class="info">点击查找获得出发地经纬度</span>
+				<input class="required" name="startLocation.name" type="text" postField="keyword" lookupGroup="startLocation"  size="50"/>
+				<a class="btnLook" href="admin/location!select.action" lookupGroup="startLocation">查找带回</a>	
+				<span class="info">查找获得出发地经纬度</span>
 			</dd>
 		</dl>
 		<dl class="nowrap">
 			<dt>出发地址经纬度：</dt>
 			<dd>
-				<input class="readonly" name="org3.orgNum" readonly="readonly" type="text"/>
+				<input class="readonly required" name="startLocation.longandlati" readonly="readonly" type="text" size="50"/>
 			</dd>
 		</dl>
 
 		<dl class="nowrap">
 			<dt>结束地址：</dt>
 			<dd>
-				<input name="org3.id" value="" type="hidden">
-				<input name="org3.orgName" type="text"/>
-				<a class="btnLook" href="demo/database/dwzOrgLookup2.html" lookupGroup="org3">查找带回</a>
-				<span class="info">点击查找获得结束地经纬度</span>
+				<input class="required" name="endLocation.name" type="text" postField="keyword" lookupGroup="endLocation"  size="50"/>
+				<a class="btnLook" href="admin/location!select.action" lookupGroup="endLocation">查找带回</a>
+				<span class="info">查找获得结束地经纬度</span>
 			</dd>
 		</dl>
 		<dl class="nowrap">
 			<dt>结束地址经纬度：</dt>
 			<dd>
-				<input class="readonly" name="org3.orgNum" readonly="readonly" type="text"/>
+				<input class="readonly required" name="endLocation.longandlati" readonly="readonly" type="text" size="50"/>
 			</dd>
-		</dl>		
-		<h3 class="contentTitle">&nbsp;</h3>
-		<div class="tabs">
-			<div class="tabsHeader">
-				<div class="tabsHeaderContent">
-					<ul>
-						<li class="selected"><a href="javascript:void(0)"><span>线路包括景点</span></a></li>						
-					</ul>
-				</div>
-			</div>
-			<div class="tabsContent" style="height: 180px;">
-				<div>
-					<table class="list nowrap itemDetail" addButton="增加景点" width="100%">
-						<thead>
-							<tr>
-								<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
-								<th type="lookup" name="items[#index#].org.orgName" lookupGroup="items[#index#].org" lookupUrl="admin/view-spot!selectView.action" suggestUrl="" suggestFields="" postField="keywords" size="60" fieldClass="required readonly">景点名称</th>
-								<th type="del" width="60">操作</th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
-				</div>				
-			</div>
-			<div class="tabsFooter">
-				<div class="tabsFooterContent"></div>
+		</dl>	
+		<dl>
+			<dt>线路介绍：</dt>
+			<dd>
+				<textarea name="description" id="description" cols="83" rows="3" class="textInput" maxlength="1024"></textarea>
+			</dd>
+		</dl>	
+		<dl>&nbsp;</dl>
+		<dl>&nbsp;</dl>
+		<dl>&nbsp;</dl>
+		<dl>&nbsp;</dl>
+		<div class="panel" defH="150">
+			<h1>线路包括的景点</h1>
+			<div>
+				<table class="list nowrap itemDetail" addButton="增加景点" width="100%">
+					<thead>
+						<tr>
+							<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
+							<th type="lookup" name="items[#index#].viewSpotForm.viewName" lookupGroup="items[#index#].viewSpotForm" lookupUrl="admin/view-spot!selectView.action" postField="keywords" size="60" fieldClass="required readonly">景点名称</th>
+							<th type="del" width="60">操作</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
 			</div>
 		</div>
 		

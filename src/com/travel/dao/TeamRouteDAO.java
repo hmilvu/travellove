@@ -37,6 +37,7 @@ public class TeamRouteDAO extends BaseDAO {
 		log.debug("saving TeamRoute instance");
 		try {
 			getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -99,6 +100,37 @@ public class TeamRouteDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("findByRouteIds failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param string
+	 */
+	public void deleteByTeamIds(String ids) {
+		try {
+			String sql = "delete from team_route where team_id in ("+ids+")";
+			Query queryObject = getSession().createSQLQuery(sql);
+			queryObject.executeUpdate();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+		
+	}
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<TeamRoute> findByTeamId(Long teamId) {
+		try {
+			String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.routeOrder";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, teamId);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
 			throw re;
 		}
 	}
