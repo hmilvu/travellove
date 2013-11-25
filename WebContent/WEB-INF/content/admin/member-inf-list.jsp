@@ -68,7 +68,7 @@ function printQrCode(){
 			<li><a title="确实要删除这些会员吗?" target="selectedTodo" rel="ids" postType="string" href="admin/member-inf!delete.action" class="delete"><span>批量删除</span></a></li>
 			<li><a class="edit" href="admin/member-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一个团员"><span>修改团员</span></a></li>
 			<li class="line">line</li>
-			<li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些团员吗?"><span>导出EXCEL</span></a></li>
+			<!-- li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些团员吗?"><span>导出EXCEL</span></a></li> -->
 			<li><a class="icon" href="javascript:printQrCode();"><span>打印二维码</span></a></li>
 		</ul>
 	</div>

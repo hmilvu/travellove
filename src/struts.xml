@@ -65,6 +65,12 @@
 	        </result>  
 	 	</action> 
  	</package>
+ 	
+ 	 <package name="upload" extends="struts-default">
+		<action name="teamMemberUpload" class="com.travel.action.admin.FileUploadAction"> 
+			<param name="importBizType">IMPORT_TEAM_MEMBER</param>
+		</action>
+	</package>
 	
 	<!-- 导入其他配置文件 -->
 	<include file="download.xml"/>

@@ -5,7 +5,13 @@
  */
 package com.travel.action.admin;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
+
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +20,11 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.MEMBER_STATUS;
-import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
 import com.travel.service.MemberService;
-import com.travel.service.TeamInfoService;
-import com.travel.utils.DateUtils;
 import com.travel.utils.JsonUtils;
 
 /**
@@ -192,13 +195,6 @@ public class MemberInfAction extends AuthorityAction{
 	public String assign(){
 		list();
 		return "teamlist";
-	}
-	
-	public void upload(){
-		String teamId = request.getParameter("teamId");
-		System.out.println("teamId = " + teamId);
-		JsonUtils.write(response, "{\"id\":\"1000\",\"fileName\":\"测试文件.txt\"}");
-		
 	}
 	
 	public String print(){

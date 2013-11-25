@@ -66,6 +66,17 @@ public class Constants {
 		}
 	} 
 	
+	public enum MEMBER_TYPE {
+		GUIDE(0), DRIVER(1), TRAVELER(2);
+		private int value;
+		private MEMBER_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
 	public enum MESSAGE_STATUS {
 		IN_ACTIVE(0), ACTIVE(1), DELETED(2);
 		private int value;

@@ -8,9 +8,9 @@ package com.travel.action.mobile;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.dto.FailureResult;
+import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
@@ -59,7 +59,7 @@ public class AppLoginAction extends BaseAction{
 		String password = (String)getMobileParameter(data, "password");
 		MemberInf member = memberService.getMemberByCredentials(teamIdLong, mobile, password);
 		if(member != null && member.getId() != null && member.getId() > 0){	
-			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+			SuccessResult<MemberDTO> result = new SuccessResult<MemberDTO>(member.toDTO());
 			sendToMobile(result);
 		} else {
 			FailureResult result = new FailureResult("手机号或密码错误");
