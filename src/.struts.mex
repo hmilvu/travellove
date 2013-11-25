@@ -9,7 +9,7 @@
       <result name="success" />
     </action>
   </package>
-  <include file="resource/struts/download.xml" location="0,0" size="0,0" />
+  <include file="download.xml" location="0,0" size="0,0" />
   <extendsEdge source="authority" target="base" routing="0" />
 </Struts2Diagram>
 

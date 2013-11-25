@@ -35,7 +35,7 @@ public class MemberInfAction extends AuthorityAction{
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private MemberService memberService;
-
+	
 	public String list(){
 		String name = request.getParameter("name");
 		String teamName = request.getParameter("teamName");
@@ -199,5 +199,17 @@ public class MemberInfAction extends AuthorityAction{
 		System.out.println("teamId = " + teamId);
 		JsonUtils.write(response, "{\"id\":\"1000\",\"fileName\":\"测试文件.txt\"}");
 		
+	}
+	
+	public String print(){
+		String ids = request.getParameter("ids");
+		String []idArray = StringUtils.split(ids, ",");
+		List<Object[]>memberList = memberService.getMemberForQrCode(idArray);
+		int row = (int)Math.ceil(idArray.length * 1.0 / 3);
+		int column = 3 - ((row * 3)-idArray.length);
+		request.setAttribute("row", row+"");
+		request.setAttribute("column", column+"");
+		request.setAttribute("memberList", memberList);
+		return "print";
 	}
 }

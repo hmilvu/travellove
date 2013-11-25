@@ -55,6 +55,16 @@
 	        </result>  
 	 	</action> 
  	</package>  
+ 	
+ 	<!-- 二维码 -->
+ 	<package name="qrCode" extends="struts-default">  
+		<action name="memberQrCode" class="com.travel.action.admin.MemberQrCodeAction">  
+	      <result type="stream">  
+	               <param name="contentType">image/jpeg</param>  
+	               <param name="inputName">inputStream</param>  
+	        </result>  
+	 	</action> 
+ 	</package>
 	
 	<!-- 导入其他配置文件 -->
 	<include file="download.xml"/>

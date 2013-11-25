@@ -1,6 +1,7 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -117,5 +118,18 @@ public class MemberService
 	public void deleteMemberByIds(String ids) {
 		memberInfDao.deleteByIds(ids);
 		
+	}
+
+
+	/**
+	 * @param idArray
+	 * @return
+	 */
+	public List<Object[]> getMemberForQrCode(String[] idArray) {
+		List<Long>idList = new ArrayList<Long>();
+		for(String id : idArray){
+			idList.add(Long.valueOf(id));
+		}
+		return memberInfDao.findForQrCode(idList);
 	}
 }

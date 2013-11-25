@@ -40,7 +40,7 @@
 						<label>验证码：</label>
 						<input class="code" type="text" name="valificationCode" id="valificationCode" size="5" maxlength="4"/>
 						<span  style="cursor:pointer" onclick="changeValidateCode($('#valificationCodeImg'))">
-						<img id="valificationCodeImg"  src="valificationCode.action" alt="验证码" alt="" width="75" height="24"/></span>
+						<img id="valificationCodeImg"  src="valificationCode.action" alt="验证码" width="75" height="24"/></span>
 					</p>
 					<div class="login_bar">
 						<input class="sub" type="submit" value=" " />

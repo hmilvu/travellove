@@ -201,4 +201,21 @@ public class MemberInfDAO extends BaseDAO {
 		}
 		
 	}
+
+	/**
+	 * @param idArray
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Object[]> findForQrCode(List<Long> idArray) {
+		try {
+			String queryString = "select id, memberName from MemberInf as m where id in (:ids)";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameterList("ids", idArray);
+			return (List<Object[]>)queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+	}
 }

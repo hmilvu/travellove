@@ -1,6 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
+<script type="text/javascript">
+function printQrCode(){
+	var aa = "";
+	$("input[name='ids']:checkbox:checked").each(function(){ 
+		aa+=$(this).val() + ",";
+	}); 
+	if(aa == ""){
+		alertMsg.info('请选择会员！');
+		return;
+	}
+	var timenow = new Date().getTime(); 
+	window.open ('admin/member-inf!print.action?t='+timenow+'&ids='+aa,'打印二维码','height=700,width=1100,top=50,left=50,toolbar=yes,menubar=yes,scrollbars=yes, resizable=yes, status=yes'); 
+}
+</script>
     
 <form id="pagerForm" method="post" action="admin/member-inf!list.action">
 	<input type="hidden" name="phoneNumber" value="<s:property value='%{#request.phoneNumber}'/>" />
@@ -55,6 +69,7 @@
 			<li><a class="edit" href="admin/member-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一个团员"><span>修改团员</span></a></li>
 			<li class="line">line</li>
 			<li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些团员吗?"><span>导出EXCEL</span></a></li>
+			<li><a class="icon" href="javascript:printQrCode();"><span>打印二维码</span></a></li>
 		</ul>
 	</div>
 	<table class="table" width="1160" layoutH="138">
