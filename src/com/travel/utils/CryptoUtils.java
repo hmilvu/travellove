@@ -1,7 +1,15 @@
 package com.travel.utils;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -229,21 +237,52 @@ public class CryptoUtils {
 		}
 	}
 
-//	static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
-		/*
-		 * String str = "{test1:\"测试\",test2:\"234Ab!@#\"}"; //String str =
-		 * "{user:\"user1\",pwd:\"pwd1\",checkMessage:\"checkMessage1\",message:\"message1\"}"
-		 * ;
-		 * 
-		 * String encode = CryptoUtils.encode(str,
-		 * "04890B9237D9F14A4564FED52926496804890B9237D9F14A");
-		 * System.out.println("加密:" + encode);
-		 * 
-		 * Decode decode = CryptoUtils.decode(encode,
-		 * "04890B9237D9F14A4564FED52926496804890B9237D9F14A");
-		 * System.out.println("解密:" + decode);
-		 */
-//	}
+		Map<String, String>params = new HashMap<String, String>();
+		params.put("t1", "t1v");
+		params.put("tt", "好");
+		params.put("abc", "abcv");
+		System.out.println(getSignForBaidu("queryUrl", params, "secret"));
+	}
+	
+	public static String getSignForBaidu(String queryUrl, Map<String, String> paramValues, String secret) throws IOException{
+		try {
+            StringBuilder sb = new StringBuilder(queryUrl);
+            List<String> paramNames = new ArrayList<String>(paramValues.size());
+            paramNames.addAll(paramValues.keySet());            
+            Collections.sort(paramNames);
+            for (String paramName : paramNames) {
+                sb.append(paramName).append(paramValues.get(paramName));
+            }
+            sb.append(secret);
+            byte[] sha1Digest = getMD5Digest(URLEncoder.encode(sb.toString(), CHARSET_NAME));
+            return byte2hex(sha1Digest);
+        } catch (IOException e) {
+            throw e;
+        } 
+	}
 
+	private static byte[] getMD5Digest(String data) throws IOException {
+        byte[] bytes = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            bytes = md.digest(data.getBytes(CHARSET_NAME));
+        } catch (GeneralSecurityException gse) {
+            throw new IOException(gse);
+        }
+        return bytes;
+    }
+	
+	private static String byte2hex(byte[] bytes) {
+        StringBuilder sign = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() == 1) {
+                sign.append("0");
+            }
+            sign.append(hex.toUpperCase());
+        }
+        return sign.toString();
+    }
 }

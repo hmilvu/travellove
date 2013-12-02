@@ -11,7 +11,7 @@ import com.travel.dao.OrderDAO;
 import com.travel.entity.Order;
 
 @Service
-public class OrderService
+public class OrderService extends AbstractBaseService
 {
 	@Autowired
 	private OrderDAO orderDao;

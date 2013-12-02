@@ -13,7 +13,7 @@ import com.travel.dao.ViewSpotInfoDAO;
 import com.travel.entity.ViewSpotInfo;
 
 @Service
-public class ViewSpotService
+public class ViewSpotService extends AbstractBaseService
 {
 	@Autowired
 	private ViewSpotInfoDAO viewSpotDao;

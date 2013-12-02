@@ -30,7 +30,7 @@ import com.travel.entity.SysUser;
 import com.travel.entity.TeamInfo;
 
 @Service
-public class MemberService
+public class MemberService extends AbstractBaseService
 {
 	@Autowired
 	private MemberInfDAO memberInfDao;	
@@ -221,5 +221,14 @@ public class MemberService
     		}            
         }	
         return errorList;
+	}
+
+
+	/**
+	 * @param idList
+	 * @return
+	 */
+	public List<MemberInf> findAllMembersByTeamIds(List<Long> idList) {
+		return memberInfDao.findByTeamIds(idList);
 	}
 }

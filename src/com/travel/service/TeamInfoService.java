@@ -24,7 +24,7 @@ import com.travel.entity.TeamRoute;
 import com.travel.utils.DateUtils;
 
 @Service
-public class TeamInfoService
+public class TeamInfoService extends AbstractBaseService
 {
 	@Autowired
 	private TeamRouteDAO teamRouteDao;

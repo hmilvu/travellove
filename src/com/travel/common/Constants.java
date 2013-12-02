@@ -87,4 +87,26 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum MESSAGE_TYPE {
+		NOTIFICATION(0), NOTE(1);
+		private int value;
+		private MESSAGE_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
+	public enum MESSAGE_REMIND_MODE {
+		NOW(0), LATER(1);
+		private int value;
+		private MESSAGE_REMIND_MODE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

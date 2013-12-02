@@ -19,7 +19,7 @@ import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
 
 @Service
-public class ItemInfService
+public class ItemInfService extends AbstractBaseService
 {
 	@Autowired
 	private MemberInfDAO memberInfDao;	

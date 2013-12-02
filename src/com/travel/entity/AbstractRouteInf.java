@@ -38,7 +38,7 @@ public abstract class AbstractRouteInf extends BaseEntity implements
 	private Timestamp updateDate;
 	private Set<RouteViewSpot> routeViewSpots = new HashSet<RouteViewSpot>(0);
 	private Set<TeamRoute> teamRoutes = new HashSet<TeamRoute>(0);
-
+	private TravelInf travelInf;
 	// Constructors
 
 	/** default constructor */
@@ -213,5 +213,14 @@ public abstract class AbstractRouteInf extends BaseEntity implements
 	public void setTeamRoutes(Set<TeamRoute> teamRoutes) {
 		this.teamRoutes = teamRoutes;
 	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "travel_id", nullable = false)
+	public TravelInf getTravelInf() {
+		return this.travelInf;
+	}
 
+	public void setTravelInf(TravelInf travelInf) {
+		this.travelInf = travelInf;
+	}
 }

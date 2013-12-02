@@ -5,6 +5,10 @@
  */
 package com.travel.action.admin;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,13 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
-import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.Constants.MESSAGE_REMIND_MODE;
+import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
-import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
-import com.travel.entity.TeamInfo;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
 import com.travel.service.TeamInfoService;
@@ -72,7 +76,9 @@ public class MessageAction extends AuthorityAction{
 		if(StringUtils.isNotBlank(priority)){
 			dto.setPriority(Integer.valueOf(priority));
 		}		
-		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		if(isTravelUser()){
+			dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		}
 		int totalNum = messageService.getTotalMessageNum(dto);
 		List<Message> list = messageService.findMessages(dto, pageInfo);
 		request.setAttribute("messageList", list);
@@ -88,46 +94,66 @@ public class MessageAction extends AuthorityAction{
 		return "list";
 	}
 	
-	public String add(){
-		return "add";
+	public String addTeamMsg(){
+		return "addTeamMsg";
 	}
 	
-	public void create(){
-		String teamId = request.getParameter("teamLookup.id");
-		String name = request.getParameter("name");
-		String memberType = request.getParameter("memberType");
-		String nickname = request.getParameter("nickname");
-		String phoneNumber = request.getParameter("phoneNumber");
-		String password = request.getParameter("password");		
-		String sex = request.getParameter("sex");	
-		String age = request.getParameter("age");	
-		String idType = request.getParameter("idType");	
-		String idNo = request.getParameter("idNo");	
-		String interest = request.getParameter("interest");	
-		String profile = request.getParameter("profile");	
-		
-		TeamInfo team = new TeamInfo();
-		team.setId(Long.valueOf(teamId));
-		MemberInf memberInf = new MemberInf();
-		memberInf.setMemberName(name);
-		memberInf.setMemberType(Integer.valueOf(memberType));
-		memberInf.setNickname(nickname);
-		memberInf.setTravelerMobile(phoneNumber);
-		memberInf.setPassword(password);
-		memberInf.setSex(Integer.valueOf(sex));
-		memberInf.setAge(Integer.valueOf(age));
-		memberInf.setIdType(Integer.valueOf(idType));
-		memberInf.setIdNo(idNo);
-		memberInf.setInterest(interest);
-		memberInf.setProfile(profile);
-		memberInf.setTeamInfo(team);
-		memberInf.setStatus(MEMBER_STATUS.ACTIVE.getValue());
-		memberInf.setSysUser(getCurrentUser());
-		if(memberService.addMember(memberInf) == 0){
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+	@SuppressWarnings("static-access")
+	public void createTeamMsg(){
+		String teamIds = request.getParameter("selectteam.id");
+		String topic = request.getParameter("topic");
+		String content = request.getParameter("content");
+		String type = request.getParameter("type");
+		String priority = request.getParameter("priority");
+		String remindMode = request.getParameter("remindMode");
+		String remindTime = request.getParameter("remindTime");
+		Message msg = new Message();
+		if(StringUtils.equals(type, MESSAGE_TYPE.NOTIFICATION.getValue()+"") && StringUtils.equals(remindMode,MESSAGE_REMIND_MODE.LATER.getValue()+"")){
+			msg.setRemindMode(MESSAGE_REMIND_MODE.LATER.getValue());
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			try {
+				Date date = format.parse(remindTime);
+				if(date.before(new Date(System.currentTimeMillis() + 5 * 60 * 1000))){
+					JsonUtils.write(response, binder.toJson("result", Action.INPUT));		
+					return;
+				} else {					
+					msg.setRemindTime(new Timestamp(date.getTime()));
+				}
+			} catch (ParseException e) {
+				JsonUtils.write(response, binder.toJson("result", Action.INPUT+"1"));
+				return;
+			}
 		} else {
-			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
+			msg.setRemindTime(new Timestamp(new Date().getTime()));
+			msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
 		}
+		msg.setStatus(MESSAGE_STATUS.ACTIVE.getValue());
+		msg.setPriority(Integer.valueOf(priority));
+		msg.setType(Integer.valueOf(type));
+		msg.setTopic(topic);
+		msg.setContent(content);
+		msg.setSysUser(getCurrentUser());
+		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
+		if(msgIdList != null && msgIdList.size() > 0){
+			messageService.sendPushMsg(msgIdList, content);
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
+		} else {			
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
+		}
+	}
+	
+	public String addMemberMsg(){
+		return "addMemberMsg";
+	}
+	
+	public void createMemberMsg(){
+		String ids = request.getParameter("uid");
+		String content = request.getParameter("content");
+		Message msg = new Message();
+		msg.setContent(content);
+		msg.setSysUser(getCurrentUser());
+		List<Long>msgIdList = messageService.addMessageForTeam(msg, ids);
+		messageService.sendPushMsg(msgIdList, content);
 	}
 	
 	public void delete(){
@@ -210,5 +236,6 @@ public class MessageAction extends AuthorityAction{
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
 		}
 	}
+	
 	
 }

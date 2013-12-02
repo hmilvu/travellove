@@ -115,7 +115,9 @@ public class ItemInfAction extends AuthorityAction{
 		SearchItemDTO dto = new SearchItemDTO();		
 		dto.setBrands(brands);
 		dto.setName(name);
-		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		if(isTravelUser()){
+			dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		}
 		int totalNum = itemService.getTotalItemNum(dto);
 		List<ItemInf> list = itemService.findItems(dto, pageInfo);
 		request.setAttribute("itemList", list);

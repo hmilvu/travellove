@@ -70,7 +70,9 @@ public class MemberInfAction extends AuthorityAction{
 		if(StringUtils.isNotBlank(memberType)){
 			dto.setMemberType(Integer.valueOf(memberType));
 		}
-		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		if(isTravelUser()){
+			dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		}
 		int totalNum = memberService.getTotalMemberNum(dto);
 		List<MemberInf> list = memberService.findMembers(dto, pageInfo);
 		request.setAttribute("memberList", list);

@@ -99,6 +99,11 @@ public class TeamInfAction extends AuthorityAction{
 		JsonUtils.write(response, binder.toJson(list));	
 	}
 	
+	public String mulselect(){
+		list();
+		return "mulselect";
+	}
+	
 	public String add(){
 		return "add";
 	}

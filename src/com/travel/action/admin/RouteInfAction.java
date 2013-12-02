@@ -85,7 +85,9 @@ public class RouteInfAction extends AuthorityAction{
 		}
 		SearchRouteDTO dto = new SearchRouteDTO();		
 		dto.setName(name);
-		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		if(isTravelUser()){
+			dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		}
 		int totalNum = routeService.getTotalRouteNum(dto);
 		List<RouteInf> list = routeService.findRoute(dto, pageInfo);
 		request.setAttribute("routeList", list);
@@ -141,6 +143,7 @@ public class RouteInfAction extends AuthorityAction{
 		route.setStartLatitude(startLat);
 		route.setEndLatitude(endLat);
 		route.setSysUser(getCurrentUser());
+		route.setTravelInf(getCurrentUser().getTravelInf());
 		if(routeService.addRoute(route, items) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {

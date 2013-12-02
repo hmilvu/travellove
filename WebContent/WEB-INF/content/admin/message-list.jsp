@@ -61,9 +61,10 @@
 <div class="pageContent">
 	<div class="panelBar">
 		<ul class="toolBar">
-			<li><a class="add" href="admin/message!add.action" target="navTab" title="创建消息"><span>创建消息</span></a></li>
-			<li><a title="确实要删除这些消息吗?" target="selectedTodo" rel="ids" postType="string" href="admin/member-inf!delete.action" class="delete"><span>批量删除</span></a></li>
-			<li><a class="edit" href="admin/member-inf!edit.action?uid={sid_user}" target="navTab" warn="请选择一条消息"><span>修改消息</span></a></li>
+			<li><a class="add" href="admin/message!addTeamMsg.action" target="navTab" title="向旅行团发消息"><span>向旅行团发消息</span></a></li>
+			<li><a class="add" href="admin/message!addMemberMsg.action" target="navTab" title="向游客团发消息"><span>向团员发消息</span></a></li>
+			<li><a title="确实要删除这些消息吗?" target="selectedTodo" rel="ids" postType="string" href="admin/message!delete.action" class="delete"><span>批量删除</span></a></li>
+			<li><a class="edit" href="admin/message!edit.action?uid={sid_user}" target="navTab" warn="请选择一条消息"><span>修改消息</span></a></li>
 			<li class="line">line</li>
 		</ul>
 	</div>

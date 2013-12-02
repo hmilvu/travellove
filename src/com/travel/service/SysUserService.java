@@ -20,7 +20,7 @@ import com.travel.entity.SysUser;
 import com.travel.entity.UserRole;
 
 @Service
-public class SysUserService
+public class SysUserService extends AbstractBaseService
 {
 
 	@Autowired

@@ -9,7 +9,7 @@ import com.travel.dao.AppVersionDAO;
 import com.travel.entity.AppVersion;
 
 @Service
-public class AppVersionService
+public class AppVersionService extends AbstractBaseService
 {
 	@Autowired
 	private AppVersionDAO appVersionDao;

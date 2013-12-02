@@ -12,53 +12,43 @@
 </form>
 
 <div class="pageHeader">
-	<form onsubmit="return navTabSearch(this);" action="admin/team-inf!list.action" method="post">
+	<form action="admin/team-inf!list.action" method="post" onsubmit="return dwzSearch(this, 'dialog');">
 	<input type="hidden" name="pageNumber" value="0" />
 	<div class="searchBar">		
-		<table class="searchContent">
-			<tr>
-				<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">
-				<td>
-					旅行社名称：<input type="text" name="travelName" id="travelName" value="<s:property value='%{#request.travelName}'/>"/>
-				</td>				
-				</s:if>
-				<td>
-					旅行团名称：<input type="text" name="teamName" id="teamName" value="<s:property value='%{#request.teamName}'/>"/>
-				</td>
-				<td>
-					开始时间：
-					<input type="text" name="startDate" value="<s:property value='%{#request.startDate}'/>" class="date" readonly="true"/>
-				</td>
-				<td>
-					结束时间：
-					<input type="text" name="endDate" value="<s:property value='%{#request.endDate}'/>" class="date" readonly="true"/>
-				</td>
-			</tr>
-		</table>
+		<ul class="searchContent">
+			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">
+			<li>
+				<label>旅行社名称:</label>
+				<input type="text" name="travelName" id="travelName" value="<s:property value='%{#request.travelName}'/>"/>
+			</li>	 
+			</s:if> 
+			<li>
+				<label>旅行团名称:</label>
+				<input type="text" name="teamName" id="teamName" value="<s:property value='%{#request.teamName}'/>"/>
+			</li>
+			<li>
+				<label>开始时间:</label>
+				<input type="text" name="startDate" value="<s:property value='%{#request.startDate}'/>" class="date" readonly="true"/>
+			</li>
+				<li>
+				<label>结束时间:</label>
+				<input type="text" name="endDate" value="<s:property value='%{#request.endDate}'/>" class="date" readonly="true"/>
+			</li> 
+		</ul>
 		<div class="subBar">
 			<ul>
-				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div></li>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">查询</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" multLookup="orgId" warn="请选择部门">选择带回</button></div></div></li>
 			</ul>
-		</div>
+		</div>		
 	</div>
 	</form>
 </div>
-<div class="pageContent">
-	<div class="panelBar">
-		<ul class="toolBar">
-			<li><a class="add" href="admin/team-inf!add.action" target="navTab" title="添加旅行团"><span>添加旅行团</span></a></li>
-			<li><a class="delete" href="admin/team-inf!delete.action?uid={sid_user}" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="admin/team-inf!edit.action?uid={sid_user}" target="navTab" title="修改旅行团" warn="请选择一个旅行团"><span>修改旅行团</span></a></li>
-			<li class="line">line</li>
-			<!-- li><a class="add" href="admin/member-inf!assign.action?teamId={sid_user}" target="navTab" title="分配团员"><span>分配团员</span></a></li> -->
-			<li><a class="icon" href="downloadMemberTemplate.action" target="dwzExport" targetType="navTab"><span>下载会员模板</span></a></li>
-			<li><a class="edit" href="admin/team-inf!upload.action?uid={sid_user}" target="dialog" mask="true"  title="导入团员" warn="请选择一个旅行团"><span>导入团员</span></a></li>
-		</ul>
-	</div>
-	<table class="table" width="100%" layoutH="138">
+<div class="pageContent">	
+	<table class="table" width="100%" layoutH="118">
 		<thead>
 			<tr>
-				<th width="4"></th>
+				<th width="30"><input type="checkbox" class="checkboxCtrl" group="orgId" /></th>
 				<th width="25">旅行团ID</th>
 				<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">
 				<th width="80">旅行社名称</th>
@@ -72,7 +62,7 @@
 		<tbody>
 			<s:iterator var="team" value="%{#request.teamList}" status="statu">		
 			<tr target="sid_user" rel="<s:property value="%{#team.id}"/>">
-				<td></td>
+				<td><input type="checkbox" name="orgId" value="{id:'<s:property value="%{#team.id}"/>', orgName:'<s:property value="%{#team.name}"/>', orgNum:''}"/></td>
 				<td>
 				    <s:property value="%{#team.id}"/>
 				</td>

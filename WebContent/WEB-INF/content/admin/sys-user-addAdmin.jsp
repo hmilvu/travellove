@@ -80,7 +80,7 @@ function save(){
 			<dl>
 				<dt>Email：</dt>
 				<dd>
-					<input type="text" id="email" name="email" maxlength="20" class="required email" />
+					<input type="text" id="email" name="email" maxlength="30" class="required email" />
 				</dd>
 			</dl>			
 		</div>

@@ -18,7 +18,7 @@ import com.travel.entity.RoleMenu;
 import com.travel.entity.UserRole;
 
 @Service
-public class RoleService
+public class RoleService extends AbstractBaseService
 {
 	@Autowired
 	private RoleInfDAO roleDao;	
@@ -34,6 +34,22 @@ public class RoleService
 		for(String menuId : menuIdList){
 			Long id = Long.valueOf(menuId);
 			MenuInf menuInf = menuDao.findById(id);
+			MenuInf parentMenu = menuInf.getMenuInf();
+			if(parentMenu != null){
+				boolean exists = false;
+				for(RoleMenu pMenu : list){
+					if(pMenu.getMenuInf().getId().longValue() != parentMenu.getId().longValue()){
+						exists = true;
+						continue;
+					}
+				}
+				if(!exists){
+					RoleMenu roleMenu = new RoleMenu();
+					roleMenu.setMenuInf(parentMenu);
+					roleMenu.setRoleInf(role);			
+					list.add(roleMenu);
+				}
+			}
 			RoleMenu roleMenu = new RoleMenu();
 			roleMenu.setMenuInf(menuInf);
 			roleMenu.setRoleInf(role);			

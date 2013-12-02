@@ -1,14 +1,12 @@
 package com.travel.action;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.common.Constants;
 import com.travel.common.Constants.SYS_USER_STATUS;
 import com.travel.entity.SysUser;
-import com.travel.service.MenuInfService;
 import com.travel.service.SysUserService;
 import com.travel.utils.JsonUtils;
 
@@ -18,9 +16,6 @@ import com.travel.utils.JsonUtils;
  * @author deniro
  */
 public class LoginAction extends BaseAction {
-	
-	@Autowired
-	private MenuInfService menuService;
 	
 	@Autowired
 	private SysUserService sysUserService;

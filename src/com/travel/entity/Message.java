@@ -1,6 +1,7 @@
 package com.travel.entity;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -54,6 +55,26 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		dto.setTopic(getTopic());
 		dto.setContent(getContent());
 		return dto;
+	}
+	
+	@Override
+	public Message clone(){
+		Message msg = new Message();
+		msg.setTeamInfo(getTeamInfo());
+		msg.setSysUser(getSysUser());
+		msg.setAuthorId(getAuthorId());
+		msg.setPriority(getPriority());
+		msg.setStatus(getStatus());
+		msg.setTopic(getTopic());
+		msg.setType(getType());
+		msg.setContent(getContent());
+		msg.setReceiverId(getReceiverId());
+		msg.setRemindTime(getRemindTime());
+		msg.setRemindMode(getRemindMode());
+		msg.setCreateDate(getCreateDate());
+		msg.setUpdateDate(getUpdateDate());
+		return msg;
+		
 	}
 
 }

@@ -121,7 +121,7 @@ public abstract class AbstractMessage extends BaseEntity implements
 		this.sysUser = sysUser;
 	}
 
-	@Column(name = "author_id", nullable = false)
+	@Column(name = "author_id", nullable = true)
 	public Long getAuthorId() {
 		return this.authorId;
 	}

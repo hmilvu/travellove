@@ -15,7 +15,7 @@ import com.travel.entity.TeamInfo;
 import com.travel.entity.TravelInf;
 
 @Service
-public class TravelInfService
+public class TravelInfService extends AbstractBaseService
 {
 	@Autowired
 	private TravelInfDAO travelDao;

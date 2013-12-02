@@ -20,7 +20,7 @@ import com.travel.entity.RouteViewSpot;
 import com.travel.entity.ViewSpotInfo;
 
 @Service
-public class RouteInfService
+public class RouteInfService extends AbstractBaseService
 {
 	@Autowired
 	private RouteInfDAO routeInfDAO;

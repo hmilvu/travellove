@@ -39,6 +39,7 @@ public class LocationLog extends AbstractLocationLog implements
 		dto.setSex(getMemberInf().getSex());
 		dto.setTravelerMobile(getMemberInf().getTravelerMobile());
 		dto.setMemberId(getMemberInf().getId());
+		dto.setMemberType(getMemberInf().getMemberType());
 		return dto;
 	}
 }

@@ -27,7 +27,7 @@
 			<table width="300" height="250">
 				<tr height="200" align="center"">
 					<td>
-						<img src="../memberQrCode.action?memberId=<%=memberId %>" alt="二维码" width="200" height="200"/></span>
+						<img src="../memberQrCode.action?memberId=<%=memberId %>" alt="二维码" width="200" height="200"/>
 					</td>					
 				</tr>
 				<tr align="center"">

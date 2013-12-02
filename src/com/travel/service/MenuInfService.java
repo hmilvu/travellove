@@ -10,7 +10,7 @@ import com.travel.dao.MenuInfDAO;
 import com.travel.entity.MenuInf;
 
 @Service
-public class MenuInfService
+public class MenuInfService extends AbstractBaseService
 {
 	@Autowired
 	private MenuInfDAO menuDao;

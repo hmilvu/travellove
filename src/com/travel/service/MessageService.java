@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +20,14 @@ import com.travel.entity.Message;
 import com.travel.entity.Reply;
 
 @Service
-public class MessageService
+public class MessageService extends AbstractBaseService
 {
 	@Autowired
 	private MessageDAO messageDAO;	
 	@Autowired
 	private ReplyDAO replyDAO;
+	@Autowired
+	private MemberService memberService;
 	
 	public Message getMessageById(Long id){
 		return messageDAO.findById(id);
@@ -124,6 +127,43 @@ public class MessageService
 		reply.setCreateDate(new Timestamp(new Date().getTime()));
 		reply.setUpdateDate(reply.getCreateDate());
 		return replyDAO.save(reply);
+	}
+
+	/**
+	 * @param ids
+	 * @return
+	 */
+	public List<Long> addMessageForTeam(Message msg, String teamIds) {
+		msg.setCreateDate(new Timestamp(new Date().getTime()));
+		msg.setUpdateDate(msg.getCreateDate());
+		String []idArray = StringUtils.split(teamIds, ",");
+		List<Long>idList = new ArrayList<Long>();
+		for(String id : idArray){
+			idList.add(Long.valueOf(id));
+		}
+		List<MemberInf> memberList = memberService.findAllMembersByTeamIds(idList);
+		List<Long>msgIdList = new ArrayList<Long>();
+		for(MemberInf member : memberList){
+			msg.setReceiverId(member.getId());
+			msg.setTeamInfo(member.getTeamInfo());
+			try{
+				msg.setId(null);
+				msgIdList.add(messageDAO.save(msg));
+			} catch(Throwable e){
+				log.error("创建会员消息失败", e);
+			}
+			msg = (Message) msg.clone();
+		}
+		return msgIdList;
+	}
+
+	/**
+	 * @param msgIdList
+	 * @param content
+	 */
+	public void sendPushMsg(List<Long> msgIdList, String content) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

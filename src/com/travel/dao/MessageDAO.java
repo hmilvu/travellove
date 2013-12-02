@@ -44,11 +44,13 @@ public class MessageDAO extends BaseDAO {
 	public static final String RECEIVER_ID = "receiverId";
 	public static final String REMIND_MODE = "remindMode";
 
-	public void save(Message transientInstance) {
+	public Long save(Message transientInstance) {
 		log.debug("saving Message instance");
 		try {
-			getSession().save(transientInstance);
+			Long id = (Long)getSession().save(transientInstance);
+			getSession().flush();
 			log.debug("save successful");
+			return id;
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
 			throw re;

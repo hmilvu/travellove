@@ -146,7 +146,8 @@ public class TeamInfoDAO extends BaseDAO {
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 			cr.setMaxResults(maxResults);
 			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.desc("beginDate"));
+			cr.addOrder(Order.asc("id"));
+//			cr.addOrder(Order.desc("beginDate"));
 			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find teams failed", re);

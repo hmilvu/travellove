@@ -171,6 +171,7 @@ public class MemberInfDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<MemberInf> findMembers(SearchMemberDTO dto, PageInfoDTO pageInfo) {
 		try {
 			Criteria cr = buildSearchCriteria(dto);
@@ -213,6 +214,23 @@ public class MemberInfDAO extends BaseDAO {
 			Query queryObject = getSession().createQuery(queryString);
 			queryObject.setParameterList("ids", idArray);
 			return (List<Object[]>)queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by credentials failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param idList
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<MemberInf> findByTeamIds(List<Long> idList) {
+		try {
+			String queryString = "from MemberInf as m where m.teamInfo.id in (:ids)";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameterList("ids", idList);
+			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);
 			throw re;

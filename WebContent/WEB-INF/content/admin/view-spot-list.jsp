@@ -42,7 +42,7 @@
 				<th width="180">景点名称</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
-				<!-- th width="70">操作</th> -->
+				<th width="40">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -52,7 +52,9 @@
 				<td><s:property value="%{#viewSpot.name}"/></td>				
 				<td><s:property value="%{#viewSpot.sysUser.name}"/></td>
 				<td><s:date name="#viewSpot.createDate" format="yyyy-MM-dd" /></td>
-				<!-- td><a class="btnAttach" href="admin/member-inf!profile.action?memberId=<s:property value='%{#member.id}'/>" lookupGroup="attachment" width="560" height="300" title="上传头像">上传头像</a></td> -->
+				<td>
+					<a class="btnAttach" href="admin/view-spot!upload.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" title="上传图片">上传图片</a>
+				</td>
 			</tr>
 			</s:iterator>
 		</tbody>

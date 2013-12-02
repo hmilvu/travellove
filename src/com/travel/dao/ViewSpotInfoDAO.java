@@ -105,10 +105,10 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 */
 	private Criteria buildSearchCriteria(SearchViewSpotDTO dto) {
 		Criteria cr = getSession().createCriteria(ViewSpotInfo.class);
-//		cr.createAlias("travelInf", "t");
-//		if (StringUtils.isNotBlank(dto.getTeamName())) {
-//			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
-//		}
+		cr.createAlias("travelInf", "t");
+		if (dto.getTravelId() != null) {
+			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
+		}
 		if (StringUtils.isNotBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
 		}

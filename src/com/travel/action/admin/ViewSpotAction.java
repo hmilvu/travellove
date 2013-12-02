@@ -54,7 +54,9 @@ public class ViewSpotAction extends AuthorityAction{
 		}
 		SearchViewSpotDTO dto = new SearchViewSpotDTO();		
 		dto.setName(name);
-		dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		if(isTravelUser()){
+			dto.setTravelId(getCurrentUser().getTravelInf().getId());
+		}
 		int totalNum = viewSpotService.getTotalViewSpotNum(dto);
 		List<ViewSpotInfo> list = viewSpotService.findViewSpots(dto, pageInfo);
 		request.setAttribute("viewSpotList", list);
@@ -92,6 +94,7 @@ public class ViewSpotAction extends AuthorityAction{
 		view.setLatitude(latitude);
 		view.setLongitude(longitude);
 		view.setSysUser(getCurrentUser());
+		view.setTravelInf(getCurrentUser().getTravelInf());
 		if(viewSpotService.addViewSpot(view) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
@@ -157,5 +160,10 @@ public class ViewSpotAction extends AuthorityAction{
 	public String selectView(){
 		list();
 		return "select";
+	}
+	
+	public String upload(){
+		edit();
+		return "upload";
 	}
 }
