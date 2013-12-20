@@ -10,17 +10,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.travel.action.admin.form.RouteItemForm;
+import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.common.dto.RouteInfDTO;
 import com.travel.common.dto.TeamLocationDTO;
 import com.travel.common.dto.TeamRouteDTO;
+import com.travel.common.dto.ViewSpotDTO;
+import com.travel.dao.ImgInfDAO;
 import com.travel.dao.LocationLogDAO;
+import com.travel.dao.RouteViewSpotDAO;
 import com.travel.dao.TeamInfoDAO;
 import com.travel.dao.TeamRouteDAO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.RouteInf;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.TeamRoute;
+import com.travel.entity.ViewSpotInfo;
 import com.travel.utils.DateUtils;
 
 @Service
@@ -32,13 +38,32 @@ public class TeamInfoService extends AbstractBaseService
 	private LocationLogDAO locationDao;
 	@Autowired
 	private TeamInfoDAO teamDao;
+	@Autowired
+	private RouteViewSpotDAO routeViewSpotDao;
+	@Autowired
+	private ImgInfDAO imageDao;
 	
 	public TeamRouteDTO getRouteInfByTeamId(Long id, PageInfoDTO pageInfo){
+		TeamRouteDTO dto = new TeamRouteDTO();
 		 List <TeamRoute> list = teamRouteDao.findByTeamId(id, pageInfo);
-		 TeamRouteDTO dto = new TeamRouteDTO();
-		 for(TeamRoute teamRoute : list){
-			dto.setTeamInfo(teamRoute.getTeamInfo().toDTO());
-			dto.addRouteInfo(teamRoute.getRouteInf().toDTO());			 
+		 if(list == null || list.size() == 0){
+			 TeamInfo teamInf = teamDao.findById(id);
+			 dto.setTeamInfo(teamInf.toDTO());
+		 } else {
+			 for(TeamRoute teamRoute : list){
+				dto.setTeamInfo(teamRoute.getTeamInfo().toDTO());
+				RouteInfDTO routeDTO = teamRoute.getRouteInf().toDTO();
+				List<ViewSpotInfo> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
+				for(ViewSpotInfo view : viewSpotList){
+					ViewSpotDTO viewDto = view.toDTO();
+					List<String>urls = imageDao.findUrls(IMAGE_TYPE.VIEWSPOT, view.getId());
+					if(urls != null && urls.size() > 0){
+						viewDto.addImageUrl(urls);
+					}
+					routeDTO.addViewSport(viewDto);
+				}
+				dto.addRouteInfo(routeDTO);
+			 }
 		 }
 		 return dto;
 	}

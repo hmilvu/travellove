@@ -40,8 +40,13 @@ public class Reply extends AbstractReply implements java.io.Serializable {
 		dto.setContent(getContent());
 		dto.setId(getId());
 		dto.setCreateTime(DateUtils.toStr(getCreateDate()));
-		dto.setMemberId(getMemberInf().getId());
-		dto.setMemberName(getMemberInf().getMemberName());
+		if(getMemberInf() != null){
+			dto.setMemberId(getMemberInf().getId());
+			dto.setMemberName(getMemberInf().getMemberName());
+		} else {
+			dto.setMemberId(getSysUser().getId());
+			dto.setMemberName("系统管理员");
+		}
 		dto.setMessageId(getMessage().getId());
 		return dto;
 	}

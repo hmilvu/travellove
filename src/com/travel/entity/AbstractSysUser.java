@@ -48,7 +48,6 @@ public abstract class AbstractSysUser extends BaseEntity implements
 	private Set<AppVersion> appVersions = new HashSet<AppVersion>(0);
 	private Set<TeamRoute> teamRoutes = new HashSet<TeamRoute>(0);
 	private Set<MemberInf> memberInfs = new HashSet<MemberInf>(0);
-	private Set<Message> messages = new HashSet<Message>(0);
 	private Set<RouteInf> routeInfs = new HashSet<RouteInf>(0);
 
 	// Constructors
@@ -88,7 +87,7 @@ public abstract class AbstractSysUser extends BaseEntity implements
 			Set<Order> orders, Set<UserRole> userRoles,
 			Set<AppVersion> appVersions, Set<TeamRoute> teamRoutes,
 			Set<MemberInf> memberInfs,
-			Set<Message> messages, Set<RouteInf> routeInfs) {
+			Set<RouteInf> routeInfs) {
 		this.username = username;
 		this.password = password;
 		this.userType = userType;
@@ -112,7 +111,6 @@ public abstract class AbstractSysUser extends BaseEntity implements
 		this.appVersions = appVersions;
 		this.teamRoutes = teamRoutes;
 		this.memberInfs = memberInfs;
-		this.messages = messages;
 		this.routeInfs = routeInfs;
 	}
 
@@ -336,15 +334,6 @@ public abstract class AbstractSysUser extends BaseEntity implements
 	public void setMemberInfs(Set<MemberInf> memberInfs) {
 		this.memberInfs = memberInfs;
 	}
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
-	public Set<Message> getMessages() {
-		return this.messages;
-	}
-
-	public void setMessages(Set<Message> messages) {
-		this.messages = messages;
-	}	
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "sysUser")
 	public Set<RouteInf> getRouteInfs() {

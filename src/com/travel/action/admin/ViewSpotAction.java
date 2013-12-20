@@ -95,10 +95,15 @@ public class ViewSpotAction extends AuthorityAction{
 		view.setLongitude(longitude);
 		view.setSysUser(getCurrentUser());
 		view.setTravelInf(getCurrentUser().getTravelInf());
-		if(viewSpotService.addViewSpot(view) == 0){
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
-		} else {
-			JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
+		try {
+			if(viewSpotService.addViewSpot(view) == 0){
+				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+			} else {
+				JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

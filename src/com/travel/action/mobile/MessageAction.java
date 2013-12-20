@@ -5,18 +5,34 @@
  */
 package com.travel.action.mobile;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
+import com.travel.common.Constants.MESSAGE_REMIND_MODE;
+import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.ReplyDTO;
 import com.travel.common.dto.SuccessResult;
+import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
+import com.travel.entity.Reply;
+import com.travel.entity.TravelInf;
+import com.travel.service.MemberService;
 import com.travel.service.MessageService;
+import com.travel.utils.JsonUtils;
 
 /**
  * @author Lenovo
@@ -29,7 +45,8 @@ public class MessageAction extends BaseAction {
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private MessageService messageService;
-	
+	@Autowired
+	private MemberService memberService;
 		
 	public void list(){
 		String data = getMobileData();
@@ -42,6 +59,12 @@ public class MessageAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
+		MemberInf member = memberService.getMemberById(idLong);
+		if(member == null || member.getId().intValue() <= 0){
+			FailureResult result = new FailureResult("此会员"+memberId+"不存在");
+			sendToMobile(result);
+			return;
+		}
 		Object pageSize = binder.getValue(data, "pageSize");
 		Object pageNumber = binder.getValue(data, "pageNumber");
 		PageInfoDTO pageInfo = new PageInfoDTO();
@@ -50,7 +73,7 @@ public class MessageAction extends BaseAction {
 			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
 		}catch(Throwable ignore){			
 		}
-		List<MessageDTO> list = messageService.getMessageByMemberId(idLong, pageInfo);
+		List<MessageDTO> list = messageService.getMessageByMemberId(idLong, member.getTeamInfo().getId(), pageInfo);
 		SuccessResult<List<MessageDTO>> result = new SuccessResult<List<MessageDTO>>(list);
 		sendToMobile(result);
 		
@@ -95,4 +118,98 @@ public class MessageAction extends BaseAction {
 		SuccessResult<List<ReplyDTO>> result = new SuccessResult<List<ReplyDTO>>(list);
 		sendToMobile(result);
 	}
+	
+	public void createReply(){
+		String data = getMobileData();
+		Object msgId = getMobileParameter(data, "messageId");
+		Long msgIdLong = Long.valueOf(0);
+		try {
+			msgIdLong = Long.valueOf(msgId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("messageId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Message msg = messageService.getMessageById(msgIdLong);
+		if(msg == null || msg.getId().intValue() <= 0){
+			FailureResult result = new FailureResult("此消息"+msgId+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(memberIdLong);
+		if(member == null || member.getId().intValue() <= 0){
+			FailureResult result = new FailureResult("此会员"+memberId+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		String content = getMobileParameter(data, "content").toString();
+		Reply reply = new Reply();
+		reply.setMemberInf(member);
+		reply.setMessage(msg);
+		reply.setContent(content);
+		if(messageService.saveReply(reply) == 0){
+			SuccessResult<String> result = new SuccessResult<String>("success");
+			sendToMobile(result);		
+		} else {
+			FailureResult result = new FailureResult("回复失败");
+			sendToMobile(result);
+		}
+	}
+	
+	public void createTeamNote(){
+		String data = getMobileData();
+		Object topic = getMobileParameter(data, "topic");
+		Object content = getMobileParameter(data, "content");
+		Message msg = new Message();
+		msg.setRemindTime(new Timestamp(new Date().getTime()));
+		msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
+		msg.setStatus(MESSAGE_STATUS.ACTIVE.getValue());
+		msg.setPriority(Integer.valueOf(1));
+		msg.setType(Integer.valueOf(MESSAGE_TYPE.NOTE.getValue()));
+		if(topic != null){
+			msg.setTopic(topic.toString());
+		}
+		if(content != null){
+			msg.setContent(content.toString());
+		}
+		msg.setCreateType(MESSAGE_CREATE_TYPE.MEMBER.getValue());
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(memberIdLong);
+		if(member == null || member.getId().intValue() <= 0){
+			FailureResult result = new FailureResult("此会员"+memberId+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		msg.setCreateId(memberIdLong);
+		Hibernate.initialize(member.getTeamInfo());
+		msg.setTravelInf(member.getTeamInfo().getTravelInf());
+		String teamIds = member.getTeamInfo().getId()+"";		
+		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
+		if(msgIdList != null && msgIdList.size() > 0){
+			SuccessResult<String> result = new SuccessResult<String>("success");
+			sendToMobile(result);
+		} else {			
+			FailureResult result = new FailureResult("回复失败");
+			sendToMobile(result);
+		}
+		return;
+	}
+	
 }

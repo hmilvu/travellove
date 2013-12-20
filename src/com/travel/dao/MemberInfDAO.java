@@ -236,4 +236,20 @@ public class MemberInfDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @param idList
+	 * @return
+	 */
+	public List<MemberInf> findByIds(List<Long> idList) {
+		try {
+			String queryString = "from MemberInf as m where m.id in (:ids)";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameterList("ids", idList);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by findByIds failed", re);
+			throw re;
+		}
+	}
 }

@@ -5,15 +5,36 @@
  */
 package com.travel.common.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Lenovo
  *
  */
 public class ViewSpotDTO {
+	private Long viewId;
 	private String name;
 	private Double longitude;
 	private Double latitude;
 	private String description;
+	private List<String> imageUrls = new ArrayList<String>();	
+	
+	public List<String> getImageUrls() {
+		return Collections.unmodifiableList(imageUrls);
+	}
+	public void addImageUrl(List<String> imageUrls) {
+		this.imageUrls.addAll(imageUrls);
+	}
+	
+	
+	public Long getViewId() {
+		return viewId;
+	}
+	public void setViewId(Long viewId) {
+		this.viewId = viewId;
+	}
 	public String getName() {
 		return name;
 	}

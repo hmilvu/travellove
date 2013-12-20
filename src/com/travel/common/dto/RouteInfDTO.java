@@ -5,6 +5,10 @@
  */
 package com.travel.common.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Lenovo
  *
@@ -19,6 +23,14 @@ public class RouteInfDTO {
 	private Double endLongitude;
 	private Double endLatitude;
 	private String description;
+	private List<ViewSpotDTO> viewSportList = new ArrayList<ViewSpotDTO>();
+	
+	public List<ViewSpotDTO> getViewSportList() {
+		return Collections.unmodifiableList(viewSportList);
+	}
+	public void addViewSport(ViewSpotDTO viewSpotDTO) {
+		this.viewSportList.add(viewSpotDTO);
+	}
 	public String getRouteName() {
 		return routeName;
 	}

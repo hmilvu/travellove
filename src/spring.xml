@@ -68,21 +68,7 @@
 		<property name="sessionFactory" ref="sessionFactory"/>
 	</bean>
 	
-	<!-- 配置事务增强处理Bean -->
-	<tx:advice id="txAdvice" transaction-manager="transactionManager">
-		<tx:attributes>
-			<tx:method name="get*" read-only="true"/>
-			<tx:method name="find*" read-only="true"/>
-			<tx:method name="load*" read-only="true"/>
-			<tx:method name="*" rollback-for="Throwable" /> 
-		</tx:attributes>
-	</tx:advice>
-	<aop:config>
-		<aop:pointcut id="daoPointCut" expression="execution(* com.travel.dao.*.*Dao.*(..))"/>
-		<aop:pointcut id="servicePointCut" expression="execution(* com.travel.service.*.*Service.*(..))"/>
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointCut" order="1"/>
-		<aop:advisor advice-ref="txAdvice" pointcut-ref="daoPointCut" order="2"/>
-	</aop:config>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
 	
 	<!-- 初始缓存数据，初始化spring中定义的bean的前后都会用此实现类 -->
     <bean id="cacheBeanPostProcessor" class="com.travel.spring.CacheBeanPostProcessor"/>

@@ -20,9 +20,9 @@
 				<td>
 					旅行团名称：<input type="text" name="teamName" value="<s:property value='%{#request.teamName}'/>"/>
 				</td>
-				<td>
+				<!-- td>
 					标题：<input type="text" name="topic" value="<s:property value='%{#request.topic}'/>"/>
-				</td>
+				</td> -->
 				<td>
 					<label>类型：</label>
 					<select class="combox" name="type">
@@ -72,8 +72,8 @@
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="80">旅行团名称</th>
-				<th width="60">标题</th>
+				<th width="80">消息接收人/团名称</th>
+				<th width="60">内容</th>
 				<th width="40">类型</th>
 				<th width="80">优先级</th>
 				<th width="40">状态</th>
@@ -85,8 +85,8 @@
 		    <s:iterator var="message" value="%{#request.messageList}" status="statu">	
 			<tr target="sid_user" rel="<s:property value="%{#message.id}"/>">
 				<td><input name="ids" value="<s:property value="%{#message.id}"/>" type="checkbox"></td>
-				<td><s:property value="%{#message.teamInfo.name}"/></td>
-				<td><s:property value="%{#message.topic}"/></td>
+				<td><s:property value="%{#message.receiverName}"/></td>
+				<td><s:if test="#message.content.length()>20"><s:property value="#message.content.substring(0, 20)"/></s:if><s:else><s:property value="#message.content"/></s:else></td>
 				<td>
 					<s:if test="%{#message.type == 0}">通知</s:if>
 					<s:elseif test="%{#message.type == 1}">留言</s:elseif>

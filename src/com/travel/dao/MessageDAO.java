@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -95,13 +96,15 @@ public class MessageDAO extends BaseDAO {
 		}
 	}
 
-	public List<Message> findByReceiverId(Object receiverId, PageInfoDTO pageInfo) {
+	public List<Message> findByReceiverId(Long memberId, Long teamId, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from Message as model where model.receiverId = ? order by model.remindTime desc";
+			String queryString = "from Message as m where (m.receiverId = ? and m.receiverType = "+MESSAGE_RECEIVER_TYPE.MEMBER.getValue()+") " +
+					" or (m.receiverId = ?  and m.receiverType = "+MESSAGE_RECEIVER_TYPE.TEAM.getValue()+") order by m.priority asc, m.remindTime desc";
 			Query queryObject = getSession().createQuery(queryString);
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 			queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			queryObject.setParameter(0, receiverId);
+			queryObject.setParameter(0, memberId);
+			queryObject.setParameter(1, teamId);
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
@@ -114,16 +117,16 @@ public class MessageDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<Object[]> findRepliesByMessageId(Long messageId,
+	public List<Reply> findRepliesByMessageId(Long messageId,
 			PageInfoDTO pageInfo) {
 		try {
-			String queryString = "select r, r.memberInf, r.message from Reply r where r.message.id = ? order by r.createDate desc";
-			Query queryObject = getSession().createQuery(queryString);
+			Criteria cr = getSession().createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
+			cr.add(Restrictions.eq("message.id", messageId));
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			queryObject.setMaxResults(maxResults);
-			queryObject.setParameter(0, messageId);
-			return queryObject.list();
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.setMaxResults(maxResults);
+			cr.addOrder(Order.desc("createDate"));
+			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
 			throw re;
@@ -150,9 +153,9 @@ public class MessageDAO extends BaseDAO {
 	 */
 	private Criteria buildSearchCriteria(SearchMessageDTO dto) {
 		Criteria cr = getSession().createCriteria(Message.class);
-		cr.createAlias("teamInfo", "t");
+		cr.createAlias("travelInf", "t");
 		if (dto.getTravelId() != null) {
-			cr.add(Restrictions.eq("t.travelInf.id", dto.getTravelId()));
+			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
 		}
 		if (!StringUtils.isBlank(dto.getTeamName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());

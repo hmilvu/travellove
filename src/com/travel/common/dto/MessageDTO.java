@@ -22,6 +22,7 @@ public class MessageDTO {
 	private String topic;
 	private String content;
 	private String createDate;
+	private String creatorName;
 	public Long getId() {
 		return id;
 	}
@@ -63,6 +64,12 @@ public class MessageDTO {
 	}
 	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
+	}
+	public String getCreatorName() {
+		return creatorName;
+	}
+	public void setCreatorName(String creatorName) {
+		this.creatorName = creatorName;
 	}
 	
 	

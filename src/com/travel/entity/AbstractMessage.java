@@ -25,8 +25,9 @@ public abstract class AbstractMessage extends BaseEntity implements
 	// Fields
 
 	private Long id;
-	private TeamInfo teamInfo;
-	private SysUser sysUser;
+	private TravelInf travelInf;
+	private Long createId;
+	private Integer createType;
 	private Long authorId;
 	private Integer priority;
 	private Integer status;
@@ -34,6 +35,7 @@ public abstract class AbstractMessage extends BaseEntity implements
 	private String topic;
 	private String content;
 	private Long receiverId;
+	private Integer receiverType;
 	private Timestamp remindTime;
 	private Integer remindMode;
 	private Timestamp createDate;
@@ -47,12 +49,10 @@ public abstract class AbstractMessage extends BaseEntity implements
 	}
 
 	/** minimal constructor */
-	public AbstractMessage(TeamInfo teamInfo, SysUser sysUser, Long authorId,
+	public AbstractMessage(Long authorId,
 			Integer priority, Integer status, Integer type, String topic,
 			String content, Long receiverId, Timestamp remindTime,
 			Integer remindMode, Timestamp createDate, Timestamp updateDate) {
-		this.teamInfo = teamInfo;
-		this.sysUser = sysUser;
 		this.authorId = authorId;
 		this.priority = priority;
 		this.status = status;
@@ -67,13 +67,11 @@ public abstract class AbstractMessage extends BaseEntity implements
 	}
 
 	/** full constructor */
-	public AbstractMessage(TeamInfo teamInfo, SysUser sysUser, Long authorId,
+	public AbstractMessage(Long authorId,
 			Integer priority, Integer status, Integer type, String topic,
 			String content, Long receiverId, Timestamp remindTime,
 			Integer remindMode, Timestamp createDate, Timestamp updateDate,
 			Set<Reply> replies) {
-		this.teamInfo = teamInfo;
-		this.sysUser = sysUser;
 		this.authorId = authorId;
 		this.priority = priority;
 		this.status = status;
@@ -102,23 +100,22 @@ public abstract class AbstractMessage extends BaseEntity implements
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_id", nullable = false)
-	public TeamInfo getTeamInfo() {
-		return this.teamInfo;
+	@JoinColumn(name = "travel_id", nullable = false)
+	public TravelInf getTravelInf() {
+		return this.travelInf;
 	}
 
-	public void setTeamInfo(TeamInfo teamInfo) {
-		this.teamInfo = teamInfo;
+	public void setTravelInf(TravelInf travelInf) {
+		this.travelInf = travelInf;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "create_user_id", nullable = false)
-	public SysUser getSysUser() {
-		return this.sysUser;
+	@Column(name = "create_id", nullable = true)
+	public Long getCreateId() {
+		return this.createId;
 	}
 
-	public void setSysUser(SysUser sysUser) {
-		this.sysUser = sysUser;
+	public void setCreateId(Long createId) {
+		this.createId = createId;
 	}
 
 	@Column(name = "author_id", nullable = true)
@@ -137,6 +134,24 @@ public abstract class AbstractMessage extends BaseEntity implements
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+	
+	@Column(name = "create_type", nullable = false)
+	public Integer getCreateType() {
+		return this.createType;
+	}
+
+	public void setCreateType(Integer createType) {
+		this.createType = createType;
+	}
+	
+	@Column(name = "receiver_type", nullable = false)
+	public Integer getReceiverType() {
+		return this.receiverType;
+	}
+
+	public void setReceiverType(Integer receiverType) {
+		this.receiverType = receiverType;
 	}
 
 	@Column(name = "status", nullable = false)

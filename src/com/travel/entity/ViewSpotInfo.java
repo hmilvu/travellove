@@ -41,6 +41,7 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	 */
 	public ViewSpotDTO toDTO() {
 		ViewSpotDTO dto = new ViewSpotDTO();
+		dto.setViewId(getId());
 		dto.setName(getName());
 		dto.setDescription(getDescription());
 		dto.setLatitude(getLatitude());

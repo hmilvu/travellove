@@ -231,4 +231,18 @@ public class MemberService extends AbstractBaseService
 	public List<MemberInf> findAllMembersByTeamIds(List<Long> idList) {
 		return memberInfDao.findByTeamIds(idList);
 	}
+
+
+	/**
+	 * @param memberIds
+	 * @return
+	 */
+	public List<MemberInf> getMemberByIds(String memberIds) {
+		String[]ids = StringUtils.split(memberIds, ",");
+		List <Long>idList = new ArrayList<Long>();
+		for(String id : ids){
+			idList.add(Long.valueOf(id));
+		}
+		return memberInfDao.findByIds(idList);
+	}
 }

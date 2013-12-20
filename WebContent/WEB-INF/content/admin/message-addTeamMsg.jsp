@@ -36,12 +36,12 @@ function save(){
 <div class="pageContent">
 	<form name="userForm" id="userForm" method="post" action="" class="pageForm required-validate">
 		<div class="pageFormContent nowrap" layoutH="56">			
-			<dl>
+			<!-- <dl>
 				<dt>标题：</dt>
 				<dd>
 					<input type="text" name="topic" size="40" maxlength="20" class="required" />
 				</dd>
-			</dl>
+			</dl> -->
 			<dl class="nowrap">
 				<dt>内容：</dt>
 				<dd><textarea cols="80" rows="4" name="content" class="required" maxlength="140"></textarea></dd>

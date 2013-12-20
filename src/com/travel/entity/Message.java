@@ -1,10 +1,11 @@
 package com.travel.entity;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.travel.common.dto.MessageDTO;
 import com.travel.utils.DateUtils;
@@ -23,22 +24,22 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 	}
 
 	/** minimal constructor */
-	public Message(TeamInfo teamInfo, SysUser sysUser, Long authorId,
+	public Message(Long authorId,
 			Integer priority, Integer status, Integer type, String topic,
 			String content, Long receiverId, Timestamp remindTime,
 			Integer remindMode, Timestamp createDate, Timestamp updateDate) {
-		super(teamInfo, sysUser, authorId, priority, status, type, topic,
+		super(authorId, priority, status, type, topic,
 				content, receiverId, remindTime, remindMode, createDate,
 				updateDate);
 	}
 
 	/** full constructor */
-	public Message(TeamInfo teamInfo, SysUser sysUser, Long authorId,
+	public Message(Long authorId,
 			Integer priority, Integer status, Integer type, String topic,
 			String content, Long receiverId, Timestamp remindTime,
 			Integer remindMode, Timestamp createDate, Timestamp updateDate,
 			Set<Reply> replies) {
-		super(teamInfo, sysUser, authorId, priority, status, type, topic,
+		super(authorId, priority, status, type, topic,
 				content, receiverId, remindTime, remindMode, createDate,
 				updateDate, replies);
 	}
@@ -60,8 +61,9 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 	@Override
 	public Message clone(){
 		Message msg = new Message();
-		msg.setTeamInfo(getTeamInfo());
-		msg.setSysUser(getSysUser());
+		msg.setTravelInf(getTravelInf());
+		msg.setCreateId(getCreateId());
+		msg.setCreateType(getCreateType());
 		msg.setAuthorId(getAuthorId());
 		msg.setPriority(getPriority());
 		msg.setStatus(getStatus());
@@ -69,6 +71,7 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		msg.setType(getType());
 		msg.setContent(getContent());
 		msg.setReceiverId(getReceiverId());
+		msg.setReceiverType(getReceiverType());
 		msg.setRemindTime(getRemindTime());
 		msg.setRemindMode(getRemindMode());
 		msg.setCreateDate(getCreateDate());
@@ -76,5 +79,16 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		return msg;
 		
 	}
-
+	
+	@Transient
+	private String receiverName;
+	@Transient
+	public String getReceiverName() {
+		return receiverName;
+	}
+	@Transient
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
+	
 }

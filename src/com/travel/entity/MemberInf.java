@@ -60,6 +60,8 @@ public class MemberInf extends AbstractMemberInf implements
 		dto.setAvatarUrl(getAvatarUrl());
 		dto.setProfile(getProfile());
 		dto.setInterest(getInterest());
+		dto.setChannelId(getChannelId());
+		dto.setBaiduUserId(getBaiduUserId());
 		return dto;
 	}
 

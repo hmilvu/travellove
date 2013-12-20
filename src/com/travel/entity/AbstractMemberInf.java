@@ -39,6 +39,8 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 	private String avatarUrl;
 	private String profile;
 	private String interest;
+	private Long channelId;
+	private String baiduUserId;
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<Reply> replies = new HashSet<Reply>(0);
@@ -238,6 +240,25 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 	public void setInterest(String interest) {
 		this.interest = interest;
 	}
+	
+	@Column(name = "channel_id")
+	public Long getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(Long channelId) {
+		this.channelId = channelId;
+	}
+	
+	@Column(name = "baidu_user_id", length = 128)
+	public String getBaiduUserId() {
+		return this.baiduUserId;
+	}
+
+	public void setBaiduUserId(String baiduUserId) {
+		this.baiduUserId = baiduUserId;
+	}
+
 
 	@Column(name = "create_date", nullable = false, length = 19)
 	public Timestamp getCreateDate() {

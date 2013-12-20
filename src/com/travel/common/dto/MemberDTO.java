@@ -25,6 +25,8 @@ public class MemberDTO {
 	private String avatarUrl;
 	private String profile;
 	private String interest;
+	private Long channelId;
+	private String baiduUserId;
 	public Long getId() {
 		return id;
 	}
@@ -96,6 +98,18 @@ public class MemberDTO {
 	}
 	public void setInterest(String interest) {
 		this.interest = interest;
+	}
+	public Long getChannelId() {
+		return channelId;
+	}
+	public void setChannelId(Long channelId) {
+		this.channelId = channelId;
+	}
+	public String getBaiduUserId() {
+		return baiduUserId;
+	}
+	public void setBaiduUserId(String baiduUserId) {
+		this.baiduUserId = baiduUserId;
 	}
 	
 	

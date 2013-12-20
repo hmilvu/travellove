@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class Config {
     private static Log log = LogFactory.getLog(Config.class);
-    private static String CONFIG_FILENAME = "config.properties";
+    private static String CONFIG_FILENAME = "base.properties";
     private static Properties prop = null;
 
     public Config() {

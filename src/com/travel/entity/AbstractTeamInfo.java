@@ -38,7 +38,6 @@ public abstract class AbstractTeamInfo extends BaseEntity implements
 	private String description;
 	private Timestamp createDate;
 	private Timestamp updateDate;
-	private Set<Message> messages = new HashSet<Message>(0);
 	private Set<LocationLog> locationLogs = new HashSet<LocationLog>(0);
 	private Set<MemberInf> memberInfs = new HashSet<MemberInf>(0);
 	private Set<Order> orders = new HashSet<Order>(0);
@@ -78,7 +77,6 @@ public abstract class AbstractTeamInfo extends BaseEntity implements
 		this.description = description;
 		this.createDate = createDate;
 		this.updateDate = updateDate;
-		this.messages = messages;
 		this.locationLogs = locationLogs;
 		this.memberInfs = memberInfs;
 		this.orders = orders;
@@ -189,15 +187,6 @@ public abstract class AbstractTeamInfo extends BaseEntity implements
 
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
-	}
-
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "teamInfo")
-	public Set<Message> getMessages() {
-		return this.messages;
-	}
-
-	public void setMessages(Set<Message> messages) {
-		this.messages = messages;
 	}
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "teamInfo")

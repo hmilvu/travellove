@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RouteViewSpot;
+import com.travel.entity.ViewSpotInfo;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -109,6 +110,23 @@ public class RouteViewSpotDAO extends BaseDAO {
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			log.error("findByViewSpotIds failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<ViewSpotInfo> findViewSpotByRouteId(Long routeId) {
+		log.debug("findViewSpotByRouteId");
+		try {
+			String queryString = "select r.viewSpotInfo from RouteViewSpot r where r.routeInf.id = ? order by r.order";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, routeId);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("findViewSpotByRouteId failed", re);
 			throw re;
 		}
 	}

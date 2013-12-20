@@ -17,16 +17,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
+import com.travel.entity.TravelInf;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
-import com.travel.service.TeamInfoService;
 import com.travel.utils.JsonUtils;
 
 /**
@@ -39,11 +41,9 @@ public class MessageAction extends AuthorityAction{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	private TeamInfoService teamService;
+	private MessageService messageService;
 	@Autowired
 	private MemberService memberService;
-	@Autowired
-	private MessageService messageService;
 
 	public String list(){
 		String topic = request.getParameter("topic");
@@ -100,7 +100,22 @@ public class MessageAction extends AuthorityAction{
 	
 	@SuppressWarnings("static-access")
 	public void createTeamMsg(){
-		String teamIds = request.getParameter("selectteam.id");
+		Message msg = setupMessage();
+		if(msg == null){
+			return;
+		}
+		String teamIds = request.getParameter("selectteam.id");		
+		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
+		if(msgIdList != null && msgIdList.size() > 0){
+			messageService.sendPushMsg(msgIdList, msg.getContent());
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
+		} else {			
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
+		}
+	}
+	
+	@SuppressWarnings("static-access")
+	private Message setupMessage(){
 		String topic = request.getParameter("topic");
 		String content = request.getParameter("content");
 		String type = request.getParameter("type");
@@ -109,19 +124,19 @@ public class MessageAction extends AuthorityAction{
 		String remindTime = request.getParameter("remindTime");
 		Message msg = new Message();
 		if(StringUtils.equals(type, MESSAGE_TYPE.NOTIFICATION.getValue()+"") && StringUtils.equals(remindMode,MESSAGE_REMIND_MODE.LATER.getValue()+"")){
-			msg.setRemindMode(MESSAGE_REMIND_MODE.LATER.getValue());
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			try {
 				Date date = format.parse(remindTime);
 				if(date.before(new Date(System.currentTimeMillis() + 5 * 60 * 1000))){
 					JsonUtils.write(response, binder.toJson("result", Action.INPUT));		
-					return;
+					return null;
 				} else {					
 					msg.setRemindTime(new Timestamp(date.getTime()));
+					msg.setRemindMode(MESSAGE_REMIND_MODE.LATER.getValue());
 				}
 			} catch (ParseException e) {
 				JsonUtils.write(response, binder.toJson("result", Action.INPUT+"1"));
-				return;
+				return null;
 			}
 		} else {
 			msg.setRemindTime(new Timestamp(new Date().getTime()));
@@ -132,14 +147,14 @@ public class MessageAction extends AuthorityAction{
 		msg.setType(Integer.valueOf(type));
 		msg.setTopic(topic);
 		msg.setContent(content);
-		msg.setSysUser(getCurrentUser());
-		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
-		if(msgIdList != null && msgIdList.size() > 0){
-			messageService.sendPushMsg(msgIdList, content);
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
-		} else {			
-			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
+		msg.setCreateType(MESSAGE_CREATE_TYPE.SYSUSER.getValue());
+		msg.setCreateId(getCurrentUser().getId());
+		if(isTravelUser()){
+			TravelInf travelInf = new TravelInf();
+			travelInf.setId(getCurrentUser().getTravelInf().getId());
+			msg.setTravelInf(travelInf);
 		}
+		return msg;
 	}
 	
 	public String addMemberMsg(){
@@ -147,13 +162,19 @@ public class MessageAction extends AuthorityAction{
 	}
 	
 	public void createMemberMsg(){
-		String ids = request.getParameter("uid");
-		String content = request.getParameter("content");
-		Message msg = new Message();
-		msg.setContent(content);
-		msg.setSysUser(getCurrentUser());
-		List<Long>msgIdList = messageService.addMessageForTeam(msg, ids);
-		messageService.sendPushMsg(msgIdList, content);
+		Message msg = setupMessage();
+		if(msg == null){
+			return;
+		}
+		String memberIds = request.getParameter("selectmember.id");		
+		List<MemberInf> memberList = memberService.getMemberByIds(memberIds);
+		List<Long>msgIdList = messageService.addMessageForTeam(msg, memberIds);
+		if(msgIdList != null && msgIdList.size() > 0){
+			messageService.sendPushMsg(msgIdList, msg.getContent(), memberList);
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
+		} else {			
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
+		}
 	}
 	
 	public void delete(){
@@ -221,6 +242,7 @@ public class MessageAction extends AuthorityAction{
 		
 	}
 	
+	@SuppressWarnings("static-access")
 	public void createReply(){
 		String msgId = request.getParameter("messageId");
 		String content = request.getParameter("content");

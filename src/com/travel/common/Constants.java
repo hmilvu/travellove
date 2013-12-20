@@ -109,4 +109,37 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum MESSAGE_RECEIVER_TYPE {
+		TEAM(0), MEMBER(1);
+		private int value;
+		private MESSAGE_RECEIVER_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
+	public enum MESSAGE_CREATE_TYPE {
+		SYSUSER(0), MEMBER(1);
+		private int value;
+		private MESSAGE_CREATE_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
+	public enum IMAGE_TYPE {
+		AVATAR(0), VIEWSPOT(1), ITEM(2);
+		private int value;
+		private IMAGE_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }
