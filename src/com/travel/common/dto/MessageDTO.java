@@ -23,6 +23,21 @@ public class MessageDTO {
 	private String content;
 	private String createDate;
 	private String creatorName;
+	private Integer createType;
+	private Long createId;
+	
+	public Integer getCreateType() {
+		return createType;
+	}
+	public void setCreateType(Integer createType) {
+		this.createType = createType;
+	}
+	public Long getCreateId() {
+		return createId;
+	}
+	public void setCreateId(Long createId) {
+		this.createId = createId;
+	}
 	public Long getId() {
 		return id;
 	}

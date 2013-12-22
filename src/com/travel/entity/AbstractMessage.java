@@ -38,6 +38,7 @@ public abstract class AbstractMessage extends BaseEntity implements
 	private Integer receiverType;
 	private Timestamp remindTime;
 	private Integer remindMode;
+	private Integer pushStatus;
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<Reply> replies = new HashSet<Reply>(0);
@@ -152,6 +153,15 @@ public abstract class AbstractMessage extends BaseEntity implements
 
 	public void setReceiverType(Integer receiverType) {
 		this.receiverType = receiverType;
+	}
+	
+	@Column(name = "push_status", nullable = false)
+	public Integer getPushStatus() {
+		return this.pushStatus;
+	}
+
+	public void setPushStatus(Integer pushStatus) {
+		this.pushStatus = pushStatus;
 	}
 
 	@Column(name = "status", nullable = false)

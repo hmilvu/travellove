@@ -66,7 +66,8 @@
 				<th width="150">旅行团名称</th>
 				<th width="15">人数</th>
 				<th width="80">开始时间</th>
-				<th width="80">结束时间</th>				
+				<th width="80">结束时间</th>	
+				<th width="40">操作</th>			
 			</tr>
 		</thead>
 		<tbody>
@@ -92,6 +93,9 @@
 				</td>
 				<td>
 					<s:date name="#team.endDate" format="yyyy-MM-dd" />
+				</td>
+				<td>
+					<a class="btnAssign" href="admin/member-inf!list.action?teamId=<s:property value='%{#team.id}'/>&fromTeam=1" target="navTab" title="查看会员">查看会员</a>
 				</td>
 			</tr>
 		</s:iterator>

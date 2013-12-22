@@ -18,6 +18,7 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
@@ -26,9 +27,11 @@ import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
+import com.travel.entity.TeamInfo;
 import com.travel.entity.TravelInf;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
+import com.travel.service.TeamInfoService;
 import com.travel.utils.JsonUtils;
 
 /**
@@ -44,6 +47,8 @@ public class MessageAction extends AuthorityAction{
 	private MessageService messageService;
 	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private TeamInfoService teamService;
 
 	public String list(){
 		String topic = request.getParameter("topic");
@@ -105,9 +110,9 @@ public class MessageAction extends AuthorityAction{
 			return;
 		}
 		String teamIds = request.getParameter("selectteam.id");		
-		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
-		if(msgIdList != null && msgIdList.size() > 0){
-			messageService.sendPushMsg(msgIdList, msg.getContent());
+		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
+		if(msgList != null && msgList.size() > 0){
+			messageService.sendTeamPushMsg(msgList, msg.getContent(), teamIds);
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
@@ -168,9 +173,9 @@ public class MessageAction extends AuthorityAction{
 		}
 		String memberIds = request.getParameter("selectmember.id");		
 		List<MemberInf> memberList = memberService.getMemberByIds(memberIds);
-		List<Long>msgIdList = messageService.addMessageForTeam(msg, memberIds);
-		if(msgIdList != null && msgIdList.size() > 0){
-			messageService.sendPushMsg(msgIdList, msg.getContent(), memberList);
+		List<Message>msgList = messageService.addMessageForReceiver(msg, memberIds, MESSAGE_RECEIVER_TYPE.MEMBER);
+		if(msgList != null && msgList.size() > 0){
+			messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
@@ -192,21 +197,39 @@ public class MessageAction extends AuthorityAction{
 			return "edit";
 		}
 		Message msg = messageService.getMessageById(idLong);	
+		if(msg.getRemindTime().before(new Date())){
+			request.setAttribute("canNotModify", Integer.valueOf(1));
+		}
 		if(msg != null && msg.getId() > 0){
 			request.setAttribute("editMessage", msg);
 		}
-		return "edit";
+		if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
+			TeamInfo team = teamService.getTeamById(msg.getReceiverId());
+			msg.setReceiverName(team.getName());
+			return "editTeamMsg";
+		} else {
+			MemberInf member = memberService.getMemberById(msg.getReceiverId());
+			msg.setReceiverName(member.getMemberName());
+			return "editMemberMsg";
+		}
 	}
 	
-	@SuppressWarnings("static-access")
-	public void update(){
-		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));	
-//		if(memberService.updateMember(memberInf) == 0){
-//			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
-//		} else {
-//			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-//		}
-		
+	public void updateMemberMsg(){
+		deleteOldMessage();
+		createMemberMsg();
+	}
+
+	public void updateTeamMsg(){
+		deleteOldMessage();
+		createTeamMsg();
+	}
+	
+	private void deleteOldMessage() {
+		String messageId = request.getParameter("messageId");
+		Message oldMessage = messageService.getMessageById(Long.valueOf(messageId));
+		if(oldMessage != null && oldMessage.getId() > 0){
+			messageService.deleteMessage(oldMessage);
+		}
 	}
 	
 	public String reply(){
@@ -259,5 +282,8 @@ public class MessageAction extends AuthorityAction{
 		}
 	}
 	
+	public String audit(){
+		return null;
+	}
 	
 }

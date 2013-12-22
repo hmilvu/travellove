@@ -13,12 +13,15 @@ import com.baidu.yun.channel.auth.ChannelKeyPair;
 import com.baidu.yun.channel.client.BaiduChannelClient;
 import com.baidu.yun.channel.exception.ChannelClientException;
 import com.baidu.yun.channel.exception.ChannelServerException;
+import com.baidu.yun.channel.model.PushTagMessageRequest;
+import com.baidu.yun.channel.model.PushTagMessageResponse;
 import com.baidu.yun.channel.model.PushUnicastMessageRequest;
 import com.baidu.yun.channel.model.PushUnicastMessageResponse;
 import com.baidu.yun.core.log.YunLogEvent;
 import com.baidu.yun.core.log.YunLogHandler;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.PUSH_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -62,7 +65,11 @@ public class MessageService extends AbstractBaseService
 				dto.setCreatorName("系统管理员");
 			} else {
 				MemberInf member = memberService.getMemberById(msg.getCreateId());
-				dto.setCreatorName(member.getNickname());
+				if(StringUtils.isNotBlank(member.getNickname())){
+					dto.setCreatorName(member.getNickname());
+				} else {
+					dto.setCreatorName(member.getMemberName());
+				}
 			}
 			result.add(dto);
 		}
@@ -159,38 +166,57 @@ public class MessageService extends AbstractBaseService
 	}
 
 	/**
-	 * @param ids
-	 * @return
-	 */
-	public List<Long> addMessageForTeam(Message msg, String teamIds) {
-		if(StringUtils.isBlank(msg.getTopic())){
-			msg.setTopic("");
-		}
-		msg.setCreateDate(new Timestamp(new Date().getTime()));
-		msg.setUpdateDate(msg.getCreateDate());
-		String []idArray = StringUtils.split(teamIds, ",");		
-		List<Long>msgIdList = new ArrayList<Long>();
-		for(String teamId : idArray){
-			msg.setReceiverId(Long.valueOf(teamId));
-			msg.setReceiverType(MESSAGE_RECEIVER_TYPE.TEAM.getValue());
-			try{
-				msg.setId(null);
-				msgIdList.add(messageDAO.save(msg));
-			} catch(Throwable e){
-				log.error("创建会员消息失败", e);
-			}
-			msg = (Message) msg.clone();
-		}
-		return msgIdList;
-	}
-
-	/**
 	 * @param msgIdList
 	 * @param content
 	 */
-	public void sendPushMsg(List<Long> msgIdList, String content) {
-		// TODO Auto-generated method stub
+	public void sendTeamPushMsg(List<Message>messageList, String content, String teamIds) {
+		// 1. 设置developer平台的ApiKey/SecretKey
+		String apiKey = Config.getProperty("baidu.appkey");
+		String secretKey = Config.getProperty("baidu.secretkey");
+		ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);		
+		// 2. 创建BaiduChannelClient对象实例
+		BaiduChannelClient channelClient = new BaiduChannelClient(pair);		
+		// 3. 若要了解交互细节，请注册YunLogHandler类
+		channelClient.setChannelLogHandler(new YunLogHandler() {
+			@Override
+			public void onHandle(YunLogEvent event) {
+				log.info(event.getMessage());
+			}
+		});
 		
+		String []teamIdArray = StringUtils.split(teamIds, ",");
+		for(int i = 0; i < teamIdArray.length; i++){
+			String teamId = teamIdArray[i];
+			Message msg = messageList.get(i);
+			try {			
+				// 4. 创建请求类对象
+				PushTagMessageRequest request = new PushTagMessageRequest();
+				request.setDeviceType(3); 	// device_type => 1: web 2: pc 3:android 4:ios 5:wp	
+				request.setTagName("TAG_" + teamId);
+				request.setMessage(content);
+				// 若要通知，
+				//	request.setMessageType(1);
+				//	request.setMessage("{\"title\":\"Notify_title_danbo\",\"description\":\"Notify_description_content\"}");		
+				// 5. 调用pushMessage接口
+				PushTagMessageResponse response = channelClient.pushTagMessage(request);
+				// 6. 认证推送成功
+				log.info("push amount : " + response.getSuccessAmount()); 
+				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
+			} catch (ChannelClientException e) {
+				// 处理客户端错误异常
+				log.error("团队推送失败 TAG = ", "TAG_" + teamId);
+				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+			} catch (ChannelServerException e) {
+				// 处理服务端错误异常
+				log.error("团队推送失败 TAG = ", "TAG_" + teamId);
+				log.error(String.format("request_id: %d, error_code: %d, error_message: %s" , 
+							e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
+							));
+				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+			} finally{
+				messageDAO.update(msg);
+			}
+		}		
 	}
 
 	/**
@@ -200,7 +226,7 @@ public class MessageService extends AbstractBaseService
 	 * @brief	推送单播消息(消息类型为透传，由开发方应用自己来解析消息内容)
 	* 			message_type = 0 (默认为0)
 	 */
-	public void sendPushMsg(List<Long> msgIdList, String content,
+	public void sendMemberPushMsg(List<Message>messageList, String content,
 			List<MemberInf> memberList) {
 		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
@@ -214,11 +240,13 @@ public class MessageService extends AbstractBaseService
 		channelClient.setChannelLogHandler(new YunLogHandler() {
 			@Override
 			public void onHandle(YunLogEvent event) {
-				System.out.println(event.getMessage());
+				log.info(event.getMessage());
 			}
 		});
 		
-		for(MemberInf member : memberList){
+		for(int i = 0; i < memberList.size(); i++){
+			MemberInf member = memberList.get(i);
+			Message msg = messageList.get(i);
 			try {				
 				// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
 				PushUnicastMessageRequest request = new PushUnicastMessageRequest();
@@ -229,9 +257,11 @@ public class MessageService extends AbstractBaseService
 				// 5. 调用pushMessage接口
 				PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
 				// 6. 认证推送成功
-				log.info("push amount : " + response.getSuccessAmount()); 				
+				log.info("push amount : " + response.getSuccessAmount()); 	
+				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
 			} catch (ChannelClientException e) {
 				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
 			} catch (ChannelServerException e) {
 				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
 				log.error(
@@ -239,10 +269,58 @@ public class MessageService extends AbstractBaseService
 							e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
 							)
 						);
+				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
 			} catch (Throwable e){
 				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+			} finally{
+				messageDAO.update(msg);
 			}
 		}
+	}
+
+	/**
+	 * @param msg
+	 * @param memberIds
+	 * @param member
+	 * @return
+	 */
+	public List<Message> addMessageForReceiver(Message msg, String receiverIds,
+			MESSAGE_RECEIVER_TYPE receiverType) {
+		if(StringUtils.isBlank(msg.getTopic())){
+			msg.setTopic("");
+		}
+		msg.setCreateDate(new Timestamp(new Date().getTime()));
+		msg.setUpdateDate(msg.getCreateDate());
+		String []idArray = StringUtils.split(receiverIds, ",");		
+		List<Message>msgList = new ArrayList<Message>();
+		for(String receiverId : idArray){
+			msg.setReceiverId(Long.valueOf(receiverId));
+			msg.setReceiverType(receiverType.getValue());
+			try{
+				msg.setId(null);
+				messageDAO.save(msg);
+				msgList.add(msg);
+			} catch(Throwable e){
+				log.error("创建会员消息失败", e);
+			}
+			msg = (Message) msg.clone();
+		}
+		return msgList;
+	}
+
+	/**
+	 * @param valueOf
+	 */
+	public void deleteMessage(Message msg) {		
+		messageDAO.delete(msg);		
+	}
+
+	/**
+	 * @return
+	 */
+	public List<Message> getNeedToPushMessages() {
+		return messageDAO.getNeedToPush();
 	}
 	
 }

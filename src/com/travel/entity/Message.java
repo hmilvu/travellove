@@ -1,6 +1,7 @@
 package com.travel.entity;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -50,11 +51,14 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 	public MessageDTO toDTO() {
 		MessageDTO dto = new MessageDTO();
 		dto.setId(getId());
+		dto.setType(getType());
 		dto.setPriority(getPriority());;
 		dto.setStatus(getStatus());
 		dto.setCreateDate(DateUtils.toStr(getCreateDate()));
 		dto.setTopic(getTopic());
 		dto.setContent(getContent());
+		dto.setCreateId(getCreateId());
+		dto.setCreateType(getCreateType());
 		return dto;
 	}
 	
@@ -90,5 +94,18 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 	public void setReceiverName(String receiverName) {
 		this.receiverName = receiverName;
 	}
+	
+	@Transient
+	private String remindTimeStr;
+	@Transient
+	public String getRemindTimeStr() {
+		remindTimeStr = DateUtils.toStr(new Date(getRemindTime().getTime()));
+		return remindTimeStr.substring(0, remindTimeStr.length() - 3);
+	}
+	@Transient
+	public void setRemindTimeStr(String remindTimeStr) {
+		this.remindTimeStr = remindTimeStr;
+	}
+	
 	
 }

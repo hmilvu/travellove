@@ -49,6 +49,7 @@ public class TeamInfAction extends AuthorityAction{
 	}
 
 	public String list(){
+		String fromSelect = request.getParameter("fromSelect");
 		String travelName = request.getParameter("travelName");
 		String teamName = request.getParameter("teamName");
 		String startDate = request.getParameter("startDate");
@@ -84,7 +85,11 @@ public class TeamInfAction extends AuthorityAction{
 		request.setAttribute("endDate", endDate);
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
-		return "list";
+		if(StringUtils.equals(fromSelect, "1")){
+			return "mulselect";
+		} else {
+			return "list";
+		}
 	}
 	
 	public void selectList(){

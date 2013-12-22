@@ -1,5 +1,7 @@
 package com.travel.dao;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +17,9 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.Constants.PUSH_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.Message;
@@ -62,6 +66,7 @@ public class MessageDAO extends BaseDAO {
 		log.debug("deleting Message instance");
 		try {
 			getSession().delete(persistentInstance);
+			getSession().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -98,14 +103,17 @@ public class MessageDAO extends BaseDAO {
 
 	public List<Message> findByReceiverId(Long memberId, Long teamId, PageInfoDTO pageInfo) {
 		try {
-			String queryString = "from Message as m where (m.receiverId = ? and m.receiverType = "+MESSAGE_RECEIVER_TYPE.MEMBER.getValue()+") " +
-					" or (m.receiverId = ?  and m.receiverType = "+MESSAGE_RECEIVER_TYPE.TEAM.getValue()+") order by m.priority asc, m.remindTime desc";
-			Query queryObject = getSession().createQuery(queryString);
+			Criteria cr = getSession().createCriteria(Message.class);
+			cr.add(Restrictions.le("remindTime", new Timestamp(new Date().getTime())));
+			cr.add(Restrictions.ne("status", MESSAGE_STATUS.DELETED.getValue()));
+			cr.add(Restrictions.or(Restrictions.and(Restrictions.eq("receiverId", memberId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.MEMBER.getValue())), 
+					Restrictions.and(Restrictions.eq("receiverId", teamId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.TEAM.getValue()))));
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			queryObject.setParameter(0, memberId);
-			queryObject.setParameter(1, teamId);
-			return queryObject.list();
+			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+			cr.setMaxResults(maxResults);
+			cr.addOrder(Order.asc("priority"));
+			cr.addOrder(Order.desc("remindTime"));
+			return cr.list();
 		} catch (RuntimeException re) {
 			log.error("find by receiverId failed", re);
 			throw re;
@@ -255,6 +263,39 @@ public class MessageDAO extends BaseDAO {
 		Criteria cr = getSession().createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
 		cr.add(Restrictions.eq("message.id", messageId));
 		return cr;
+	}
+
+	/**
+	 * @return
+	 */
+	public List<Message> getNeedToPush() {
+		try {
+			String queryString = "from Message where remindTime < ? and remindMode = ? and push_status != ? and push_status != ? ";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, new Timestamp(new Date().getTime()));
+			queryObject.setParameter(1, MESSAGE_REMIND_MODE.LATER);
+			queryObject.setParameter(2, PUSH_STATUS.PUSHED.getValue());
+			queryObject.setParameter(3, PUSH_STATUS.PUSH_FAILED.getValue());
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param msg
+	 */
+	public void update(Message transientInstance) {
+		log.debug("update Message instance");
+		try {
+			getSession().update(transientInstance);
+			getSession().flush();
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			throw re;
+		}
 	}
 
 }

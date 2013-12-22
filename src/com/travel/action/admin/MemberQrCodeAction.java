@@ -43,7 +43,7 @@ public class MemberQrCodeAction extends AuthorityAction {
 	public String execute() {
 		String id = request.getParameter("memberId");
 		MemberInf memberInf = memberService.getMemberById(Long.valueOf(id));
-		String content = "{\"mobile\":\""+memberInf.getTravelerMobile()+"\",\"password\":\""+memberInf.getPassword()+"\"}";
+		String content = "{\"teamId\":"+memberInf.getTeamInfo().getId()+",\"mobile\":\""+memberInf.getTravelerMobile()+"\",\"password\":\""+memberInf.getPassword()+"\"}";
 		try{
 			BufferedImage image = QRCodeUtil.createQRimage(content);
 			ByteArrayOutputStream output = new ByteArrayOutputStream();

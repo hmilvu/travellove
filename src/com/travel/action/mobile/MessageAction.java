@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
@@ -201,8 +202,8 @@ public class MessageAction extends BaseAction {
 		Hibernate.initialize(member.getTeamInfo());
 		msg.setTravelInf(member.getTeamInfo().getTravelInf());
 		String teamIds = member.getTeamInfo().getId()+"";		
-		List<Long>msgIdList = messageService.addMessageForTeam(msg, teamIds);
-		if(msgIdList != null && msgIdList.size() > 0){
+		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
+		if(msgList != null && msgList.size() > 0){
 			SuccessResult<String> result = new SuccessResult<String>("success");
 			sendToMobile(result);
 		} else {			
@@ -210,6 +211,29 @@ public class MessageAction extends BaseAction {
 			sendToMobile(result);
 		}
 		return;
+	}
+	
+	public void delete(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Object messageId = getMobileParameter(data, "messageId");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(messageId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("id类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Message msg = messageService.getMessageById(idLong);
+		if(msg!= null && StringUtils.equals(memberId.toString(), msg.getCreateId().toString())){
+			messageService.deleteMessageByIds(idLong + "");
+			SuccessResult<String> result = new SuccessResult<String>("success");
+			sendToMobile(result);
+		} else {
+			FailureResult result = new FailureResult("此消息不是该会员发送，不能删除");
+			sendToMobile(result);
+		}
 	}
 	
 }

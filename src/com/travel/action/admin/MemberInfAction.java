@@ -5,13 +5,7 @@
  */
 package com.travel.action.admin;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
-
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +19,7 @@ import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
 import com.travel.service.MemberService;
+import com.travel.service.TeamInfoService;
 import com.travel.utils.JsonUtils;
 
 /**
@@ -38,8 +33,11 @@ public class MemberInfAction extends AuthorityAction{
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private TeamInfoService teamService;
 	
 	public String list(){
+		String fromSelect = request.getParameter("fromSelect");
 		String name = request.getParameter("name");
 		String teamName = request.getParameter("teamName");
 		String phoneNumber = request.getParameter("phoneNumber");
@@ -48,6 +46,7 @@ public class MemberInfAction extends AuthorityAction{
 		String pageSize = request.getParameter("numPerPage");
 		String pageNumber = request.getParameter("pageNum");
 		String teamId = request.getParameter("teamId");
+		String fromTeam = request.getParameter("fromTeam");
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		try{
 			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
@@ -81,13 +80,22 @@ public class MemberInfAction extends AuthorityAction{
 		if(StringUtils.isNotBlank(memberType)){
 			request.setAttribute("memberType", Integer.valueOf(memberType));
 		}
-		request.setAttribute("teamName", teamName);
+		if(StringUtils.equals(fromTeam, "1") && StringUtils.isNotBlank(teamId)){
+			TeamInfo team = teamService.getTeamById(Long.valueOf(teamId));
+			request.setAttribute("teamName", team.getName());
+		} else{
+			request.setAttribute("teamName", teamName);
+		}
 		request.setAttribute("phoneNumber", phoneNumber);
 		request.setAttribute("idNumber", idNumber);
 		request.setAttribute("teamId", teamId);
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
-		return "list";
+		if(StringUtils.equals(fromSelect, "1")){
+			return "mulselect";
+		} else {
+			return "list";
+		}
 	}
 	
 	public String add(){
@@ -209,5 +217,10 @@ public class MemberInfAction extends AuthorityAction{
 		request.setAttribute("column", column+"");
 		request.setAttribute("memberList", memberList);
 		return "print";
+	}
+	
+	public String mulselect(){
+		list();
+		return "mulselect";
 	}
 }

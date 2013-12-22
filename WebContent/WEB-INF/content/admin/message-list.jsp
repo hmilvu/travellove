@@ -62,7 +62,7 @@
 	<div class="panelBar">
 		<ul class="toolBar">
 			<li><a class="add" href="admin/message!addTeamMsg.action" target="navTab" title="向旅行团发消息"><span>向旅行团发消息</span></a></li>
-			<li><a class="add" href="admin/message!addMemberMsg.action" target="navTab" title="向游客团发消息"><span>向团员发消息</span></a></li>
+			<li><a class="add" href="admin/message!addMemberMsg.action" target="navTab" title="向团员发消息"><span>向团员发消息</span></a></li>
 			<li><a title="确实要删除这些消息吗?" target="selectedTodo" rel="ids" postType="string" href="admin/message!delete.action" class="delete"><span>批量删除</span></a></li>
 			<li><a class="edit" href="admin/message!edit.action?uid={sid_user}" target="navTab" warn="请选择一条消息"><span>修改消息</span></a></li>
 			<li class="line">line</li>
@@ -85,7 +85,10 @@
 		    <s:iterator var="message" value="%{#request.messageList}" status="statu">	
 			<tr target="sid_user" rel="<s:property value="%{#message.id}"/>">
 				<td><input name="ids" value="<s:property value="%{#message.id}"/>" type="checkbox"></td>
-				<td><s:property value="%{#message.receiverName}"/></td>
+				<td>
+					<s:if test="%{#message.receiverType == 0}">旅行团：<s:property value="%{#message.receiverName}"/></s:if>
+					<s:elseif test="%{#message.receiverType == 1}">团员：<s:property value="%{#message.receiverName}"/></s:elseif>
+				</td>
 				<td><s:if test="#message.content.length()>20"><s:property value="#message.content.substring(0, 20)"/></s:if><s:else><s:property value="#message.content"/></s:else></td>
 				<td>
 					<s:if test="%{#message.type == 0}">通知</s:if>

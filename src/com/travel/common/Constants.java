@@ -142,4 +142,15 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum PUSH_STATUS {
+		NOT_PUSH(0), PUSHED(1), PUSH_FAILED(2);
+		private int value;
+		private PUSH_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }
