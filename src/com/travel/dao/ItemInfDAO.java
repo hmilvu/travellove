@@ -175,4 +175,23 @@ public class ItemInfDAO extends BaseDAO {
 		
 	}
 
+	/**
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<ItemInf> findItems(final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ItemInf>>() {
+			@Override
+			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(ItemInf.class);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("creatDate"));
+				return cr.list();
+			}
+		});	
+	}
+
 }

@@ -165,4 +165,15 @@ public class Constants {
 		}
 	} 
 	
+	public enum ORDER_STATUS {
+		BOOKED(0), CONFIRM(1), DELETED(2);
+		private int value;
+		private ORDER_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
 }

@@ -19,6 +19,14 @@ public class MultiFileUploadAction extends AuthorityAction {
 	/**
 	 * 
 	 */
+	private static final String VIEW_SPOT_IMAGE = "VIEW_SPOT_IMAGE";
+	/**
+	 * 
+	 */
+	private static final String ITEM_IMAGE = "ITEM_IMAGE";
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private ViewSpotService viewSpotService;
@@ -41,12 +49,13 @@ public class MultiFileUploadAction extends AuthorityAction {
 	public String execute() {
 		int result = 0;
 		List<Integer> errorList = new ArrayList<Integer>();
-		if (StringUtils.equals(uploadBizType, "VIEW_SPOT_IMAGE")) {
+		String serverUrl = "http://" + Config.getProperty("ip.address") + ":" + request.getLocalPort() + getRelativePath();
+		if (StringUtils.equals(uploadBizType, VIEW_SPOT_IMAGE)) {
 			String viewSpotId = request.getParameter("viewSpotId");
-			String serverUrl = "http://" + Config.getProperty("ip.address") + ":" + request.getLocalPort() + getRelativePath();
+			String folderName = "viewspot";
 			if(StringUtils.isBlank(imgId1)){//新增或者删除
 				if(upload1 != null){
-					boolean uploadResult = uploadFile("viewspot\\" + viewSpotId, "1", upload1, upload1FileName);
+					boolean uploadResult = uploadFile(folderName + "\\" + viewSpotId, "1", upload1, upload1FileName);
 					if(uploadResult){
 						String extFileName = upload1FileName.substring(upload1FileName.lastIndexOf("."));	
 						imgService.saveImageInf(IMAGE_TYPE.VIEWSPOT, viewSpotId, "1", extFileName, serverUrl, getCurrentUser());
@@ -57,7 +66,7 @@ public class MultiFileUploadAction extends AuthorityAction {
 			}
 			if(StringUtils.isBlank(imgId2)){//新增或者删除
 				if(upload2 != null){
-					boolean uploadResult = uploadFile("viewspot\\" + viewSpotId, "2", upload2, upload2FileName);
+					boolean uploadResult = uploadFile(folderName + "\\" + viewSpotId, "2", upload2, upload2FileName);
 					if(uploadResult){
 						String extFileName = upload2FileName.substring(upload2FileName.lastIndexOf("."));	
 						imgService.saveImageInf(IMAGE_TYPE.VIEWSPOT, viewSpotId, "2", extFileName, serverUrl, getCurrentUser());
@@ -68,13 +77,49 @@ public class MultiFileUploadAction extends AuthorityAction {
 			}
 			if(StringUtils.isBlank(imgId3)){//新增或者删除
 				if(upload3 != null){
-					boolean uploadResult = uploadFile("viewspot\\" + viewSpotId, "3", upload3, upload3FileName);
+					boolean uploadResult = uploadFile(folderName + "\\" + viewSpotId, "3", upload3, upload3FileName);
 					if(uploadResult){
 						String extFileName = upload3FileName.substring(upload3FileName.lastIndexOf("."));	
 						imgService.saveImageInf(IMAGE_TYPE.VIEWSPOT, viewSpotId, "3", extFileName, serverUrl, getCurrentUser());
 					} 
 				} else {
 					imgService.deleteByName(IMAGE_TYPE.VIEWSPOT, viewSpotId, "3");				
+				}
+			}
+		} else if (StringUtils.equals(uploadBizType, ITEM_IMAGE)) {
+			String itemId = request.getParameter("itemId");
+			String folderName = "item";
+			if(StringUtils.isBlank(imgId1)){//新增或者删除
+				if(upload1 != null){
+					boolean uploadResult = uploadFile(folderName + "\\" + itemId, "1", upload1, upload1FileName);
+					if(uploadResult){
+						String extFileName = upload1FileName.substring(upload1FileName.lastIndexOf("."));	
+						imgService.saveImageInf(IMAGE_TYPE.ITEM, itemId, "1", extFileName, serverUrl, getCurrentUser());
+					}
+				} else {
+					imgService.deleteByName(IMAGE_TYPE.ITEM, itemId, "1");
+				}
+			}
+			if(StringUtils.isBlank(imgId2)){//新增或者删除
+				if(upload2 != null){
+					boolean uploadResult = uploadFile(folderName + "\\" + itemId, "2", upload2, upload2FileName);
+					if(uploadResult){
+						String extFileName = upload2FileName.substring(upload2FileName.lastIndexOf("."));	
+						imgService.saveImageInf(IMAGE_TYPE.ITEM, itemId, "2", extFileName, serverUrl, getCurrentUser());
+					} 
+				} else {
+					imgService.deleteByName(IMAGE_TYPE.ITEM, itemId, "2");				
+				}
+			}
+			if(StringUtils.isBlank(imgId3)){//新增或者删除
+				if(upload3 != null){
+					boolean uploadResult = uploadFile(folderName + "\\" + itemId, "3", upload3, upload3FileName);
+					if(uploadResult){
+						String extFileName = upload3FileName.substring(upload3FileName.lastIndexOf("."));	
+						imgService.saveImageInf(IMAGE_TYPE.ITEM, itemId, "3", extFileName, serverUrl, getCurrentUser());
+					} 
+				} else {
+					imgService.deleteByName(IMAGE_TYPE.ITEM, itemId, "3");				
 				}
 			}
 		}

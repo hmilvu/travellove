@@ -1,33 +1,28 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
-import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.dao.ImgInfDAO;
 import com.travel.dao.ItemInfDAO;
-import com.travel.dao.LocationLogDAO;
-import com.travel.dao.MemberInfDAO;
 import com.travel.entity.ItemInf;
-import com.travel.entity.LocationLog;
-import com.travel.entity.MemberInf;
-import com.travel.entity.TeamInfo;
 
 @Service
 public class ItemInfService extends AbstractBaseService
 {
 	@Autowired
-	private MemberInfDAO memberInfDao;	
-	@Autowired
-	private LocationLogDAO locationDao;	
-	@Autowired
 	private ItemInfDAO itemDao;
-	
+	@Autowired
+	private ImgInfDAO imgDao;
 	
 	public ItemInf getItemById(Long id){
 		return itemDao.findById(id);
@@ -79,5 +74,21 @@ public class ItemInfService extends AbstractBaseService
 	public void deleteItemByIds(String ids) {
 		itemDao.deleteByIds(ids);
 		
+	}
+
+
+	/**
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<ItemInfDTO> getItemList(PageInfoDTO pageInfo) {
+		List<ItemInf> list = itemDao.findItems(pageInfo);
+		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
+		for(ItemInf item : list){
+			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
+			item.setUrls(imageUrls);
+			result.add(item.toDTO());
+		}
+		return result;
 	}
 }

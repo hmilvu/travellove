@@ -3,8 +3,8 @@
 <%@ taglib prefix="s" uri="/struts-tags"%>
 <script src="js/admin/multi-upload.js" type="text/javascript"></script>
 <div class="pageContent">
-	<form action="viewSpotImageUpload.action" method="post" enctype="multipart/form-data" class="pageForm required-validate"  onsubmit="return iframeCallback(this, checkupload)">
-		<input type="hidden" id="viewSpotId" name="viewSpotId" value="<s:property value='%{#request.editView.id}'/>"/>
+	<form action="itemImageUpload.action" method="post" enctype="multipart/form-data" class="pageForm required-validate"  onsubmit="return iframeCallback(this, checkupload)">
+		<input type="hidden" id="itemId" name="itemId" value="<s:property value='%{#request.editItem.id}'/>"/>
 		<input type="hidden" id="imgId1" name="imgId1" value="<s:property value='%{#request.imgId1}'/>"/>
 		<input type="hidden" id="imgId2" name="imgId2" value="<s:property value='%{#request.imgId2}'/>"/>
 		<input type="hidden" id="imgId3" name="imgId3" value="<s:property value='%{#request.imgId3}'/>"/>

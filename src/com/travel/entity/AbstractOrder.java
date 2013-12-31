@@ -26,9 +26,11 @@ public abstract class AbstractOrder extends BaseEntity implements
 	private MemberInf memberInf;
 	private SysUser sysUser;
 	private Integer itemCount;
+	private Integer status;
 	private Double totalPrice;
 	private Timestamp createDate;
 	private Timestamp updateDate;
+	private MemberInf createMemberInf;
 
 	// Constructors
 
@@ -92,6 +94,16 @@ public abstract class AbstractOrder extends BaseEntity implements
 	public void setMemberInf(MemberInf memberInf) {
 		this.memberInf = memberInf;
 	}
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "create_member_id", nullable = true)
+	public MemberInf getCreateMemberInf() {
+		return this.createMemberInf;
+	}
+
+	public void setCreateMemberInf(MemberInf createMemberInf) {
+		this.createMemberInf = createMemberInf;
+	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "create_user_id", nullable = false)
@@ -112,6 +124,15 @@ public abstract class AbstractOrder extends BaseEntity implements
 		this.itemCount = itemCount;
 	}
 
+	@Column(name = "status", nullable = false)
+	public Integer getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	
 	@Column(name = "total_price", nullable = false, precision = 15, scale = 3)
 	public Double getTotalPrice() {
 		return this.totalPrice;

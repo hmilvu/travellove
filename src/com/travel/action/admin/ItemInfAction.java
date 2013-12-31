@@ -12,10 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.ImgInf;
 import com.travel.entity.ItemInf;
 import com.travel.entity.Order;
+import com.travel.entity.ViewSpotInfo;
+import com.travel.service.ImgService;
 import com.travel.service.ItemInfService;
 import com.travel.service.OrderService;
 import com.travel.utils.JsonUtils;
@@ -97,7 +101,9 @@ public class ItemInfAction extends AuthorityAction{
 	private ItemInfService itemService;
 	@Autowired
 	private OrderService orderService;
-
+	@Autowired
+	private ImgService imageServcie;
+	
 	public String list(){
 		String pageSize = request.getParameter("numPerPage");
 		String pageNumber = request.getParameter("pageNum");
@@ -191,8 +197,18 @@ public class ItemInfAction extends AuthorityAction{
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
 		} else {
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+		}		
+	}
+	
+	public String upload(){
+		edit();
+		ItemInf item = (ItemInf)request.getAttribute("editItem");
+		List<ImgInf> list = imageServcie.getImageList(IMAGE_TYPE.ITEM, item.getId());
+		for(ImgInf img : list){
+			request.setAttribute("imgId" + img.getImgName(), img.getId());
+			request.setAttribute("imageName" + img.getImgName(), "images/item/" + item.getId() + "/" +img.getImgName() + img.getSuffix());
 		}
-		
+		return "upload";
 	}
 	
 }

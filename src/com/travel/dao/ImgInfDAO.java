@@ -53,6 +53,7 @@ public class ImgInfDAO extends BaseDAO {
 		log.debug("saving ImgInf instance");
 		try {
 			getHibernateTemplate().saveOrUpdate(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);

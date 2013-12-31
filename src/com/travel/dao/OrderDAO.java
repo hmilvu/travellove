@@ -1,18 +1,34 @@
 package com.travel.dao;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.Constants.ORDER_STATUS;
+import com.travel.common.Constants.TEAM_STATUS;
+import com.travel.common.admin.dto.SearchOrderDTO;
+import com.travel.common.admin.dto.SearchTeamDTO;
+import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
+import com.travel.entity.Message;
 import com.travel.entity.Order;
+import com.travel.entity.TeamInfo;
 
 /**
  * A data access object (DAO) providing persistence and search support for Order
@@ -83,5 +99,106 @@ public class OrderDAO extends BaseDAO {
 				return queryObject.list();
 		}
 	});	
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	private Criteria buildSearchCriteria(Session session, SearchOrderDTO dto) {
+		Criteria cr = session.createCriteria(Order.class);
+		if (!StringUtils.isBlank(dto.getProductName())) {
+			cr.createAlias("itemInf", "i");
+			cr.add(Restrictions.like("i.name", StringUtils.trim(dto.getProductName()) + "%").ignoreCase());
+		}
+		cr.createAlias("memberInf", "m");
+		if (!StringUtils.isBlank(dto.getName())) {
+			cr.add(Restrictions.like("m.name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+		}		
+		cr.createAlias("teamInfo", "t");
+		if(dto.getTravelId() != null){
+			cr.add(Restrictions.eq("t.travelInf.id", dto.getTravelId()));
+		}
+		if(StringUtils.isNotBlank(dto.getTeamName())){
+			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getProductName()) + "%").ignoreCase());
+		}
+		cr.add(Restrictions.ne("status", Integer.valueOf(ORDER_STATUS.DELETED.getValue())));
+		return cr;
+	}
+
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalNum(final SearchOrderDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Order> getOrders(final SearchOrderDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Order>>() {
+			@Override
+			public List<Order> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(org.hibernate.criterion.Order.desc("createDate"));
+				return cr.list();
+		}
+	});
+	}
+
+	/**
+	 * @param ids
+	 * @return
+	 */
+	public void deleteByIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>(){
+			@Override
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				String sql = "update order_inf set status = "+ORDER_STATUS.DELETED.getValue()+" where id in (?)";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.setParameter(0, ids);
+				queryObject.executeUpdate();
+				return null;
+			}});	
+	}
+
+	/**
+	 * @param memberId
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Order> getOrdersByMemberId(final Long memberId, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Order>>() {
+			@Override
+			public List<Order> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(Order.class);
+				cr.add(Restrictions.le("memberInf.id", memberId));
+				cr.add(Restrictions.ne("status", ORDER_STATUS.DELETED.getValue()));
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.setMaxResults(maxResults);
+				cr.addOrder(org.hibernate.criterion.Order.desc("createDate"));
+				return cr.list();
+			}
+		});
 	}
 }

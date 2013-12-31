@@ -15,7 +15,7 @@
 	<div id="login">
 		<div id="login_header">
 			<h1 class="login_logo">
-				<a href="http://demo.dwzjs.com"><img src="themes/default/images/login_logo.gif" /></a>
+				<a href="http://www.travellove.com"><img src="themes/default/images/login_logo.gif" /></a>
 			</h1>
 			<div class="login_headerContent">
 				<div class="navList">
@@ -55,15 +55,15 @@
 					<li><a href="#">忘记密码怎么办？</a></li>
 					<li><a href="#">为什么登录失败？</a></li>
 				</ul>
-				<div class="login_inner">
+				<!-- div class="login_inner">
 					<p>您可以使用 网易网盘 ，随时存，随地取</p>
 					<p>您还可以使用 闪电邮 在桌面随时提醒邮件到达，快速收发邮件。</p>
 					<p>在 百宝箱 里您可以查星座，订机票，看小说，学做菜…</p>
-				</div>
+				</div> -->
 			</div>
 		</div>
 		<div id="login_footer">
-			Copyright &copy; 2009 www.dwzjs.com Inc. All Rights Reserved.
+			Copyright &copy; 2013 www.travellove.com Inc. All Rights Reserved.
 		</div>
 	</div>
 </body>

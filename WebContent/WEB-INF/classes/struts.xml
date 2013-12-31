@@ -73,6 +73,9 @@
 		<action name="viewSpotImageUpload" class="com.travel.action.admin.MultiFileUploadAction"> 
 			<param name="uploadBizType">VIEW_SPOT_IMAGE</param>
 		</action>
+		<action name="itemImageUpload" class="com.travel.action.admin.MultiFileUploadAction"> 
+			<param name="uploadBizType">ITEM_IMAGE</param>
+		</action>
 	</package>
 	
 	<!-- 导入其他配置文件 -->
