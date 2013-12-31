@@ -1,15 +1,19 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -44,8 +48,8 @@ public class TravelInfDAO extends BaseDAO {
 		log.debug("saving TravelInf instance");
 		int result = 0;
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -58,7 +62,8 @@ public class TravelInfDAO extends BaseDAO {
 	public void delete(TravelInf persistentInstance) {
 		log.debug("deleting TravelInf instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -69,8 +74,8 @@ public class TravelInfDAO extends BaseDAO {
 	public int update(TravelInf persistentInstance) {
 		int result = 0;
 		try {
-			getSession().update(persistentInstance);
-			getSession().flush();
+			getHibernateTemplate().update(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -83,7 +88,7 @@ public class TravelInfDAO extends BaseDAO {
 	public TravelInf findById(java.lang.Long id) {
 		log.debug("getting TravelInf instance with id: " + id);
 		try {
-			TravelInf instance = (TravelInf) getSession().get(
+			TravelInf instance = (TravelInf) getHibernateTemplate().get(
 					"com.travel.entity.TravelInf", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -97,22 +102,24 @@ public class TravelInfDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchTravelDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalNum(final SearchTravelDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchTravelDTO dto) {
-		Criteria cr = getSession().createCriteria(TravelInf.class);
+	private Criteria buildSearchCriteria(Session session, SearchTravelDTO dto) {
+		Criteria cr = session.createCriteria(TravelInf.class);
 		if (!StringUtils.isBlank(dto.getTravelName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getTravelName()) + "%").ignoreCase());
 		}
@@ -128,27 +135,26 @@ public class TravelInfDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<TravelInf> findTravels(SearchTravelDTO dto, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.desc("id"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+	public List<TravelInf> findTravels(final SearchTravelDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<TravelInf>>() {
+			@Override
+			public List<TravelInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("id"));
+				return cr.list();
+			}
+		});	
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<TravelInf> findByName(String name) {
 		try {
 			String queryString = "from TravelInf as m where m.name = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, name);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, name);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -159,17 +165,18 @@ public class TravelInfDAO extends BaseDAO {
 	 * @param travelId
 	 * @return
 	 */
-	public Object deleteById(Long travelId) {
-		try {
-			String sql = "delete from travel_inf where id = ?";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.setParameter(0, travelId);
-			int result = queryObject.executeUpdate();
-			return result;
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
+	public Integer deleteById(final Long travelId) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from travel_inf where id = ?";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.setParameter(0, travelId);
+				int result = queryObject.executeUpdate();
+				return result;
+			}
+		});	
 	}
 
 	/**
@@ -179,8 +186,7 @@ public class TravelInfDAO extends BaseDAO {
 		log.debug("finding all TravelInf instances");
 		try {
 			String queryString = "from TravelInf order by id desc";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
 			throw re;

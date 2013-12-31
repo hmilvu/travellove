@@ -83,7 +83,9 @@ function save(){
 					<thead>
 						<tr>
 							<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
-							<th type="lookup" name="items[#index#].viewSpotForm.viewName" lookupGroup="items[#index#].viewSpotForm" lookupUrl="admin/view-spot!selectView.action" postField="keywords" size="60" fieldClass="required readonly">景点名称</th>
+							<th type="lookup" name="items[#index#].viewSpotForm.viewName" lookupGroup="items[#index#].viewSpotForm" lookupUrl="admin/view-spot!selectView.action" postField="keywords" size="40" fieldClass="required readonly">景点名称</th>
+							<th type="date" name="items[#index#].viewSpotForm.startDate" dateFmt="yyyy-MM-dd HH:mm" size=20 fieldClass="required">开始日期</th>
+							<th type="date" name="items[#index#].viewSpotForm.endDate" dateFmt="yyyy-MM-dd HH:mm" size=20 fieldClass="required">结束日期</th>
 							<th type="del" width="60">操作</th>
 						</tr>
 					</thead>

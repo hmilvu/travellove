@@ -29,11 +29,12 @@ public class MessageServiceScheduler {
 	private MessageService messageService;
 	@Autowired
 	private MemberService memberService;
-	@Scheduled(fixedRate = 5000)
+	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
 		log.info("检查预约消息，准备推送");
 		List<Message> messageList = messageService.getNeedToPushMessages();
 		for(Message msg : messageList){
+			log.info("开始推送");
 			if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
 				messageService.sendTeamPushMsg(messageList, msg.getContent(), msg.getReceiverId()+"");
 			} else {

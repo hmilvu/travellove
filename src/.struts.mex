@@ -14,6 +14,10 @@
       <result name="success" />
     </action>
   </package>
+  <package name="upload" location="0,0" size="0,0">
+    <action name="teamMemberUpload" location="0,0" size="0,0" />
+    <action name="viewSpotImageUpload" location="0,0" size="0,0" />
+  </package>
   <include file="download.xml" location="0,0" size="0,0" />
   <extendsEdge source="authority" target="base" routing="0" />
 </Struts2Diagram>

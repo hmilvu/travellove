@@ -2,13 +2,18 @@ package com.travel.dao;
 
 import static org.hibernate.criterion.Example.create;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
+import com.travel.entity.MemberInf;
 import com.travel.entity.RoleMenu;
 
 /**
@@ -32,7 +37,8 @@ public class RoleMenuDAO extends BaseDAO {
 	public void save(RoleMenu transientInstance) {
 		log.debug("saving RoleMenu instance");
 		try {
-			getSession().save(transientInstance);
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -43,7 +49,8 @@ public class RoleMenuDAO extends BaseDAO {
 	public void delete(RoleMenu persistentInstance) {
 		log.debug("deleting RoleMenu instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -54,29 +61,14 @@ public class RoleMenuDAO extends BaseDAO {
 	public RoleMenu findById(java.lang.Long id) {
 		log.debug("getting RoleMenu instance with id: " + id);
 		try {
-			RoleMenu instance = (RoleMenu) getSession().get(
+			RoleMenu instance = (RoleMenu) getHibernateTemplate().get(
 					"com.travel.entity.RoleMenu", id);
 			return instance;
 		} catch (RuntimeException re) {
 			log.error("get failed", re);
 			throw re;
 		}
-	}
-
-	public List<RoleMenu> findByExample(RoleMenu instance) {
-		log.debug("finding RoleMenu instance by example");
-		try {
-			List<RoleMenu> results = (List<RoleMenu>) getSession()
-					.createCriteria("com.travel.entity.RoleMenu").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
+	}	
 
 	public List<RoleMenu> findByProperty(String propertyName, Object value) {
 		log.debug("finding RoleMenu instance with property: " + propertyName
@@ -84,9 +76,7 @@ public class RoleMenuDAO extends BaseDAO {
 		try {
 			String queryString = "from RoleMenu as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -96,16 +86,17 @@ public class RoleMenuDAO extends BaseDAO {
 	/**
 	 * @param id
 	 */
-	public void deleteByRoleId(Long roleId) {
-		try {
-			String sql = "delete from role_menu where role_id = ?";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.setParameter(0, roleId);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
-			throw re;
-		}
-		
+	public void deleteByRoleId(final Long roleId) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from role_menu where role_id = ?";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.setParameter(0, roleId);
+				queryObject.executeUpdate();
+				return null;
+			}
+		});			
 	}
 }

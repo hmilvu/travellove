@@ -7,18 +7,18 @@ package com.travel.action.admin;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
+import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
-import com.travel.entity.MemberInf;
+import com.travel.entity.ImgInf;
 import com.travel.entity.RouteViewSpot;
-import com.travel.entity.TeamInfo;
 import com.travel.entity.ViewSpotInfo;
+import com.travel.service.ImgService;
 import com.travel.service.RouteInfService;
 import com.travel.service.ViewSpotService;
 import com.travel.utils.JsonUtils;
@@ -36,6 +36,8 @@ public class ViewSpotAction extends AuthorityAction{
 	private ViewSpotService viewSpotService;
 	@Autowired
 	private RouteInfService routeService;
+	@Autowired
+	private ImgService imageServcie;
 
 	public String list(){
 		String name = request.getParameter("name");		
@@ -169,6 +171,12 @@ public class ViewSpotAction extends AuthorityAction{
 	
 	public String upload(){
 		edit();
+		ViewSpotInfo view = (ViewSpotInfo)request.getAttribute("editView");
+		List<ImgInf> list = imageServcie.getImageList(IMAGE_TYPE.VIEWSPOT, view.getId());
+		for(ImgInf img : list){
+			request.setAttribute("imgId" + img.getImgName(), img.getId());
+			request.setAttribute("imageName" + img.getImgName(), "images/viewspot/" + view.getId() + "/" +img.getImgName() + img.getSuffix());
+		}
 		return "upload";
 	}
 }

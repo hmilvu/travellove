@@ -66,9 +66,12 @@
 	 	</action> 
  	</package>
  	
- 	 <package name="upload" extends="struts-default">
+ 	<package name="upload" extends="struts-default">
 		<action name="teamMemberUpload" class="com.travel.action.admin.FileUploadAction"> 
 			<param name="importBizType">IMPORT_TEAM_MEMBER</param>
+		</action>
+		<action name="viewSpotImageUpload" class="com.travel.action.admin.MultiFileUploadAction"> 
+			<param name="uploadBizType">VIEW_SPOT_IMAGE</param>
 		</action>
 	</package>
 	

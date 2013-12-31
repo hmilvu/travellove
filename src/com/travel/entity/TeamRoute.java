@@ -42,4 +42,16 @@ public class TeamRoute extends AbstractTeamRoute implements
 	public void setDateStr(String dateStr) {
 		this.dateStr = dateStr;
 	}
+	
+	@Transient
+	private String endDateStr;
+	@Transient
+	public String getEndDateStr() {
+		endDateStr = DateUtils.toSimpleStr(getEndDate());
+		return endDateStr;
+	}
+	@Transient
+	public void setEndDateStr(String endDateStr) {
+		this.endDateStr = endDateStr;
+	}
 }

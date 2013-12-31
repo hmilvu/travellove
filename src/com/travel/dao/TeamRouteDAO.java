@@ -2,12 +2,16 @@ package com.travel.dao;
 
 import static org.hibernate.criterion.Example.create;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -36,8 +40,8 @@ public class TeamRouteDAO extends BaseDAO {
 	public void save(TeamRoute transientInstance) {
 		log.debug("saving TeamRoute instance");
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -48,7 +52,8 @@ public class TeamRouteDAO extends BaseDAO {
 	public void delete(TeamRoute persistentInstance) {
 		log.debug("deleting TeamRoute instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -59,7 +64,7 @@ public class TeamRouteDAO extends BaseDAO {
 	public TeamRoute findById(java.lang.Long id) {
 		log.debug("getting TeamRoute instance with id: " + id);
 		try {
-			TeamRoute instance = (TeamRoute) getSession().get(
+			TeamRoute instance = (TeamRoute) getHibernateTemplate().get(
 					"com.travel.entity.TeamRoute", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -72,50 +77,52 @@ public class TeamRouteDAO extends BaseDAO {
 	 * @param id
 	 * @return
 	 */
-	public List<TeamRoute> findByTeamId(Long teamId, PageInfoDTO pageInfo) {
-		try {
-			String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.routeOrder";
-			Query queryObject = getSession().createQuery(queryString);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
-			queryObject.setMaxResults(maxResults);
-			queryObject.setParameter(0, teamId);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find by property name failed", re);
-			throw re;
-		}
+	public List<TeamRoute> findByTeamId(final Long teamId, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<TeamRoute>>() {
+			@Override
+			public List<TeamRoute> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+					String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.routeOrder";
+					Query queryObject = session.createQuery(queryString);
+					int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+					queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+					queryObject.setMaxResults(maxResults);
+					queryObject.setParameter(0, teamId);
+					return queryObject.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param idList
 	 * @return
 	 */
-	public List<TeamRoute> findByRouteIds(List<Long> idList) {
-		log.debug("findByRouteIds");
-		try {
-			String queryString = "from TeamRoute as r where r.routeInf.id in (:ids)";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameterList("ids", idList);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("findByRouteIds failed", re);
-			throw re;
-		}
+	public List<TeamRoute> findByRouteIds(final List<Long> idList) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<TeamRoute>>() {
+			@Override
+			public List<TeamRoute> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String queryString = "from TeamRoute as r where r.routeInf.id in (:ids)";
+				Query queryObject = session.createQuery(queryString);
+				queryObject.setParameterList("ids", idList);
+				return queryObject.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param string
 	 */
-	public void deleteByTeamIds(String ids) {
-		try {
-			String sql = "delete from team_route where team_id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
+	public void deleteByTeamIds(final String ids) {
+		 getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+				@Override
+				public Integer doInHibernate(Session session) throws HibernateException,
+						SQLException {
+				String sql = "delete from team_route where team_id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				return queryObject.executeUpdate();
+			}
+		});	
 		
 	}
 	
@@ -126,9 +133,7 @@ public class TeamRouteDAO extends BaseDAO {
 	public List<TeamRoute> findByTeamId(Long teamId) {
 		try {
 			String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.routeOrder";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, teamId);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, teamId);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;

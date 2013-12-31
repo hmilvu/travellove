@@ -18,6 +18,7 @@ import com.travel.dao.RouteViewSpotDAO;
 import com.travel.entity.RouteInf;
 import com.travel.entity.RouteViewSpot;
 import com.travel.entity.ViewSpotInfo;
+import com.travel.utils.DateUtils;
 
 @Service
 public class RouteInfService extends AbstractBaseService
@@ -86,6 +87,8 @@ public class RouteInfService extends AbstractBaseService
 					rView.setCreateDate(route.getCreateDate());
 					rView.setUpdateDate(route.getCreateDate());
 					rView.setSysUser(route.getSysUser());
+					rView.setStartDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getStartDate()).getTime()));
+					rView.setEndDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getEndDate()).getTime()));
 					routeViewSpotDAO.save(rView);
 				}
 			}
@@ -124,6 +127,8 @@ public class RouteInfService extends AbstractBaseService
 					rView.setCreateDate(route.getCreateDate());
 					rView.setUpdateDate(route.getCreateDate());
 					rView.setSysUser(route.getSysUser());
+					rView.setStartDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getStartDate()).getTime()));
+					rView.setEndDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getEndDate()).getTime()));
 					routeViewSpotDAO.save(rView);
 				}
 			}

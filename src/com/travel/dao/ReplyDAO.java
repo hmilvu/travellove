@@ -2,15 +2,20 @@ package com.travel.dao;
 
 import static org.hibernate.criterion.Example.create;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.entity.MemberInf;
 import com.travel.entity.Reply;
 
 /**
@@ -34,8 +39,8 @@ public class ReplyDAO extends BaseDAO {
 		log.debug("saving Reply instance");
 		int result = 0;
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -48,7 +53,8 @@ public class ReplyDAO extends BaseDAO {
 	public void delete(Reply persistentInstance) {
 		log.debug("deleting Reply instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -59,7 +65,7 @@ public class ReplyDAO extends BaseDAO {
 	public Reply findById(java.lang.Long id) {
 		log.debug("getting Reply instance with id: " + id);
 		try {
-			Reply instance = (Reply) getSession().get(
+			Reply instance = (Reply) getHibernateTemplate().get(
 					"com.travel.entity.Reply", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -71,15 +77,16 @@ public class ReplyDAO extends BaseDAO {
 	/**
 	 * @param idList
 	 */
-	public void deleteByIds(String ids) {
-		try {
-			String sql = "delete from reply where id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
-		
+	public void deleteByIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from reply where id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.executeUpdate();
+				return null;
+			}
+		});	
 	}
 }

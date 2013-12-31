@@ -1,15 +1,19 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -47,8 +51,8 @@ public class ItemInfDAO extends BaseDAO {
 		log.debug("saving ItemInf instance");
 		int result = 0;
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -61,7 +65,8 @@ public class ItemInfDAO extends BaseDAO {
 	public void delete(ItemInf persistentInstance) {
 		log.debug("deleting ItemInf instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -72,7 +77,7 @@ public class ItemInfDAO extends BaseDAO {
 	public ItemInf findById(java.lang.Long id) {
 		log.debug("getting ItemInf instance with id: " + id);
 		try {
-			ItemInf instance = (ItemInf) getSession().get(
+			ItemInf instance = (ItemInf) getHibernateTemplate().get(
 					"com.travel.entity.ItemInf", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -89,8 +94,8 @@ public class ItemInfDAO extends BaseDAO {
 		int result = 0;
 		log.debug("update ItemInf instance");
 		try {
-			getSession().update(item);
-			getSession().flush();
+			getHibernateTemplate().update(item);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -103,22 +108,25 @@ public class ItemInfDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchItemDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalNum(final SearchItemDTO dto) {
+		Integer num  = getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
+		return num;
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchItemDTO dto) {
-		Criteria cr = getSession().createCriteria(ItemInf.class);
+	private Criteria buildSearchCriteria(Session session, SearchItemDTO dto) {
+		Criteria cr = session.createCriteria(ItemInf.class);
 		cr.createAlias("sysUser", "s");
 		if (StringUtils.isNotBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
@@ -134,33 +142,36 @@ public class ItemInfDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<ItemInf> findItems(SearchItemDTO dto, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.asc("brands"));
-			cr.addOrder(Order.asc("name"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find teams failed", re);
-			throw re;
-		}
+	public List<ItemInf> findItems(final SearchItemDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ItemInf>>() {
+			@Override
+			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.asc("brands"));
+				cr.addOrder(Order.asc("name"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param ids
 	 */
-	public void deleteByIds(String ids) {
-		try {
-			String sql = "delete from item_inf where id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
+	public void deleteByIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from item_inf where id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.executeUpdate();
+				return null;
+			}
+		});	
 		
 	}
 

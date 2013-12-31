@@ -112,7 +112,9 @@ public class MessageAction extends AuthorityAction{
 		String teamIds = request.getParameter("selectteam.id");		
 		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
 		if(msgList != null && msgList.size() > 0){
-			messageService.sendTeamPushMsg(msgList, msg.getContent(), teamIds);
+			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
+				messageService.sendTeamPushMsg(msgList, msg.getContent(), teamIds);
+			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	
@@ -175,7 +177,9 @@ public class MessageAction extends AuthorityAction{
 		List<MemberInf> memberList = memberService.getMemberByIds(memberIds);
 		List<Message>msgList = messageService.addMessageForReceiver(msg, memberIds, MESSAGE_RECEIVER_TYPE.MEMBER);
 		if(msgList != null && msgList.size() > 0){
-			messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
+				messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
 			JsonUtils.write(response, binder.toJson("result", Action.ERROR));	

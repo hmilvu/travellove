@@ -170,7 +170,21 @@ public class MessageService extends AbstractBaseService
 	 * @param content
 	 */
 	public void sendTeamPushMsg(List<Message>messageList, String content, String teamIds) {
-		// 1. 设置developer平台的ApiKey/SecretKey
+		String []teamIdArr = StringUtils.split(teamIds, ",");
+		List<Message> newMsgList = new ArrayList<Message>();
+		List<MemberInf> newMemberList = new ArrayList<MemberInf>();
+		for(int i = 0; i < teamIdArr.length; i++){
+			String teamId = teamIdArr[i];
+			List<Long> idList = new ArrayList<Long>();
+			idList.add(Long.valueOf(teamId));
+			List<MemberInf> memberList = memberService.findAllMembersByTeamIds(idList);
+			newMemberList.addAll(memberList);
+			for(int j = 0; j < memberList.size(); j++){
+				newMsgList.add(messageList.get(i));
+			}
+		}
+		sendMemberPushMsg(newMsgList, content, newMemberList);
+/*		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
 		String secretKey = Config.getProperty("baidu.secretkey");
 		ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);		
@@ -216,7 +230,7 @@ public class MessageService extends AbstractBaseService
 			} finally{
 				messageDAO.update(msg);
 			}
-		}		
+		}	*/	
 	}
 
 	/**
@@ -252,8 +266,10 @@ public class MessageService extends AbstractBaseService
 				PushUnicastMessageRequest request = new PushUnicastMessageRequest();
 				request.setDeviceType(3);	// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
 				request.setChannelId(member.getChannelId());	
-				request.setUserId(member.getBaiduUserId());	 					
-				request.setMessage(content);				
+				request.setUserId(member.getBaiduUserId());	
+				request.setMessageType(1);	
+				request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
+				
 				// 5. 调用pushMessage接口
 				PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
 				// 6. 认证推送成功
@@ -292,6 +308,7 @@ public class MessageService extends AbstractBaseService
 		}
 		msg.setCreateDate(new Timestamp(new Date().getTime()));
 		msg.setUpdateDate(msg.getCreateDate());
+		msg.setPushStatus(PUSH_STATUS.NOT_PUSH.getValue());
 		String []idArray = StringUtils.split(receiverIds, ",");		
 		List<Message>msgList = new ArrayList<Message>();
 		for(String receiverId : idArray){
@@ -321,6 +338,14 @@ public class MessageService extends AbstractBaseService
 	 */
 	public List<Message> getNeedToPushMessages() {
 		return messageDAO.getNeedToPush();
+	}
+
+	/**
+	 * @param idLong
+	 * @return
+	 */
+	public Reply getReplyById(Long idLong) {
+		return replyDAO.findById(idLong);
 	}
 	
 }

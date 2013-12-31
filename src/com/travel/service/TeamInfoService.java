@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.travel.action.admin.form.RouteItemForm;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.ROUTE_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.RouteInfDTO;
@@ -53,9 +54,21 @@ public class TeamInfoService extends AbstractBaseService
 			 for(TeamRoute teamRoute : list){
 				dto.setTeamInfo(teamRoute.getTeamInfo().toDTO());
 				RouteInfDTO routeDTO = teamRoute.getRouteInf().toDTO();
-				List<ViewSpotInfo> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
-				for(ViewSpotInfo view : viewSpotList){
+				routeDTO.setStartDate(teamRoute.getDateStr());
+				routeDTO.setEndDate(teamRoute.getEndDateStr());
+				if(teamRoute.getEndDate().before(new Date())){
+					routeDTO.setStatus(ROUTE_STATUS.NOT_FINISH.getValue());
+				} else {
+					routeDTO.setStatus(ROUTE_STATUS.FINISHED.getValue());
+				}
+				List<Object[]> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
+				for(Object[] objArr : viewSpotList){
+					ViewSpotInfo view = (ViewSpotInfo)objArr[0];
 					ViewSpotDTO viewDto = view.toDTO();
+					Timestamp startTime = (Timestamp)objArr[1];
+					Timestamp endTime = (Timestamp)objArr[2];
+					viewDto.setStartDate(DateUtils.toTimeStr(new Date(startTime.getTime())));
+					viewDto.setEndDate(DateUtils.toTimeStr(new Date(endTime.getTime())));
 					List<String>urls = imageDao.findUrls(IMAGE_TYPE.VIEWSPOT, view.getId());
 					if(urls != null && urls.size() > 0){
 						viewDto.addImageUrl(urls);
@@ -123,8 +136,9 @@ public class TeamInfoService extends AbstractBaseService
 					RouteInf route = new RouteInf();
 					route.setId(routeItem.getRouteForm().getId());
 					teamRoute.setRouteInf(route);
-					teamRoute.setStatus(routeItem.getRouteForm().getStatus());
+					teamRoute.setStatus(0);
 					teamRoute.setDate(DateUtils.toDate(routeItem.getRouteForm().getDate()));
+					teamRoute.setEndDate(DateUtils.toDate(routeItem.getRouteForm().getEndDate()));
 					teamRoute.setCreateDate(team.getCreateDate());
 					teamRoute.setUpdateDate(team.getCreateDate());
 					teamRoute.setSysUser(team.getSysUser());
@@ -170,11 +184,13 @@ public class TeamInfoService extends AbstractBaseService
 					RouteInf route = new RouteInf();
 					route.setId(item.getRouteForm().getId());
 					teamRoute.setRouteInf(route);
-					teamRoute.setStatus(item.getRouteForm().getStatus());
+					teamRoute.setStatus(0);
 					teamRoute.setDate(DateUtils.toDate(item.getRouteForm().getDate()));
+					teamRoute.setEndDate(DateUtils.toDate(item.getRouteForm().getEndDate()));
 					teamRoute.setCreateDate(team.getCreateDate());
 					teamRoute.setUpdateDate(team.getCreateDate());
 					teamRoute.setSysUser(team.getSysUser());
+					teamRoute.setEndDate(team.getEndDate());
 					teamRouteDao.save(teamRoute);
 				}
 			}

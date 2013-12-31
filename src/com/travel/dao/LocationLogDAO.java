@@ -32,8 +32,8 @@ public class LocationLogDAO extends BaseDAO {
 	public void save(LocationLog transientInstance) {
 		log.debug("saving LocationLog instance");
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -45,8 +45,8 @@ public class LocationLogDAO extends BaseDAO {
 		log.debug("update LocationLog instance");
 		int result = 0;
 		try {
-			getSession().update(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().update(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("upate successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -58,7 +58,8 @@ public class LocationLogDAO extends BaseDAO {
 	public void delete(LocationLog persistentInstance) {
 		log.debug("deleting LocationLog instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -69,7 +70,7 @@ public class LocationLogDAO extends BaseDAO {
 	public LocationLog findById(java.lang.Long id) {
 		log.debug("getting LocationLog instance with id: " + id);
 		try {
-			LocationLog instance = (LocationLog) getSession().get(
+			LocationLog instance = (LocationLog) getHibernateTemplate().get(
 					"com.travel.entity.LocationLog", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -84,9 +85,7 @@ public class LocationLogDAO extends BaseDAO {
 	public List<LocationLog> findByTeamId(Long teamId) {
 		try {
 			String queryString = "from LocationLog as lo where lo.teamInfo.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, teamId);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, teamId);			
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -101,10 +100,7 @@ public class LocationLogDAO extends BaseDAO {
 	public LocationLog getLocationByMember(Long teamId, Long memberId) {
 		try {
 			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, teamId);
-			queryObject.setParameter(1, memberId);
-			List <LocationLog> list = queryObject.list();
+			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId);
 			if(list != null && list.size() > 0){
 				return list.get(0);
 			} else {

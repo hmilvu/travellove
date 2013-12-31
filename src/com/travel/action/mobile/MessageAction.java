@@ -236,4 +236,26 @@ public class MessageAction extends BaseAction {
 		}
 	}
 	
+	public void deleteReply(){
+		String data = getMobileData();
+		Object replyId = getMobileParameter(data, "replyId");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(replyId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("replyId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Reply reply = messageService.getReplyById(idLong);
+		if(reply != null){
+			messageService.deleteReplyById(idLong + "");
+			SuccessResult<String> result = new SuccessResult<String>("success");
+			sendToMobile(result);
+		} else {
+			FailureResult result = new FailureResult("此回复不存在，不能删除");
+			sendToMobile(result);
+		}
+	}
+	
 }

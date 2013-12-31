@@ -28,8 +28,7 @@ public class MenuInfDAO extends BaseDAO {
 	public List<MenuInf> findAll() {
 		try {
 			String queryString = "from MenuInf order by menuOrder";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
 			throw re;
@@ -39,7 +38,7 @@ public class MenuInfDAO extends BaseDAO {
 	public MenuInf findById(java.lang.Long id) {
 		log.debug("getting MenuInf instance with id: " + id);
 		try {
-			MenuInf instance = (MenuInf) getSession().get(
+			MenuInf instance = (MenuInf) getHibernateTemplate().get(
 					"com.travel.entity.MenuInf", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -55,9 +54,7 @@ public class MenuInfDAO extends BaseDAO {
 	public List<MenuInf> findMenuByRoleId(Long roleId) {
 		try {
 			String queryString = "select r.menuInf from RoleMenu r where r.roleInf.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, roleId);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, roleId);
 		} catch (RuntimeException re) {
 			log.error("findMenuByRoleId failed", re);
 			throw re;

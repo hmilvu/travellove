@@ -1,10 +1,14 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants.IMAGE_TYPE;
@@ -32,21 +36,36 @@ public class ImgInfDAO extends BaseDAO {
 	public static final String SIZE = "size";
 	public static final String URL = "url";
 
-	public void save(ImgInf transientInstance) {
+	public int save(ImgInf transientInstance) {
 		log.debug("saving ImgInf instance");
 		try {
-			getSession().save(transientInstance);
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
 			throw re;
 		}
+		return 0;
+	}
+	
+	public int saveOrUpdate(ImgInf transientInstance) {
+		log.debug("saving ImgInf instance");
+		try {
+			getHibernateTemplate().saveOrUpdate(transientInstance);
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			throw re;
+		}
+		return 0;
 	}
 
 	public void delete(ImgInf persistentInstance) {
 		log.debug("deleting ImgInf instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -57,7 +76,7 @@ public class ImgInfDAO extends BaseDAO {
 	public ImgInf findById(java.lang.Long id) {
 		log.debug("getting ImgInf instance with id: " + id);
 		try {
-			ImgInf instance = (ImgInf) getSession().get(
+			ImgInf instance = (ImgInf) getHibernateTemplate().get(
 					"com.travel.entity.ImgInf", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -74,13 +93,64 @@ public class ImgInfDAO extends BaseDAO {
 	public List<String> findUrls(IMAGE_TYPE viewspot, Long id) {
 		try {
 			String queryString = "select url from ImgInf as m where m.type = ? and m.associateId = ?";
-			Query queryObject = getSession().createQuery(queryString);			
-			queryObject.setParameter(0, viewspot.getValue());
-			queryObject.setParameter(1, id);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, viewspot.getValue(), id);			
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
 		}
+	}
+	
+	/**
+	 * @param viewspot
+	 * @param id
+	 * @return
+	 */
+	public List<ImgInf> findImgInf(IMAGE_TYPE type, Long associateId) {
+		try {
+			String queryString = "from ImgInf as m where m.type = ? and m.associateId = ?";
+			return getHibernateTemplate().find(queryString, type.getValue(), associateId);			
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param type2
+	 * @param associateId
+	 * @param imgName
+	 * @return
+	 */
+	public ImgInf findByName(IMAGE_TYPE type, Long associateId,
+			String imgName) {
+		try {
+			String queryString = "from ImgInf as m where m.type = ? and m.associateId = ? and m.imgName = ?";
+			List<ImgInf> list = getHibernateTemplate().find(queryString, type.getValue(), associateId, imgName);			
+			if(list != null && list.size() > 0){
+				return list.get(0);
+			} else {
+				return null;
+			}
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param type2
+	 * @param associateId
+	 * @param name
+	 */
+	public void deleteByName(final IMAGE_TYPE type, final String associateId, final String name) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>(){
+			@Override
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				String sql = "delete from img_inf where type = "+type.getValue()+" and associate_id = "+associateId+" and img_name = " + name;
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.executeUpdate();
+				return null;
+			}});		
 	}
 }

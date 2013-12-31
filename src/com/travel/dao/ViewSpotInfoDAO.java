@@ -1,15 +1,19 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -43,8 +47,8 @@ public class ViewSpotInfoDAO extends BaseDAO {
 		log.debug("saving ViewSpotInfo instance");
 		int result = 0;
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -57,7 +61,7 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	public ViewSpotInfo findById(java.lang.Long id) {
 		log.debug("getting ViewSpotInfo instance with id: " + id);
 		try {
-			ViewSpotInfo instance = (ViewSpotInfo) getSession().get(
+			ViewSpotInfo instance = (ViewSpotInfo) getHibernateTemplate().get(
 					"com.travel.entity.ViewSpotInfo", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -70,14 +74,16 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchViewSpotDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
+	public int getTotalNum(final SearchViewSpotDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+			Criteria cr = buildSearchCriteria(session, dto);
 			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
 			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+			}
+		});	
 	}
 	
 	/**
@@ -88,11 +94,12 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
 			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, teamId);
-			queryObject.setParameter(1, mobile);
-			queryObject.setParameter(2, password);
-			return (MemberInf)queryObject.uniqueResult();
+			List<MemberInf> list = getHibernateTemplate().find(queryString, teamId, mobile, password);
+			if(list != null && list.size() > 0){
+				return list.get(0);
+			} else {
+				return null;
+			}
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);
 			throw re;
@@ -103,8 +110,8 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchViewSpotDTO dto) {
-		Criteria cr = getSession().createCriteria(ViewSpotInfo.class);
+	private Criteria buildSearchCriteria(Session session, SearchViewSpotDTO dto) {
+		Criteria cr = session.createCriteria(ViewSpotInfo.class);
 		cr.createAlias("travelInf", "t");
 		if (dto.getTravelId() != null) {
 			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
@@ -121,34 +128,35 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<ViewSpotInfo> findViewSpots(SearchViewSpotDTO dto, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-//			cr.addOrder(Order.asc("t.name"));
-			cr.addOrder(Order.asc("name"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find view spots failed", re);
-			throw re;
-		}
+	public List<ViewSpotInfo> findViewSpots(final SearchViewSpotDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ViewSpotInfo>>() {
+			@Override
+			public List<ViewSpotInfo> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+	//			cr.addOrder(Order.asc("t.name"));
+				cr.addOrder(Order.asc("name"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param ids
 	 */
-	public void deleteByIds(String ids) {
-		try {
-			String sql = "delete from view_spot_info where id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
-		
+	public void deleteByIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from view_spot_info where id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				return queryObject.executeUpdate();
+			}
+		});			
 	}
 
 	/**
@@ -159,8 +167,8 @@ public class ViewSpotInfoDAO extends BaseDAO {
 		log.debug("updating ViewSpotInfo instance");
 		int result = 0;
 		try {
-			getSession().save(view);
-			getSession().flush();
+			getHibernateTemplate().save(view);
+			getHibernateTemplate().flush();
 			log.debug("updating successful");
 		} catch (RuntimeException re) {
 			log.error("updating failed", re);

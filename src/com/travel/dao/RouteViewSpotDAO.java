@@ -1,13 +1,18 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
+import com.travel.entity.MemberInf;
 import com.travel.entity.RouteViewSpot;
 import com.travel.entity.ViewSpotInfo;
 
@@ -32,8 +37,8 @@ public class RouteViewSpotDAO extends BaseDAO {
 	public void save(RouteViewSpot transientInstance) {
 		log.debug("saving RouteViewSpot instance");
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -44,7 +49,8 @@ public class RouteViewSpotDAO extends BaseDAO {
 	public void delete(RouteViewSpot persistentInstance) {
 		log.debug("deleting RouteViewSpot instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -55,7 +61,7 @@ public class RouteViewSpotDAO extends BaseDAO {
 	public RouteViewSpot findById(java.lang.Long id) {
 		log.debug("getting RouteViewSpot instance with id: " + id);
 		try {
-			RouteViewSpot instance = (RouteViewSpot) getSession().get(
+			RouteViewSpot instance = (RouteViewSpot) getHibernateTemplate().get(
 					"com.travel.entity.RouteViewSpot", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -69,31 +75,33 @@ public class RouteViewSpotDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<RouteViewSpot> findByViewSpotIds(List<Long> idList) {
-		log.debug("findByViewSpotIds");
-		try {
-			String queryString = "from RouteViewSpot as r where r.viewSpotInfo.id in (:ids)";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameterList("ids", idList);
-			return queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("findByViewSpotIds failed", re);
-			throw re;
-		}
+	public List<RouteViewSpot> findByViewSpotIds(final List<Long> idList) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<RouteViewSpot>>() {
+			@Override
+			public List<RouteViewSpot> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String queryString = "from RouteViewSpot as r where r.viewSpotInfo.id in (:ids)";
+				Query queryObject = session.createQuery(queryString);
+				queryObject.setParameterList("ids", idList);
+				return queryObject.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param ids
 	 */
-	public void deleteByRouteIds(String ids) {
-		try {
-			String sql = "delete from route_view_spot where route_id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
+	public void deleteByRouteIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from route_view_spot where route_id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.executeUpdate();
+				return null;
+			}
+		});	
 		
 	}
 
@@ -105,9 +113,7 @@ public class RouteViewSpotDAO extends BaseDAO {
 		log.debug("findByViewSpotIds");
 		try {
 			String queryString = "select r, r.viewSpotInfo from RouteViewSpot r inner join r.viewSpotInfo where r.routeInf.id = ? order by r.order";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, id);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, id);
 		} catch (RuntimeException re) {
 			log.error("findByViewSpotIds failed", re);
 			throw re;
@@ -118,13 +124,11 @@ public class RouteViewSpotDAO extends BaseDAO {
 	 * @param id
 	 * @return
 	 */
-	public List<ViewSpotInfo> findViewSpotByRouteId(Long routeId) {
+	public List<Object[]> findViewSpotByRouteId(Long routeId) {
 		log.debug("findViewSpotByRouteId");
 		try {
-			String queryString = "select r.viewSpotInfo from RouteViewSpot r where r.routeInf.id = ? order by r.order";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, routeId);
-			return queryObject.list();
+			String queryString = "select r.viewSpotInfo, r.startDate, r.endDate from RouteViewSpot r where r.routeInf.id = ? order by r.order";
+			return getHibernateTemplate().find(queryString, routeId);
 		} catch (RuntimeException re) {
 			log.error("findViewSpotByRouteId failed", re);
 			throw re;

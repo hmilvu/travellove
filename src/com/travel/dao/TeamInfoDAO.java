@@ -1,15 +1,19 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -43,8 +47,8 @@ public class TeamInfoDAO extends BaseDAO {
 		log.debug("saving TeamInfo instance");
 		Long result = null;
 		try {
-			result = (Long)getSession().save(transientInstance);
-			getSession().flush();
+			result = (Long)getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -56,8 +60,8 @@ public class TeamInfoDAO extends BaseDAO {
 	public void delete(TeamInfo persistentInstance) {
 		log.debug("deleting TeamInfo instance");
 		try {
-			getSession().delete(persistentInstance);
-			getSession().flush();
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -68,7 +72,7 @@ public class TeamInfoDAO extends BaseDAO {
 	public TeamInfo findById(java.lang.Long id) {
 		log.debug("getting TeamInfo instance with id: " + id);
 		try {
-			TeamInfo instance = (TeamInfo) getSession().get(
+			TeamInfo instance = (TeamInfo) getHibernateTemplate().get(
 					"com.travel.entity.TeamInfo", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -85,9 +89,7 @@ public class TeamInfoDAO extends BaseDAO {
 	public List<TeamInfo> findByTravelId(Long travelId) {
 		try {
 			String queryString = "from TeamInfo as t where t.travelInf.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, travelId);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, travelId);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -98,22 +100,24 @@ public class TeamInfoDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchTeamDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalNum(final SearchTeamDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchTeamDTO dto) {
-		Criteria cr = getSession().createCriteria(TeamInfo.class);
+	private Criteria buildSearchCriteria(Session session, SearchTeamDTO dto) {
+		Criteria cr = session.createCriteria(TeamInfo.class);
 		cr.createAlias("travelInf", "t");
 		if (!StringUtils.isBlank(dto.getTravelName())) {
 			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTravelName()) + "%").ignoreCase());
@@ -140,19 +144,20 @@ public class TeamInfoDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<TeamInfo> findTeams(SearchTeamDTO dto, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.asc("id"));
-//			cr.addOrder(Order.desc("beginDate"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find teams failed", re);
-			throw re;
+	public List<TeamInfo> findTeams(final SearchTeamDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<TeamInfo>>() {
+			@Override
+			public List<TeamInfo> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.asc("id"));
+	//			cr.addOrder(Order.desc("beginDate"));
+				return cr.list();
 		}
+	});	
 	}
 
 	/**
@@ -162,8 +167,8 @@ public class TeamInfoDAO extends BaseDAO {
 		log.debug("update TeamInfo instance");
 		int result = 0;
 		try {
-			getSession().update(team);
-			getSession().flush();
+			getHibernateTemplate().update(team);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("update failed", re);
@@ -182,9 +187,7 @@ public class TeamInfoDAO extends BaseDAO {
 		log.debug("finding all TeamInfo instances");
 		try {
 			String queryString = "from TeamInfo where travelInf.id = ? and status=0 order by createDate desc";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, travelId);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, travelId);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
 			throw re;

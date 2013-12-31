@@ -1,12 +1,16 @@
 package com.travel.entity;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.travel.common.dto.ViewSpotDTO;
+import com.travel.utils.DateUtils;
 
 /**
  * ViewSpotInfo entity. @author MyEclipse Persistence Tools
@@ -35,6 +39,16 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		super(sysUser, name, longitude, latitude, description, createDate,
 				updateDate, routeViewSpots);
 	}
+	@Transient
+	private List<String>urls = new ArrayList<String>();	
+	@Transient
+	public List<String> getUrls() {
+		return urls;
+	}
+	@Transient
+	public void setUrls(List<String> urls) {
+		this.urls = urls;
+	}
 
 	/**
 	 * @return
@@ -46,6 +60,7 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		dto.setDescription(getDescription());
 		dto.setLatitude(getLatitude());
 		dto.setLongitude(getLongitude());
+		dto.addImageUrl(urls);
 		return dto;
 	}
 

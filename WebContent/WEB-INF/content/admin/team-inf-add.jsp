@@ -28,7 +28,7 @@ function save(){
 
 <div class="pageContent">
 	<form name="teamForm" id="teamForm" method="post" action="" class="pageForm required-validate">
-		<div class="pageFormContent nowrap" layoutH="56">		
+		<div class="pageFormContent nowrap" layoutH="46">		
 			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">	
 			<dl>
 				<dt>旅行社：</dt>
@@ -69,7 +69,8 @@ function save(){
 									<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
 									<th type="lookup" name="items[#index#].routeForm.routeName" lookupGroup="items[#index#].routeForm" lookupUrl="admin/route-inf!selectView.action" postField="keywords" size="60" fieldClass="required readonly">线路名称</th>
 									<th type="date" name="items[#index#].routeForm.date" size="12" fieldClass="required">开始日期</th>
-									<th type="enum" name="items[#index#].routeForm.status" enumUrl="admin/team-inf!status.action" size="22">状态</th>
+									<th type="date" name="items[#index#].routeForm.endDate" size="12" fieldClass="required">结束日期</th>
+									<!-- th type="enum" name="items[#index#].routeForm.status" enumUrl="admin/team-inf!status.action" size="22">状态</th> -->
 									<th type="del" width="60">操作</th>
 								</tr>
 							</thead>

@@ -2,12 +2,16 @@ package com.travel.dao;
 
 import static org.hibernate.criterion.Example.create;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.entity.RoleInf;
@@ -34,8 +38,8 @@ public class UserRoleDAO extends BaseDAO {
 	public void save(UserRole transientInstance) {
 		log.debug("saving UserRole instance");
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -46,7 +50,8 @@ public class UserRoleDAO extends BaseDAO {
 	public void delete(UserRole persistentInstance) {
 		log.debug("deleting UserRole instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -57,7 +62,7 @@ public class UserRoleDAO extends BaseDAO {
 	public UserRole findById(java.lang.Long id) {
 		log.debug("getting UserRole instance with id: " + id);
 		try {
-			UserRole instance = (UserRole) getSession().get(
+			UserRole instance = (UserRole) getHibernateTemplate().get(
 					"com.travel.entity.UserRole", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -65,21 +70,7 @@ public class UserRoleDAO extends BaseDAO {
 			throw re;
 		}
 	}
-
-	public List<UserRole> findByExample(UserRole instance) {
-		log.debug("finding UserRole instance by example");
-		try {
-			List<UserRole> results = (List<UserRole>) getSession()
-					.createCriteria("com.travel.entity.UserRole").add(
-							create(instance)).list();
-			log.debug("find by example successful, result size: "
-					+ results.size());
-			return results;
-		} catch (RuntimeException re) {
-			log.error("find by example failed", re);
-			throw re;
-		}
-	}
+	
 
 	public List findByProperty(String propertyName, Object value) {
 		log.debug("finding UserRole instance with property: " + propertyName
@@ -87,9 +78,7 @@ public class UserRoleDAO extends BaseDAO {
 		try {
 			String queryString = "from UserRole as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -104,9 +93,7 @@ public class UserRoleDAO extends BaseDAO {
 	public List<RoleInf> findRoleByUserId(Long id) {
 		try {
 			String queryString = "select r.roleInf from UserRole as r where r.sysUser.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, id);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, id);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -117,18 +104,18 @@ public class UserRoleDAO extends BaseDAO {
 	 * @param id
 	 * @return
 	 */
-	public int deleteByUserId(Long id) {
-		int result = 0;
-		try {
-			String sql = "delete from user_role where user_id = ?";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.setParameter(0, id);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("delete failed", re);
-			result = -1;
-			throw re;
-		}
-		return result;
+	public int deleteByUserId(final Long id) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				int result = 0;
+				String sql = "delete from user_role where user_id = ?";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.setParameter(0, id);
+				queryObject.executeUpdate();
+				return result;
+			}
+		});	
 	}
 }

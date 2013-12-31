@@ -1,19 +1,24 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.RoleInf;
 
 /**
@@ -38,8 +43,8 @@ public class RoleInfDAO extends BaseDAO {
 		int result = 0;
 		log.debug("saving RoleInf instance");
 		try {
-			getSession().save(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -52,8 +57,8 @@ public class RoleInfDAO extends BaseDAO {
 		int result = 0;
 		log.debug("saving RoleInf instance");
 		try {
-			getSession().update(transientInstance);
-			getSession().flush();
+			getHibernateTemplate().update(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -66,7 +71,8 @@ public class RoleInfDAO extends BaseDAO {
 		int result = 0;
 		log.debug("deleting RoleInf instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -78,7 +84,7 @@ public class RoleInfDAO extends BaseDAO {
 	public RoleInf findById(java.lang.Long id) {
 		log.debug("getting RoleInf instance with id: " + id);
 		try {
-			RoleInf instance = (RoleInf) getSession().get(
+			RoleInf instance = (RoleInf) getHibernateTemplate().get(
 					"com.travel.entity.RoleInf", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -93,9 +99,7 @@ public class RoleInfDAO extends BaseDAO {
 		try {
 			String queryString = "from RoleInf as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -110,8 +114,7 @@ public class RoleInfDAO extends BaseDAO {
 		log.debug("finding all RoleInf instances");
 		try {
 			String queryString = "from RoleInf";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
 			throw re;
@@ -122,22 +125,24 @@ public class RoleInfDAO extends BaseDAO {
 	/**
 	 * @return
 	 */
-	public int getTotalNum(String roleName) {
-		try {
-			Criteria cr = buildSearchCriteria(roleName);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalNum(final String roleName) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, roleName);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
 	}
 
 	/**
 	 * @param roleName
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(String roleName) {
-		Criteria cr = getSession().createCriteria(RoleInf.class);
+	private Criteria buildSearchCriteria(Session session, String roleName) {
+		Criteria cr = session.createCriteria(RoleInf.class);
 		if (!StringUtils.isBlank(roleName)) {
 			cr.add(Restrictions.like("name", StringUtils.trim(roleName) + "%").ignoreCase());
 		}
@@ -150,34 +155,36 @@ public class RoleInfDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<RoleInf> findRolesByName(String roleName, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(roleName);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.desc("id"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+	public List<RoleInf> findRolesByName(final String roleName, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<RoleInf>>() {
+			@Override
+			public List<RoleInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, roleName);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("id"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param idLong
 	 * @return
 	 */
-	public int deleteById(Long idLong) {
-		try {
-			String sql = "delete from role_inf where id = ?";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.setParameter(0, idLong);
-			int result = queryObject.executeUpdate();
-			return result;
-		} catch (RuntimeException re) {
-			log.error("find all failed", re);
-			throw re;
-		}
+	public int deleteById(final Long idLong) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "delete from role_inf where id = ?";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.setParameter(0, idLong);
+				int result = queryObject.executeUpdate();
+				return result;
+			}
+		});	
 	}
 }

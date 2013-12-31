@@ -12,6 +12,8 @@ package com.travel.action.admin.form;
 public class ViewSpotForm {
 	private long id;
 	private String viewName;
+	private String startDate;
+	private String endDate;
 	public long getId() {
 		return id;
 	}
@@ -26,6 +28,22 @@ public class ViewSpotForm {
 
 	public void setViewName(String viewName) {
 		this.viewName = viewName;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
 	}
 
 }

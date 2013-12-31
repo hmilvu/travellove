@@ -158,4 +158,49 @@ public class MemberAction extends BaseAction {
 		}
 	}
 	
+	public void uploadChannelId(){
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "memberId");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(idLong);
+		if(member != null && member.getId() != null){
+			Object baiduUserId = getMobileParameter(data, "baiduUserId");
+			if(baiduUserId == null){
+				FailureResult result = new FailureResult("baiduUserId类型错误");
+				sendToMobile(result);
+				return;
+			} else {
+				member.setBaiduUserId(baiduUserId.toString());
+			}
+			Object channelId = getMobileParameter(data, "channelId");
+			if(channelId != null){
+				try{
+					member.setChannelId(Long.valueOf(channelId.toString()));
+				} catch(Throwable e){
+					FailureResult result = new FailureResult("channelId类型错误");
+					sendToMobile(result);
+					return;
+				}
+				int num = memberService.updateMember(member);
+				if(num == 0){
+					SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+					sendToMobile(result);
+				} else {
+					FailureResult result = new FailureResult("保存channelId错误");
+					sendToMobile(result);
+				}
+			}
+		} else {
+			FailureResult result = new FailureResult("memberId不存在");
+			sendToMobile(result);
+		}
+	}
+	
 }

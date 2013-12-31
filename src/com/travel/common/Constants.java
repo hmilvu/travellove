@@ -153,4 +153,16 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum ROUTE_STATUS {
+		NOT_FINISH(0), FINISHED(1);
+		private int value;
+		private ROUTE_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
 }

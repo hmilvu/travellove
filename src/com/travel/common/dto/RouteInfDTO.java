@@ -23,6 +23,10 @@ public class RouteInfDTO {
 	private Double endLongitude;
 	private Double endLatitude;
 	private String description;
+	private String startDate;
+	private String endDate;
+	private int status;
+	
 	private List<ViewSpotDTO> viewSportList = new ArrayList<ViewSpotDTO>();
 	
 	public List<ViewSpotDTO> getViewSportList() {
@@ -84,6 +88,24 @@ public class RouteInfDTO {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public String getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+	public String getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 	

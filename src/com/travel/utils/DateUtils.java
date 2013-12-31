@@ -143,6 +143,22 @@ public class DateUtils {
 		}
 		return DATE_TIME_FORMAT.format(date);
 	}
+	
+	public static String toTimeStr(Date date) {
+		if (date == null) {
+			return "";
+		}
+		DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return DATE_FORMAT.format(date);
+	}
+	
+	public static String toTimeStr2(Date date) {
+		if (date == null) {
+			return "";
+		}
+		DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		return DATE_FORMAT.format(date);
+	}
 
 	/**
 	 * 为包含下级地区的查询,生成like字段,截去'00'的字段(00表示有下级地区),并增加'%'后缀
@@ -164,6 +180,17 @@ public class DateUtils {
 	public static Date toTime(String str) {
 		try {
 			return DATE_TIME_FORMAT.parse(str);
+		} catch (ParseException e) {
+			log.info("无法转换为时间格式！", e);
+		}
+		return null;
+	}
+	
+	public static Date toTime2(String str) {
+		try {
+			DateFormat format = new SimpleDateFormat(
+					 "yyyy-MM-dd HH:mm");
+			return format.parse(str);
 		} catch (ParseException e) {
 			log.info("无法转换为时间格式！", e);
 		}

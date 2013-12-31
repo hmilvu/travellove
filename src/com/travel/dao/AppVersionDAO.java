@@ -43,7 +43,8 @@ public class AppVersionDAO extends BaseDAO {
 	public void save(AppVersion transientInstance) {
 		log.debug("saving AppVersion instance");
 		try {
-			getSession().save(transientInstance);
+			getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 		} catch (RuntimeException re) {
 			log.error("save failed", re);
@@ -54,7 +55,8 @@ public class AppVersionDAO extends BaseDAO {
 	public void delete(AppVersion persistentInstance) {
 		log.debug("deleting AppVersion instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -65,7 +67,7 @@ public class AppVersionDAO extends BaseDAO {
 	public AppVersion findById(java.lang.Long id) {
 		log.debug("getting AppVersion instance with id: " + id);
 		try {
-			AppVersion instance = (AppVersion) getSession().get(
+			AppVersion instance = (AppVersion) getHibernateTemplate().get(
 					"com.travel.entity.AppVersion", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -79,10 +81,7 @@ public class AppVersionDAO extends BaseDAO {
 		log.debug("finding AppVersion instance by example");
 		try {
 			String queryString = "from AppVersion as model where model.type = ? and model.osType = ? ";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, appType);
-			queryObject.setParameter(1, osType);
-			List<AppVersion> results = queryObject.list();
+			List<AppVersion> results = getHibernateTemplate().find(queryString, appType, osType);			
 			log.debug("find by example successful, result size: "
 					+ results.size());
 			return results;
@@ -98,9 +97,7 @@ public class AppVersionDAO extends BaseDAO {
 		try {
 			String queryString = "from AppVersion as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -147,45 +144,9 @@ public class AppVersionDAO extends BaseDAO {
 		log.debug("finding all AppVersion instances");
 		try {
 			String queryString = "from AppVersion";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
-			throw re;
-		}
-	}
-
-	public AppVersion merge(AppVersion detachedInstance) {
-		log.debug("merging AppVersion instance");
-		try {
-			AppVersion result = (AppVersion) getSession().merge(
-					detachedInstance);
-			log.debug("merge successful");
-			return result;
-		} catch (RuntimeException re) {
-			log.error("merge failed", re);
-			throw re;
-		}
-	}
-
-	public void attachDirty(AppVersion instance) {
-		log.debug("attaching dirty AppVersion instance");
-		try {
-			getSession().saveOrUpdate(instance);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
-			throw re;
-		}
-	}
-
-	public void attachClean(AppVersion instance) {
-		log.debug("attaching clean AppVersion instance");
-		try {
-			getSession().lock(instance, LockMode.NONE);
-			log.debug("attach successful");
-		} catch (RuntimeException re) {
-			log.error("attach failed", re);
 			throw re;
 		}
 	}

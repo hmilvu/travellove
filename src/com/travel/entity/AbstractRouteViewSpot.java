@@ -27,6 +27,8 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Integer order;
+	private Timestamp startDate;
+	private Timestamp endDate;
 	// Constructors
 
 	/** default constructor */
@@ -112,6 +114,24 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 
 	public void setOrder(Integer order) {
 		this.order = order;
+	}
+	
+	@Column(name = "start_date", nullable = false, length = 19)
+	public Timestamp getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Timestamp startDate) {
+		this.startDate = startDate;
+	}
+	
+	@Column(name = "end_date", nullable = false, length = 19)
+	public Timestamp getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Timestamp endDate) {
+		this.endDate = endDate;
 	}
 	
 	

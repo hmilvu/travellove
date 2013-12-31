@@ -1,5 +1,6 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -7,12 +8,15 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -52,8 +56,8 @@ public class MessageDAO extends BaseDAO {
 	public Long save(Message transientInstance) {
 		log.debug("saving Message instance");
 		try {
-			Long id = (Long)getSession().save(transientInstance);
-			getSession().flush();
+			Long id = (Long)getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 			return id;
 		} catch (RuntimeException re) {
@@ -65,8 +69,8 @@ public class MessageDAO extends BaseDAO {
 	public void delete(Message persistentInstance) {
 		log.debug("deleting Message instance");
 		try {
-			getSession().delete(persistentInstance);
-			getSession().flush();
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -77,7 +81,7 @@ public class MessageDAO extends BaseDAO {
 	public Message findById(java.lang.Long id) {
 		log.debug("getting Message instance with id: " + id);
 		try {
-			Message instance = (Message) getSession().get(
+			Message instance = (Message) getHibernateTemplate().get(
 					"com.travel.entity.Message", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -92,32 +96,31 @@ public class MessageDAO extends BaseDAO {
 		try {
 			String queryString = "from Message as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
 		}
 	}
 
-	public List<Message> findByReceiverId(Long memberId, Long teamId, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = getSession().createCriteria(Message.class);
-			cr.add(Restrictions.le("remindTime", new Timestamp(new Date().getTime())));
-			cr.add(Restrictions.ne("status", MESSAGE_STATUS.DELETED.getValue()));
-			cr.add(Restrictions.or(Restrictions.and(Restrictions.eq("receiverId", memberId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.MEMBER.getValue())), 
-					Restrictions.and(Restrictions.eq("receiverId", teamId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.TEAM.getValue()))));
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.setMaxResults(maxResults);
-			cr.addOrder(Order.asc("priority"));
-			cr.addOrder(Order.desc("remindTime"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+	public List<Message> findByReceiverId(final Long memberId, final Long teamId, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
+			@Override
+			public List<Message> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(Message.class);
+				cr.add(Restrictions.le("remindTime", new Timestamp(new Date().getTime())));
+				cr.add(Restrictions.ne("status", MESSAGE_STATUS.DELETED.getValue()));
+				cr.add(Restrictions.or(Restrictions.and(Restrictions.eq("receiverId", memberId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.MEMBER.getValue())), 
+						Restrictions.and(Restrictions.eq("receiverId", teamId), Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.TEAM.getValue()))));
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.setMaxResults(maxResults);
+				cr.addOrder(Order.asc("priority"));
+				cr.addOrder(Order.desc("remindTime"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
@@ -125,42 +128,45 @@ public class MessageDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<Reply> findRepliesByMessageId(Long messageId,
-			PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = getSession().createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
+	public List<Reply> findRepliesByMessageId(final Long messageId,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Reply>>() {
+			@Override
+			public List<Reply> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+			Criteria cr = session.createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
 			cr.add(Restrictions.eq("message.id", messageId));
 			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
 			cr.setMaxResults(maxResults);
 			cr.addOrder(Order.desc("createDate"));
 			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+			}
+		});	
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchMessageDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
+	public int getTotalNum(final SearchMessageDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+			Criteria cr = buildSearchCriteria(session, dto);
 			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
 			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+			}
+		});	
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchMessageDTO dto) {
-		Criteria cr = getSession().createCriteria(Message.class);
+	private Criteria buildSearchCriteria(Session session, SearchMessageDTO dto) {
+		Criteria cr = session.createCriteria(Message.class);
 		cr.createAlias("travelInf", "t");
 		if (dto.getTravelId() != null) {
 			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
@@ -190,49 +196,53 @@ public class MessageDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Message> findMessages(SearchMessageDTO dto, PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.asc("status"));
-			cr.addOrder(Order.desc("t.id"));
-			cr.addOrder(Order.desc("updateDate"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find teams failed", re);
-			throw re;
-		}
+	public List<Message> findMessages(final SearchMessageDTO dto, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
+			@Override
+			public List<Message> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.asc("status"));
+				cr.addOrder(Order.desc("t.id"));
+				cr.addOrder(Order.desc("updateDate"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param idList
 	 */
-	public void deleteByIds(String ids) {
-		try {
-			String sql = "update message set status = "+MESSAGE_STATUS.DELETED.getValue()+" where id in ("+ids+")";
-			Query queryObject = getSession().createSQLQuery(sql);
-			queryObject.executeUpdate();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
-		
+	public void deleteByIds(final String ids) {
+		getHibernateTemplate().execute(new HibernateCallback<Object>() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String sql = "update message set status = "+MESSAGE_STATUS.DELETED.getValue()+" where id in ("+ids+")";
+				Query queryObject = session.createSQLQuery(sql);
+				queryObject.executeUpdate();
+				return null;
+			}
+		});	
 	}
 
 	/**
 	 * @param id
 	 * @return
 	 */
-	public int getTotalReplyNum(Long id) {
-		try {
-			Criteria cr = buildReplyCriteria(id);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalReplyNum(final Long id) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildReplyCriteria(session, id);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
 	}
 	
 	/**
@@ -240,27 +250,28 @@ public class MessageDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<Reply> findAdminRepliesByMessageId(Long messageId,
-			PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildReplyCriteria(messageId);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.desc("createDate"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+	public List<Reply> findAdminRepliesByMessageId(final Long messageId,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Reply>>() {
+			@Override
+			public List<Reply> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildReplyCriteria(session, messageId);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("createDate"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
 	 * @param messageId
 	 * @return
 	 */
-	private Criteria buildReplyCriteria(Long messageId) {
-		Criteria cr = getSession().createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
+	private Criteria buildReplyCriteria(Session session, Long messageId) {
+		Criteria cr = session.createCriteria(Reply.class).setFetchMode("memberInf",FetchMode.JOIN).setFetchMode("sysUser", FetchMode.JOIN);
 		cr.add(Restrictions.eq("message.id", messageId));
 		return cr;
 	}
@@ -271,12 +282,7 @@ public class MessageDAO extends BaseDAO {
 	public List<Message> getNeedToPush() {
 		try {
 			String queryString = "from Message where remindTime < ? and remindMode = ? and push_status != ? and push_status != ? ";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, new Timestamp(new Date().getTime()));
-			queryObject.setParameter(1, MESSAGE_REMIND_MODE.LATER);
-			queryObject.setParameter(2, PUSH_STATUS.PUSHED.getValue());
-			queryObject.setParameter(3, PUSH_STATUS.PUSH_FAILED.getValue());
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, new Timestamp(new Date().getTime()), MESSAGE_REMIND_MODE.LATER.getValue(), PUSH_STATUS.PUSHED.getValue(), PUSH_STATUS.PUSH_FAILED.getValue());
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -289,13 +295,12 @@ public class MessageDAO extends BaseDAO {
 	public void update(Message transientInstance) {
 		log.debug("update Message instance");
 		try {
-			getSession().update(transientInstance);
-			getSession().flush();
-			log.debug("save successful");
+			getHibernateTemplate().update(transientInstance);
+			getHibernateTemplate().flush();
+			log.debug("update successful");
 		} catch (RuntimeException re) {
-			log.error("save failed", re);
+			log.error("update failed", re);
 			throw re;
 		}
 	}
-
 }

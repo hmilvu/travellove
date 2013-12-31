@@ -32,6 +32,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 	private TeamInfo teamInfo;
 	private SysUser sysUser;
 	private Date date;
+	private Date endDate;
 	private Integer status;
 	private Timestamp createDate;
 	private Timestamp updateDate;
@@ -107,6 +108,16 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	@Temporal(TemporalType.DATE)
+	@Column(name = "end_date", nullable = false, length = 10)
+	public Date getEndDate() {
+		return this.endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 	@Column(name = "status", nullable = false)

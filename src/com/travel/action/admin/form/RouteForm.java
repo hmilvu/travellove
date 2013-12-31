@@ -13,7 +13,8 @@ public class RouteForm {
 	private long id;
 	private String routeName;
 	private String date;
-	private int status;
+	private String endDate;
+//	private int status;
 	public long getId() {
 		return id;
 	}
@@ -38,12 +39,21 @@ public class RouteForm {
 		this.date = date;
 	}
 
-	public int getStatus() {
-		return status;
+	public String getEndDate() {
+		return endDate;
 	}
 
-	public void setStatus(int status) {
-		this.status = status;
-	}	
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+	
+//
+//	public int getStatus() {
+//		return status;
+//	}
+//
+//	public void setStatus(int status) {
+//		this.status = status;
+//	}	
 	
 }

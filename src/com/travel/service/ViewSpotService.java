@@ -7,8 +7,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.dao.ImgInfDAO;
 import com.travel.dao.ViewSpotInfoDAO;
 import com.travel.entity.ViewSpotInfo;
 
@@ -17,10 +19,16 @@ public class ViewSpotService extends AbstractBaseService
 {
 	@Autowired
 	private ViewSpotInfoDAO viewSpotDao;
-	
+	@Autowired
+	private ImgInfDAO imageDao;
 	
 	public ViewSpotInfo getViewSpotById(Long id){
-		return viewSpotDao.findById(id);
+		ViewSpotInfo viewSpot = viewSpotDao.findById(id);
+		List<String>urls = imageDao.findUrls(IMAGE_TYPE.VIEWSPOT, id);
+		if(urls != null && urls.size() > 0){
+			viewSpot.setUrls(urls);
+		}
+		return viewSpot;
 	}
 
 

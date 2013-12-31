@@ -1,16 +1,20 @@
 package com.travel.dao;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
@@ -18,6 +22,7 @@ import com.travel.common.Constants.SYS_USER_STATUS;
 import com.travel.common.Constants.SYS_USER_TYPE;
 import com.travel.common.admin.dto.SearchSysUserDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.MemberInf;
 import com.travel.entity.MenuInf;
 import com.travel.entity.RoleInf;
 import com.travel.entity.SysUser;
@@ -53,8 +58,8 @@ public class SysUserDAO extends BaseDAO {
 	public Long save(SysUser transientInstance) {
 		log.debug("saving SysUser instance");
 		try {
-			Long id = (Long) getSession().save(transientInstance);
-			getSession().flush();
+			Long id = (Long) getHibernateTemplate().save(transientInstance);
+			getHibernateTemplate().flush();
 			log.debug("save successful");
 			return id;
 		} catch (RuntimeException re) {
@@ -66,7 +71,8 @@ public class SysUserDAO extends BaseDAO {
 	public void delete(SysUser persistentInstance) {
 		log.debug("deleting SysUser instance");
 		try {
-			getSession().delete(persistentInstance);
+			getHibernateTemplate().delete(persistentInstance);
+			getHibernateTemplate().flush();
 			log.debug("delete successful");
 		} catch (RuntimeException re) {
 			log.error("delete failed", re);
@@ -77,7 +83,7 @@ public class SysUserDAO extends BaseDAO {
 	public SysUser findById(java.lang.Long id) {
 		log.debug("getting SysUser instance with id: " + id);
 		try {
-			SysUser instance = (SysUser) getSession().get(
+			SysUser instance = (SysUser) getHibernateTemplate().get(
 					"com.travel.entity.SysUser", id);
 			return instance;
 		} catch (RuntimeException re) {
@@ -92,9 +98,7 @@ public class SysUserDAO extends BaseDAO {
 		try {
 			String queryString = "from SysUser as model where model."
 					+ propertyName + "= ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, value);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString, value);
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -149,8 +153,7 @@ public class SysUserDAO extends BaseDAO {
 		log.debug("finding all SysUser instances");
 		try {
 			String queryString = "from SysUser";
-			Query queryObject = getSession().createQuery(queryString);
-			return queryObject.list();
+			return getHibernateTemplate().find(queryString);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
 			throw re;
@@ -165,10 +168,12 @@ public class SysUserDAO extends BaseDAO {
 	public SysUser findByCredentials(String username, String password) {
 		try {
 			String queryString = "from SysUser as m where m.username = ? and m.password = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, username);
-			queryObject.setParameter(1, password);
-			return (SysUser)queryObject.uniqueResult();
+			List<SysUser> list = getHibernateTemplate().find(queryString, username, password);
+			if(list != null && list.size() > 0){
+				return list.get(0);
+			} else {
+				return null;
+			}
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);
 			throw re;
@@ -180,23 +185,24 @@ public class SysUserDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<MenuInf> findMenuRoles(List<RoleInf> roleList) {
+	public List<MenuInf> findMenuRoles(final List<RoleInf> roleList) {
 		if(roleList == null || roleList.size() == 0){
 			return new ArrayList<MenuInf>();
 		}
-		try {
-			List<Long>roleIds = new ArrayList<Long>();
-			for(RoleInf role : roleList){
-				roleIds.add(role.getId());
+		return getHibernateTemplate().execute(new HibernateCallback<List<MenuInf>>() {
+			@Override
+			public List<MenuInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				List<Long>roleIds = new ArrayList<Long>();
+				for(RoleInf role : roleList){
+					roleIds.add(role.getId());
+				}
+				String queryString = "select distinct r.menuInf from RoleMenu as r where r.roleInf.id in (:roleIds)";
+				Query queryObject = session.createQuery(queryString);
+				queryObject.setParameterList("roleIds", roleIds);
+				return (List<MenuInf>)queryObject.list();
 			}
-			String queryString = "select r.menuInf from RoleMenu as r where r.roleInf.id in (:roleIds)";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameterList("roleIds", roleIds);
-			return (List<MenuInf>)queryObject.list();
-		} catch (RuntimeException re) {
-			log.error("find by credentials failed", re);
-			throw re;
-		}
+		});	
 	}
 
 	/**
@@ -207,9 +213,7 @@ public class SysUserDAO extends BaseDAO {
 	public List<RoleInf> getRolesByUser(SysUser user) {
 		try {
 			String queryString = "select r.roleInf from UserRole as r where r.sysUser.id = ?";
-			Query queryObject = getSession().createQuery(queryString);
-			queryObject.setParameter(0, user.getId());
-			return (List<RoleInf>)queryObject.list();
+			return getHibernateTemplate().find(queryString, user.getId());
 		} catch (RuntimeException re) {
 			log.error("find by credentials failed", re);
 			throw re;
@@ -220,22 +224,24 @@ public class SysUserDAO extends BaseDAO {
 	 * @param dto
 	 * @return
 	 */
-	public int getTotalNum(SearchSysUserDTO dto) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
-			return  total.intValue();
-		} catch (RuntimeException re) {
-			throw re;
-		}
+	public int getTotalNum(final SearchSysUserDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+				return  total.intValue();
+			}
+		});	
 	}
 
 	/**
 	 * @param dto
 	 * @return
 	 */
-	private Criteria buildSearchCriteria(SearchSysUserDTO dto) {
-		Criteria cr = getSession().createCriteria(SysUser.class);
+	private Criteria buildSearchCriteria(Session session, SearchSysUserDTO dto) {
+		Criteria cr = session.createCriteria(SysUser.class);
 		if (!StringUtils.isBlank(dto.getTravelName())) {
 			cr.createAlias("travelInf", "c");
 			cr.add(Restrictions.like("c.name", StringUtils.trim(dto.getTravelName()) + "%").ignoreCase());
@@ -248,6 +254,10 @@ public class SysUserDAO extends BaseDAO {
 		}
 		if (!StringUtils.isBlank(dto.getUsername())) {
 			cr.add(Restrictions.like("username", StringUtils.trim(dto.getUsername()) + "%").ignoreCase());
+		}
+		if(dto.getTravelId() != null){
+			cr.createAlias("travelInf", "c");
+			cr.add(Restrictions.eq("c.id", dto.getTravelId())); 
 		}
 //		if(dto.getCurrentUserType() == SYS_USER_TYPE.SYSTEM_USER.getValue()){
 //			cr.add(Restrictions.gt("userType", SYS_USER_TYPE.SUPER_ADMIN.getValue()));
@@ -264,21 +274,22 @@ public class SysUserDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<SysUser> findBySearchCriteria(SearchSysUserDTO dto,
-			PageInfoDTO pageInfo) {
-		try {
-			Criteria cr = buildSearchCriteria(dto);
-			int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
-			cr.setMaxResults(maxResults);
-			cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-			cr.addOrder(Order.desc("userType"));
-			cr.addOrder(Order.desc("travelInf.id"));
-			cr.addOrder(Order.desc("username"));
-			return cr.list();
-		} catch (RuntimeException re) {
-			log.error("find by receiverId failed", re);
-			throw re;
-		}
+	public List<SysUser> findBySearchCriteria(final SearchSysUserDTO dto,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback< List<SysUser>>() {
+			@Override
+			public  List<SysUser> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("userType"));
+				cr.addOrder(Order.desc("travelInf.id"));
+				cr.addOrder(Order.desc("username"));
+				return cr.list();
+			}
+		});	
 	}
 
 	/**
@@ -288,8 +299,8 @@ public class SysUserDAO extends BaseDAO {
 	public int update(SysUser user) {
 		int result = 0;
 		try {
-			getSession().update(user);
-			getSession().flush();
+			getHibernateTemplate().update(user);
+			getHibernateTemplate().flush();
 			log.debug("update successful");
 		} catch (RuntimeException re) {
 			log.error("update failed", re);

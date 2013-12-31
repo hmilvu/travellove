@@ -60,21 +60,39 @@ function clacImgZoomParam( maxWidth, maxHeight, width, height ){
    
 function deleteImg(num){
 	if(num == 1){
-		$("#imghead1").attr("src","a");
 		$("#upload1").val("");
+		$("#imghead1").attr("src","a");
+		$("#imgId1").val("");
 	} else if(num == 2){
 		$("#upload2").val("");
 		$("#imghead2").attr("src","a");
+		$("#imgId2").val("");
 	} else if(num == 3){
 		$("#upload3").val("");
 		$("#imghead3").attr("src","a");
+		$("#imgId3").val("");
 	}
 
 }
+
+function checkupload(){
+	var iframe = $("#callbackframe");
+	var doc = iframe[0].contentDocument || iframe[0].content;
+	var response = $(doc).find("body").text();;
+	response = jQuery.parseJSON(response);
+	if(response.code == "0"){
+		navTabAjaxDone({"statusCode":"200", "message":"上传成功", "navTabId":"景点管理", "forwardUrl":"", "callbackType":"", "rel":""});	
+	} else {
+		navTabAjaxDone({"statusCode":"300", "message":"上传失败，请重试", "navTabId":"景点管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
+	}
+}
 </script>
 <div class="pageContent">
-	<form name="viewForm" id="viewForm" method="post" action="" class="pageForm required-validate">
+	<form action="viewSpotImageUpload.action" method="post" enctype="multipart/form-data" class="pageForm required-validate"  onsubmit="return iframeCallback(this, checkupload)">
 		<input type="hidden" id="viewSpotId" name="viewSpotId" value="<s:property value='%{#request.editView.id}'/>"/>
+		<input type="hidden" id="imgId1" name="imgId1" value="<s:property value='%{#request.imgId1}'/>"/>
+		<input type="hidden" id="imgId2" name="imgId2" value="<s:property value='%{#request.imgId2}'/>"/>
+		<input type="hidden" id="imgId3" name="imgId3" value="<s:property value='%{#request.imgId3}'/>"/>
 		<div class="panel" defH="370">
 			<h1><s:property value='%{#request.editView.name}'/></h1>
 			<div>
@@ -93,17 +111,17 @@ function deleteImg(num){
 					<tr height="250">
 						<td>
 							<div id="preview1">  
-							    <img id="imghead1" name="imghead1" width="200" height="200" border="0" src="a"/>  
+							    <img id="imghead1" name="imghead1" width="200" height="200" border="0" src="<s:property value='%{#request.imageName1}'/>"/>  
 							</div> 
 						</td>
 						<td>
 							<div id="preview2">  
-							    <img id="imghead2" name="imghead2" width="200" height="200" border="0" src="a"/>  
+							    <img id="imghead2" name="imghead2" width="200" height="200" border="0" src="<s:property value='%{#request.imageName2}'/>"/>  
 							</div> 
 						</td>
 						<td>
 							<div id="preview3">  
-							    <img id="imghead3" name="imghead3" width="200" height="200" border="0" src="a"/>  
+							    <img id="imghead3" name="imghead3" width="200" height="200" border="0" src="<s:property value='%{#request.imageName3}'/>"/>  
 							</div> 
 						</td>
 					</tr>
@@ -124,7 +142,7 @@ function deleteImg(num){
 		<div class="formBar">
 			<ul>
 				<!--<li><a class="buttonActive" href="javascript:;"><span>保存</span></a></li>-->
-				<li><div class="buttonActive"><div class="buttonContent"><button type="button" onclick="save();">保存</button></div></div></li>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
 				<li>
 					<div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div>
 				</li>
