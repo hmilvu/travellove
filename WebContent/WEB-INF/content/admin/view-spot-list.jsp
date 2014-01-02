@@ -35,11 +35,12 @@
 			<li class="line">line</li>			
 		</ul>
 	</div>
-	<table class="table" width="1160" layoutH="138">
+	<table class="table" width="1120" layoutH="138">
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="180">景点名称</th>
+				<th width="640">景点名称</th>
+				<th width="40">类型</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
 				<th width="40">操作</th>
@@ -49,7 +50,15 @@
 		    <s:iterator var="viewSpot" value="%{#request.viewSpotList}" status="statu">	
 			<tr target="sid_user" rel="<s:property value="%{#viewSpot.id}"/>">
 				<td><input name="ids" value="<s:property value="%{#viewSpot.id}"/>" type="checkbox"></td>
-				<td><s:property value="%{#viewSpot.name}"/></td>				
+				<td><s:property value="%{#viewSpot.name}"/></td>		
+				<td>
+					<s:if test="%{#viewSpot.type == 0}">
+						公共景点
+					</s:if>
+					<s:else>
+						旅行社景点
+					</s:else>				
+				</td>		
 				<td><s:property value="%{#viewSpot.sysUser.name}"/></td>
 				<td><s:date name="#viewSpot.createDate" format="yyyy-MM-dd" /></td>
 				<td>

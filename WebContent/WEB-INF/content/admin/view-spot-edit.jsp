@@ -61,7 +61,16 @@ var latiEdit = '${requestScope.editView.latitude}';
 		<div class="formBar">
 			<ul>
 				<!--<li><a class="buttonActive" href="javascript:;"><span>保存</span></a></li>-->
-				<li><div class="buttonActive"><div class="buttonContent"><button type="button" onclick="save();">保存</button></div></div></li>
+				<li><div class="buttonActive"><div class="buttonContent">
+					<button type="button" onclick="save();"><!-- 旅行社用户并且景点是公共景点 -->
+					<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 2 && #request.editView.type == 0}">
+						另存
+					</s:if>
+					<s:else>
+						保存
+					</s:else>
+					</button>
+					</div></div></li>
 				<li>
 					<div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div>
 				</li>

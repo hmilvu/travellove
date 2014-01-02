@@ -162,38 +162,38 @@ public class MemberService extends AbstractBaseService
         for (int i = 2; i < nSheetCount; i++) {
             // 获得一行的所有单元格
             Cell[] row = memberSheet.getRow(i);
-            String typeStr = row[0].getContents();  
+            String typeStr = getString(row, 0);
             Integer type = MEMBER_TYPE.TRAVELER.getValue();//默认为游客
             try{
             	type = Integer.valueOf(typeStr);
             } catch(Throwable ignore){}
             
-            String name = row[1].getContents();
-            String nickname = row[2].getContents();
-            String phoneNumber = row[3].getContents();
-            String password = row[4].getContents();
-            String genderStr = row[5].getContents();
+            String name = getString(row, 1);
+            String nickname = getString(row, 2);
+            String phoneNumber = getString(row, 3);
+            String password = getString(row, 4);
+            String genderStr = getString(row, 5);
             Integer gender = 2;
             try{
             	gender = Integer.valueOf(genderStr);
             } catch(Throwable ignore){}
-            String ageStr = row[6].getContents();
+            String ageStr = getString(row, 6);
             Integer age = 0;
             try{
             	age = Double.valueOf(ageStr).intValue();
             } catch(Throwable ignore){}
-            String idTypeStr = row[7].getContents();
+            String idTypeStr = getString(row, 7);
             Integer idType = 0;
             try{
             	idType = Integer.valueOf(idTypeStr);
             } catch(Throwable ignore){}
-            String idNumber = row[8].getContents();
+            String idNumber = getString(row, 8);
             if(StringUtils.isBlank(name) || StringUtils.isBlank(phoneNumber) || StringUtils.isBlank(idNumber)){
             	errorList.add(Integer.valueOf(i+1));
             	continue;
             }
-            String interest = row[9].getContents();
-            String profile = row[10].getContents();
+            String interest = getString(row, 9);
+            String profile = getString(row, 10);
 
             TeamInfo team = new TeamInfo();
     		team.setId(Long.valueOf(teamId));
@@ -221,6 +221,27 @@ public class MemberService extends AbstractBaseService
     		}            
         }	
         return errorList;
+	}
+
+
+	/**
+	 * @param cell
+	 * @return
+	 */
+	private String getString(Cell[] row, int i) {
+		if(i < row.length){
+			if(row[i] == null){
+				return "";
+			} else {
+				if(row[i].getContents() == null){
+					return "";
+				} else {
+					return row[i].getContents();
+				}
+			}
+		} else {
+			return "";
+		}
 	}
 
 

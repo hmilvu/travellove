@@ -176,4 +176,15 @@ public class Constants {
 		}
 	} 
 	
+	public enum VIEW_SPOT_TYPE {
+		PUBLIC(0), PRIVATE(1);
+		private int value;
+		private VIEW_SPOT_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
+	
 }

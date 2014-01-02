@@ -8,6 +8,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -17,6 +18,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
@@ -112,9 +114,9 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 */
 	private Criteria buildSearchCriteria(Session session, SearchViewSpotDTO dto) {
 		Criteria cr = session.createCriteria(ViewSpotInfo.class);
-		cr.createAlias("travelInf", "t");
+		cr.createAlias("travelInf", "t", CriteriaSpecification.LEFT_JOIN);
 		if (dto.getTravelId() != null) {
-			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
+			cr.add(Restrictions.or(Restrictions.eq("t.id", dto.getTravelId()), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
 		}
 		if (StringUtils.isNotBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
@@ -137,7 +139,7 @@ public class ViewSpotInfoDAO extends BaseDAO {
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-	//			cr.addOrder(Order.asc("t.name"));
+				cr.addOrder(Order.desc("type"));
 				cr.addOrder(Order.asc("name"));
 				return cr.list();
 			}

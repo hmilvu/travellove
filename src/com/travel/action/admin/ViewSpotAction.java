@@ -13,6 +13,7 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ImgInf;
@@ -96,7 +97,12 @@ public class ViewSpotAction extends AuthorityAction{
 		view.setLatitude(latitude);
 		view.setLongitude(longitude);
 		view.setSysUser(getCurrentUser());
-		view.setTravelInf(getCurrentUser().getTravelInf());
+		if(isTravelUser()){
+			view.setTravelInf(getCurrentUser().getTravelInf());
+			view.setType(VIEW_SPOT_TYPE.PRIVATE.getValue());
+		} else {
+			view.setType(VIEW_SPOT_TYPE.PUBLIC.getValue());
+		}
 		try {
 			if(viewSpotService.addViewSpot(view) == 0){
 				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
@@ -104,8 +110,7 @@ public class ViewSpotAction extends AuthorityAction{
 				JsonUtils.write(response, binder.toJson("result", Action.ERROR));		
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("创建景点错误", e);
 		}
 	}
 	
@@ -152,16 +157,40 @@ public class ViewSpotAction extends AuthorityAction{
 			return;
 		}
 		ViewSpotInfo view = viewSpotService.getViewSpotById(Long.valueOf(id));
-		view.setName(name);
-		view.setDescription(description);
-		view.setLatitude(latitude);
-		view.setLongitude(longitude);
-
-		if(viewSpotService.updateViewSpot(view) == 0){
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
-		} else {
-			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-		}		
+		if(view.getType().intValue() == VIEW_SPOT_TYPE.PUBLIC.getValue() && isTravelUser()){
+			// if the view spot is public and the user is traveler, update is create.
+			ViewSpotInfo cloneView = new ViewSpotInfo();
+			cloneView.setName(name);
+			cloneView.setDescription(description);
+			cloneView.setLatitude(latitude);
+			cloneView.setLongitude(longitude);
+			cloneView.setSysUser(getCurrentUser());
+			cloneView.setTravelInf(getCurrentUser().getTravelInf());
+			cloneView.setType(VIEW_SPOT_TYPE.PRIVATE.getValue());	
+			try {
+				if(viewSpotService.addViewSpot(cloneView) == 0){
+					JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+				} else {
+					JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+				}	
+			} catch (Exception e) {
+				log.error("创建私有景点错误", e);
+			}
+		} else {// if the view spot is private, update is modify.		
+			view.setName(name);
+			view.setDescription(description);
+			view.setLatitude(latitude);
+			view.setLongitude(longitude);
+			try {
+				if(viewSpotService.updateViewSpot(view) == 0){
+					JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+				} else {
+					JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+				}
+			} catch (Exception e) {
+				log.error("更新公共景点错误", e);
+			}
+		}
 	}	
 	
 	public String selectView(){

@@ -30,6 +30,7 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 	private Double longitude;
 	private Double latitude;
 	private String description;
+	private Integer type;
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<RouteViewSpot> routeViewSpots = new HashSet<RouteViewSpot>(0);
@@ -96,6 +97,15 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@Column(name = "type", nullable = false)
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
 
 	@Column(name = "longitude", nullable = false, precision = 20, scale = 8)
 	public Double getLongitude() {
@@ -151,7 +161,7 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 		this.routeViewSpots = routeViewSpots;
 	}
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "travel_id", nullable = false)
+	@JoinColumn(name = "travel_id")
 	public TravelInf getTravelInf() {
 		return this.travelInf;
 	}

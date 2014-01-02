@@ -72,7 +72,7 @@ function printQrCode(){
 			<li><a class="icon" href="javascript:printQrCode();"><span>打印二维码</span></a></li>
 		</ul>
 	</div>
-	<table class="table" width="1160" layoutH="138">
+	<table class="table" width="1120" layoutH="138">
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.VIEW_SPOT_TYPE;
+import com.travel.entity.ViewSpotInfo;
 import com.travel.service.FileService;
 import com.travel.service.ImgService;
 import com.travel.service.ViewSpotService;
@@ -52,6 +54,11 @@ public class MultiFileUploadAction extends AuthorityAction {
 		String serverUrl = "http://" + Config.getProperty("ip.address") + ":" + request.getLocalPort() + getRelativePath();
 		if (StringUtils.equals(uploadBizType, VIEW_SPOT_IMAGE)) {
 			String viewSpotId = request.getParameter("viewSpotId");
+			ViewSpotInfo view = viewSpotService.getViewSpotById(Long.valueOf(viewSpotId));
+			if(view.getType().intValue() == VIEW_SPOT_TYPE.PUBLIC.getValue() && isTravelUser()){
+				JsonUtils.write(response, "{\"code\":\"-2\",\"msg\":\"\"}");
+				return null;
+			}
 			String folderName = "viewspot";
 			if(StringUtils.isBlank(imgId1)){//新增或者删除
 				if(upload1 != null){

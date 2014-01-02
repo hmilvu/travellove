@@ -70,15 +70,3 @@ function deleteImg(num){
 	}
 
 }
-
-function checkupload(){
-	var iframe = $("#callbackframe");
-	var doc = iframe[0].contentDocument || iframe[0].content;
-	var response = $(doc).find("body").text();;
-	response = jQuery.parseJSON(response);
-	if(response.code == "0"){
-		navTabAjaxDone({"statusCode":"200", "message":"上传成功", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"", "rel":""});	
-	} else {
-		navTabAjaxDone({"statusCode":"300", "message":"上传失败，请重试", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
-	}
-}

@@ -80,7 +80,7 @@ function save(){
 		</form>
 	</div>
 	<div class="pageContent">
-		<table class="table" width="1160" layoutH="128">
+		<table class="table" width="1120" layoutH="128">
 			<thead>
 				<tr>
 					<th width="10">序号</th>

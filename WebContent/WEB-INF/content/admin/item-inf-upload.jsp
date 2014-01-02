@@ -2,6 +2,21 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
 <script src="js/admin/multi-upload.js" type="text/javascript"></script>
+<script type="text/javascript">
+function checkupload(){
+	var iframe = $("#callbackframe");
+	var doc = iframe[0].contentDocument || iframe[0].content;
+	var response = $(doc).find("body").text();;
+	response = jQuery.parseJSON(response);
+	if(response.code == "0"){
+		navTabAjaxDone({"statusCode":"200", "message":"上传成功", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"", "rel":""});	
+	} else if(response.code == "-1"){
+		navTabAjaxDone({"statusCode":"300", "message":"上传失败，请重试", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
+	} else if(response.code == "-2"){
+		navTabAjaxDone({"statusCode":"300", "message":"公共景点不能修改图片", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});
+	}
+}
+</script>
 <div class="pageContent">
 	<form action="itemImageUpload.action" method="post" enctype="multipart/form-data" class="pageForm required-validate"  onsubmit="return iframeCallback(this, checkupload)">
 		<input type="hidden" id="itemId" name="itemId" value="<s:property value='%{#request.editItem.id}'/>"/>

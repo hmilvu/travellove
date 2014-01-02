@@ -8,6 +8,7 @@ package com.travel.common.dto;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Lenovo
@@ -29,5 +30,8 @@ public class TeamRouteDTO {
 		this.routeInfoList.add(routeInfoDTO);
 	}
 	
-
+	public static void main(String[] args) {
+		UUID uuid = UUID.randomUUID();
+        System.out.println(uuid.toString().toUpperCase());
+	}
 }
