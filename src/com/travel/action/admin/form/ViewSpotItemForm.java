@@ -13,6 +13,7 @@ package com.travel.action.admin.form;
 public class ViewSpotItemForm{
 	private int order;
 	private ViewSpotForm viewSpotForm;
+	private int numberOfDay;
 	public int getOrder() {
 		return order;
 	}
@@ -24,6 +25,12 @@ public class ViewSpotItemForm{
 	}
 	public void setViewSpotForm(ViewSpotForm viewSpotForm) {
 		this.viewSpotForm = viewSpotForm;
+	}
+	public int getNumberOfDay() {
+		return numberOfDay;
+	}
+	public void setNumberOfDay(int numberOfDay) {
+		this.numberOfDay = numberOfDay;
 	}
 
 	

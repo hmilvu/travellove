@@ -1,14 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
-<form id="pagerForm" method="post" action="admin/view-spot!list.action">
+<form id="pagerForm" method="post" action="admin/view-spot!selectView.action">
 	<input type="hidden" name="name" value="<s:property value='%{#request.name}'/>" />
 	<input type="hidden" name="pageNum" value="1" />
 	<input type="hidden" name="numPerPage" value="15" />
 </form>
 
 <div class="pageHeader">
-	<form rel="pagerForm" onsubmit="return navTabSearch(this);" action="admin/view-spot!list.action" method="post">
+	<form rel="pagerForm" action="admin/view-spot!selectView.action" method="post" onsubmit="return dwzSearch(this, 'dialog');">
 	<div class="searchBar">
 		<table class="searchContent">
 			<tr>
@@ -55,7 +55,7 @@
 	<div class="panelBar">
 		<div class="pages">
 			<span>共${totalCount}条</span>
-		</div>		
-		<div class="pagination" targetType="navTab" totalCount="${totalCount}" numPerPage="15" pageNumShown="5" currentPage="<s:property value='%{#request.pageNumber}'/>"></div>
+		</div>
+		<div class="pagination" targetType="dialog" totalCount="${totalCount}" numPerPage="15" pageNumShown="5" currentPage="<s:property value='%{#request.pageNumber}'/>"></div>
 	</div>
 </div>

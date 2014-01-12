@@ -29,6 +29,13 @@ var latiEdit = '${requestScope.editView.latitude}';
 			<dl></dl>
 			<dl></dl>
 			<dl>
+				<dt>景点地址：</dt>
+				<dd>
+					<input type="text" name="address" maxlength="120" size="100" value="<s:property value='%{#request.editView.address}'/>"/>
+				</dd>
+			</dl>
+			<dl></dl>
+			<dl>
 				<dt>位置：</dt>
 				<dd>
 					<input type="text" name="OrderQueue[address]" id="OrderQueue_address" size=35 alt="请输入关键字查询景点"/>

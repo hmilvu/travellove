@@ -36,7 +36,8 @@ public abstract class AbstractItemInf extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<Order> orders = new HashSet<Order>(0);
-
+	private Integer type;
+	private TravelInf travelInf;
 	// Constructors
 
 	/** default constructor */
@@ -186,5 +187,21 @@ public abstract class AbstractItemInf extends BaseEntity implements
 	public void setOrders(Set<Order> orders) {
 		this.orders = orders;
 	}
+	@Column(name = "type", nullable = false)
+	public Integer getType() {
+		return this.type;
+	}
 
+	public void setType(Integer type) {
+		this.type = type;
+	}
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "travel_id")
+	public TravelInf getTravelInf() {
+		return this.travelInf;
+	}
+
+	public void setTravelInf(TravelInf travelInf) {
+		this.travelInf = travelInf;
+	}
 }

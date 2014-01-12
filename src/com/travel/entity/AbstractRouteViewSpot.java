@@ -1,5 +1,6 @@
 package com.travel.entity;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
@@ -27,8 +28,9 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Integer order;
-	private Timestamp startDate;
-	private Timestamp endDate;
+	private Time startTime;
+	private Time endTime;
+	private Integer numberOfDay;
 	// Constructors
 
 	/** default constructor */
@@ -116,22 +118,31 @@ public abstract class AbstractRouteViewSpot extends BaseEntity implements
 		this.order = order;
 	}
 	
-	@Column(name = "start_date", nullable = false, length = 19)
-	public Timestamp getStartDate() {
-		return startDate;
+	@Column(name = "start_time", nullable = false, length = 8)
+	public Time getStartTime() {
+		return this.startTime;
 	}
 
-	public void setStartDate(Timestamp startDate) {
-		this.startDate = startDate;
-	}
-	
-	@Column(name = "end_date", nullable = false, length = 19)
-	public Timestamp getEndDate() {
-		return endDate;
+	public void setStartTime(Time startTime) {
+		this.startTime = startTime;
 	}
 
-	public void setEndDate(Timestamp endDate) {
-		this.endDate = endDate;
+	@Column(name = "end_time", nullable = false, length = 8)
+	public Time getEndTime() {
+		return this.endTime;
+	}
+
+	public void setEndTime(Time endTime) {
+		this.endTime = endTime;
+	}
+
+	@Column(name = "number_of_day", nullable = false)
+	public Integer getNumberOfDay() {
+		return this.numberOfDay;
+	}
+
+	public void setNumberOfDay(Integer numberOfDay) {
+		this.numberOfDay = numberOfDay;
 	}
 	
 	

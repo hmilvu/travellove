@@ -47,6 +47,7 @@
 				<th width="60">品牌</th>
 				<th width="60">规格</th>
 				<th width="40">单价（元）</th>
+				<th width="60">类型</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
 				<th width="70">操作</th>
@@ -60,6 +61,13 @@
 				<td><s:property value="%{#itemInf.brands}"/></td>
 				<td><s:property value="%{#itemInf.specification}"/></td>
 				<td><s:property value="%{#itemInf.price}"/></td>
+				<td><s:if test="%{#itemInf.type == 0}">
+						公共特产
+					</s:if>
+					<s:else>
+						旅行社特产
+					</s:else>	
+				</td>
 				<td><s:property value="%{#itemInf.sysUser.name}"/></td>
 				<td><s:date name="#itemInf.createDate" format="yyyy-MM-dd" /></td>
 				<td>

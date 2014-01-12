@@ -127,7 +127,7 @@ public class RouteViewSpotDAO extends BaseDAO {
 	public List<Object[]> findViewSpotByRouteId(Long routeId) {
 		log.debug("findViewSpotByRouteId");
 		try {
-			String queryString = "select r.viewSpotInfo, r.startDate, r.endDate from RouteViewSpot r where r.routeInf.id = ? order by r.order";
+			String queryString = "select r.viewSpotInfo, r.startTime, r.endTime, r.numberOfDay from RouteViewSpot r where r.routeInf.id = ? order by r.order";
 			return getHibernateTemplate().find(queryString, routeId);
 		} catch (RuntimeException re) {
 			log.error("findViewSpotByRouteId failed", re);

@@ -60,6 +60,11 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		dto.setDescription(getDescription());
 		dto.setLatitude(getLatitude());
 		dto.setLongitude(getLongitude());
+		if(getAddress() == null){
+			dto.setAddress("");
+		} else {
+			dto.setAddress(getAddress());
+		}
 		dto.addImageUrl(urls);
 		return dto;
 	}

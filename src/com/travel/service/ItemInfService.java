@@ -81,8 +81,8 @@ public class ItemInfService extends AbstractBaseService
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<ItemInfDTO> getItemList(PageInfoDTO pageInfo) {
-		List<ItemInf> list = itemDao.findItems(pageInfo);
+	public List<ItemInfDTO> getItemList(Long travelId, PageInfoDTO pageInfo) {
+		List<ItemInf> list = itemDao.findItems(travelId, pageInfo);
 		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
 		for(ItemInf item : list){
 			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());

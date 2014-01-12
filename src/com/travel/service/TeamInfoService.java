@@ -1,9 +1,12 @@
 package com.travel.service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,10 +68,21 @@ public class TeamInfoService extends AbstractBaseService
 				for(Object[] objArr : viewSpotList){
 					ViewSpotInfo view = (ViewSpotInfo)objArr[0];
 					ViewSpotDTO viewDto = view.toDTO();
-					Timestamp startTime = (Timestamp)objArr[1];
-					Timestamp endTime = (Timestamp)objArr[2];
-					viewDto.setStartDate(DateUtils.toTimeStr(new Date(startTime.getTime())));
-					viewDto.setEndDate(DateUtils.toTimeStr(new Date(endTime.getTime())));
+					Time startTime = (Time)objArr[1];
+					Time endTime = (Time)objArr[2];
+					Integer numberOfDay = (Integer)objArr[3] - 1;
+					if(numberOfDay < 0){
+						numberOfDay = 0;
+					}
+					viewDto.setNumberOfDay(numberOfDay);
+					Calendar cal = Calendar.getInstance();	
+					cal.setTime(teamRoute.getDate()); 
+					cal.add(Calendar.DAY_OF_YEAR, numberOfDay);
+					cal.add(Calendar.HOUR_OF_DAY, 8);
+					Long startDateLong = cal.getTime().getTime() + startTime.getTime();
+					Long endDateLong = cal.getTime().getTime() + endTime.getTime();					
+					viewDto.setStartDate(DateUtils.toTimeStr(new Date(startDateLong)));
+					viewDto.setEndDate(DateUtils.toTimeStr(new Date(endDateLong)));
 					List<String>urls = imageDao.findUrls(IMAGE_TYPE.VIEWSPOT, view.getId());
 					if(urls != null && urls.size() > 0){
 						viewDto.addImageUrl(urls);

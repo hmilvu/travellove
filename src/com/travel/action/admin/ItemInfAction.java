@@ -13,6 +13,8 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.ITEM_TYPE;
+import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ImgInf;
@@ -148,6 +150,13 @@ public class ItemInfAction extends AuthorityAction{
 		item.setDescription(description);
 		item.setContactName(contactName);
 		item.setContactPhone(contactPhone);
+		item.setType(ITEM_TYPE.PRIVATE.getValue());
+		if(isTravelUser()){
+			item.setTravelInf(getCurrentUser().getTravelInf());
+			item.setType(ITEM_TYPE.PRIVATE.getValue());
+		} else {
+			item.setType(ITEM_TYPE.PUBLIC.getValue());
+		}
 		item.setSysUser(getCurrentUser());
 		if(itemService.addItem(item) == 0){
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
@@ -186,18 +195,39 @@ public class ItemInfAction extends AuthorityAction{
 	public void update(){
 		String id = request.getParameter("itemInfId");		
 		ItemInf item = itemService.getItemById(Long.valueOf(id));
-		item.setName(name);
-		item.setBrands(brands);
-		item.setSpecification(specification);
-		item.setPrice(price);
-		item.setDescription(description);
-		item.setContactName(contactName);
-		item.setContactPhone(contactPhone);
-		if(itemService.updateItem(item) == 0){
-			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+		if(item.getType().intValue() == ITEM_TYPE.PUBLIC.getValue() && isTravelUser()){
+			// if the item is public and the user is traveler, update is create.
+			ItemInf newItem = new ItemInf();
+			newItem.setName(name);
+			newItem.setBrands(brands);
+			newItem.setSpecification(specification);
+			newItem.setPrice(price);
+			newItem.setDescription(description);
+			newItem.setContactName(contactName);
+			newItem.setContactPhone(contactPhone);
+			newItem.setType(ITEM_TYPE.PRIVATE.getValue());
+			newItem.setTravelInf(getCurrentUser().getTravelInf());
+			newItem.setSysUser(getCurrentUser());
+			if(itemService.addItem(newItem) == 0){
+				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+			} else {
+				JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+			}		
 		} else {
-			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
-		}		
+			item.setName(name);
+			item.setBrands(brands);
+			item.setSpecification(specification);
+			item.setPrice(price);
+			item.setDescription(description);
+			item.setContactName(contactName);
+			item.setContactPhone(contactPhone);
+			if(itemService.updateItem(item) == 0){
+				JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+			} else {
+				JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+			}					
+		}
+		return;
 	}
 	
 	public String upload(){

@@ -111,7 +111,7 @@ public class Constants {
 	} 
 	
 	public enum MESSAGE_RECEIVER_TYPE {
-		TEAM(0), MEMBER(1);
+		TEAM(0), MEMBER(1), VIEW_SPOT(2);
 		private int value;
 		private MESSAGE_RECEIVER_TYPE(int value) {
 			this.value = value;
@@ -180,6 +180,17 @@ public class Constants {
 		PUBLIC(0), PRIVATE(1);
 		private int value;
 		private VIEW_SPOT_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
+	
+	public enum ITEM_TYPE {
+		PUBLIC(0), PRIVATE(1);
+		private int value;
+		private ITEM_TYPE(int value) {
 			this.value = value;
 		}
 		public int getValue(){

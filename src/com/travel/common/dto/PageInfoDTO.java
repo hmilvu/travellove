@@ -20,6 +20,7 @@ public class PageInfoDTO {
 		this.pageSize = pageSize;
 	}
 	public int getPageNumber() {
+		if(pageNumber < 1)return 1;
 		return pageNumber;
 	}
 	public void setPageNumber(int pageNumber) {

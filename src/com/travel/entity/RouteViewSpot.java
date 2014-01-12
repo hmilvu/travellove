@@ -30,34 +30,34 @@ public class RouteViewSpot extends AbstractRouteViewSpot implements
 	}
 	
 	@Transient
-	private String startDateStr;
+	private String startTimeStr;
 	@Transient
-	private String endDateStr;
+	private String endTimeStr;
 	@Transient
-	public String getStartDateStr() {
-		if(getStartDate()!=null){
-			startDateStr = DateUtils.toTimeStr2(new Date(getStartDate().getTime()));
-			return startDateStr;
+	public String getStartTimeStr() {
+		if(getStartTime()!=null){
+			startTimeStr = DateUtils.timeToHHssStr(getStartTime());
+			return startTimeStr;
 		} else {
 			return "";
 		}
 	}
 	@Transient
-	public void setStartDateStr(String startDateStr) {
-		this.startDateStr = startDateStr;
+	public void setStartTimeStr(String startTimeStr) {
+		this.startTimeStr = startTimeStr;
 	}
 	@Transient
-	public String getEndDateStr() {
-		if(getEndDate()!=null){
-			endDateStr = DateUtils.toTimeStr2(new Date(getEndDate().getTime()));
-			return endDateStr;
+	public String getEndTimeStr() {
+		if(getEndTime()!=null){
+			endTimeStr = DateUtils.timeToHHssStr(getEndTime());
+			return endTimeStr;
 		} else {
 			return "";
 		}
 	}
 	@Transient
-	public void setEndDateStr(String endDateStr) {
-		this.endDateStr = endDateStr;
+	public void setEndTimeStr(String endTimeStr) {
+		this.endTimeStr = endTimeStr;
 	}
 	
 

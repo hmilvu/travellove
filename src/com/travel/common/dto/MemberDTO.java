@@ -14,6 +14,7 @@ import com.travel.entity.TeamInfo;
  */
 public class MemberDTO {
 	private Long id;
+	private Long teamId;
 	private String memberName;
 	private String nickname;
 	private String travelerMobile;
@@ -110,6 +111,12 @@ public class MemberDTO {
 	}
 	public void setBaiduUserId(String baiduUserId) {
 		this.baiduUserId = baiduUserId;
+	}
+	public Long getTeamId() {
+		return teamId;
+	}
+	public void setTeamId(Long teamId) {
+		this.teamId = teamId;
 	}
 	
 	

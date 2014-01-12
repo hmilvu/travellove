@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.travel.action.BaseAction;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.ItemInfDTO;
-import com.travel.common.dto.OrderDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.ItemInf;
+import com.travel.entity.TeamInfo;
 import com.travel.service.ItemInfService;
-import com.travel.service.MemberService;
 import com.travel.service.OrderService;
+import com.travel.service.TeamInfoService;
 
 /**
  * @author Lenovo
@@ -30,7 +30,7 @@ public class ItemInfAction extends BaseAction {
 	 */
 	private static final long serialVersionUID = 1L;
 	@Autowired
-	private MemberService memberService;
+	private TeamInfoService teamService;
 	@Autowired
 	private ItemInfService itemService;
 	@Autowired
@@ -38,6 +38,15 @@ public class ItemInfAction extends BaseAction {
 	
 	public void search() {
 		String data = getMobileData();
+		Object teamId = getMobileParameter(data, "teamId");
+		Long teamIdLong = Long.valueOf(0);
+		try {
+			teamIdLong = Long.valueOf(teamId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("teamId类型错误");
+			sendToMobile(result);
+			return;
+		}
 		Object pageSize = getMobileParameter(data, "pageSize");
 		Object pageNumber = getMobileParameter(data, "pageNumber");
 		PageInfoDTO pageInfo = new PageInfoDTO();
@@ -46,10 +55,11 @@ public class ItemInfAction extends BaseAction {
 			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
 		}catch(Throwable ignore){			
 		}
-		List<ItemInfDTO> list = itemService.getItemList(pageInfo);
+		TeamInfo team = teamService.getTeamById(teamIdLong);
+		List<ItemInfDTO> list = itemService.getItemList(team.getTravelInf().getId(), pageInfo);
 		SuccessResult<List<ItemInfDTO>> result = new SuccessResult<List<ItemInfDTO>>(list);
 		sendToMobile(result);
-		
+		return;
 	}
 	
 	public void detail(){

@@ -80,6 +80,7 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		msg.setRemindMode(getRemindMode());
 		msg.setCreateDate(getCreateDate());
 		msg.setUpdateDate(getUpdateDate());
+		msg.setPushStatus(getPushStatus());
 		return msg;
 		
 	}

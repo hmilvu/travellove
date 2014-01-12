@@ -1,6 +1,7 @@
 package com.travel.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.common.dto.ViewSpotDTO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.ViewSpotInfoDAO;
 import com.travel.entity.ViewSpotInfo;
@@ -79,6 +81,22 @@ public class ViewSpotService extends AbstractBaseService
 	public int updateViewSpot(ViewSpotInfo view) {
 		view.setUpdateDate(new Timestamp(new Date().getTime()));
 		return viewSpotDao.update(view);
+	}
+
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<ViewSpotDTO> findViewSpotsDTO(SearchViewSpotDTO dto,
+			PageInfoDTO pageInfo) {
+		List<ViewSpotInfo> list = viewSpotDao.findViewSpots(dto, pageInfo);
+		List<ViewSpotDTO> resultList = new ArrayList<ViewSpotDTO>();
+		for(ViewSpotInfo view : list){
+			resultList.add(view.toDTO());
+		}
+		return resultList;
 	}
 	
 }

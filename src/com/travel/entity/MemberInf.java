@@ -49,6 +49,7 @@ public class MemberInf extends AbstractMemberInf implements
 	public MemberDTO toDTO() {
 		MemberDTO dto = new MemberDTO();
 		dto.setId(getId());
+		dto.setTeamId(getTeamInfo().getId());
 		dto.setMemberName(getMemberName());
 		dto.setNickname(getNickname());
 		dto.setTravelerMobile(getTravelerMobile());

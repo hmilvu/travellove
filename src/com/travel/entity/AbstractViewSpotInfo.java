@@ -30,10 +30,11 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 	private Double longitude;
 	private Double latitude;
 	private String description;
-	private Integer type;
+	private String address;
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<RouteViewSpot> routeViewSpots = new HashSet<RouteViewSpot>(0);
+	private Integer type;
 	private TravelInf travelInf;
 	// Constructors
 
@@ -132,6 +133,15 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	@Column(name = "address")
+	public String getAddress() {
+		return this.address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	@Column(name = "create_date", nullable = false, length = 19)

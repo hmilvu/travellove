@@ -6,8 +6,6 @@
 package com.travel.action.mobile;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
@@ -30,10 +27,8 @@ import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
-import com.travel.entity.TravelInf;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
-import com.travel.utils.JsonUtils;
 
 /**
  * @author Lenovo

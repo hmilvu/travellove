@@ -1,14 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
-<form id="pagerForm" method="post" action="admin/route-inf!list.action">
+<form id="pagerForm" method="post" action="admin/route-inf!selectView.action">
 	<input type="hidden" name="name" value="<s:property value='%{#request.name}'/>" />
 	<input type="hidden" name="pageNum" value="1" />
 	<input type="hidden" name="numPerPage" value="15" />
 </form>
 
 <div class="pageHeader">
-	<form rel="pagerForm" method="post" action="admin/route-inf!list.action" onsubmit="return dwzSearch(this, 'dialog');">
+	<form rel="pagerForm" method="post" action="admin/route-inf!selectView.action" onsubmit="return dwzSearch(this, 'dialog');">
 	<div class="searchBar">
 		<ul class="searchContent">
 			<li>
@@ -51,16 +51,8 @@
 
 	<div class="panelBar">
 		<div class="pages">
-			<span>每页</span>
-
-			<select name="numPerPage" onchange="dwzPageBreak({targetType:dialog, numPerPage:'10'})">
-				<option value="10" selected="selected">10</option>
-				<option value="20">20</option>
-				<option value="50">50</option>
-				<option value="100">100</option>
-			</select>
-			<span>条，共2条</span>
+			<span>共${totalCount}条</span>
 		</div>
-		<div class="pagination" targetType="dialog" totalCount="2" numPerPage="10" pageNumShown="1" currentPage="1"></div>
+		<div class="pagination" targetType="dialog" totalCount="${totalCount}" numPerPage="15" pageNumShown="5" currentPage="<s:property value='%{#request.pageNumber}'/>"></div>
 	</div>
 </div>

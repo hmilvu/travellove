@@ -72,11 +72,12 @@
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="80">消息接收人/团名称</th>
-				<th width="60">内容</th>
+				<th width="60">消息接收人/团名称</th>
+				<th width="120">内容</th>
 				<th width="40">类型</th>
-				<th width="80">优先级</th>
+				<th width="40">优先级</th>
 				<th width="40">状态</th>
+				<th width="40">推送状态</th>
 				<th width="70">创建日期</th>
 				<th width="70">操作</th>
 			</tr>
@@ -104,6 +105,12 @@
 					<s:if test="%{#message.status == 0}">审核中</s:if>
 					<s:elseif test="%{#message.status == 1}">已通过</s:elseif>
 					<s:elseif test="%{#message.status == 2}">已废弃</s:elseif>
+					<s:else>&nbsp;</s:else>
+				</td>
+				<td>
+					<s:if test="%{#message.pushStatus == 0}">&nbsp;</s:if>
+					<s:elseif test="%{#message.pushStatus == 1}">已推送</s:elseif>
+					<s:elseif test="%{#message.pushStatus == 2}">推送失败</s:elseif>
 					<s:else>&nbsp;</s:else>
 				</td>
 				<td><s:date name="#message.createDate" format="yyyy-MM-dd" /></td>

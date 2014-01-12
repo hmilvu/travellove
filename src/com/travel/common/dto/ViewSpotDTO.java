@@ -16,11 +16,13 @@ import java.util.List;
 public class ViewSpotDTO {
 	private Long viewId;
 	private String name;
+	private String address;
 	private Double longitude;
 	private Double latitude;
 	private String description;
 	private String startDate;
 	private String endDate;
+	private Integer numberOfDay;
 	private List<String> imageUrls = new ArrayList<String>();	
 	
 	public List<String> getImageUrls() {
@@ -72,6 +74,18 @@ public class ViewSpotDTO {
 	}
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
+	}
+	public Integer getNumberOfDay() {
+		return numberOfDay;
+	}
+	public void setNumberOfDay(Integer numberOfDay) {
+		this.numberOfDay = numberOfDay;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
 	}
 	
 }

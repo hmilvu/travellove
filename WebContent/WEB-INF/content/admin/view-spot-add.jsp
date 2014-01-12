@@ -24,7 +24,14 @@
 			<dl></dl>
 			<dl></dl>
 			<dl>
-				<dt>位置：</dt>
+				<dt>景点地址：</dt>
+				<dd>
+					<input type="text" name="address" maxlength="120" size="100"/>
+				</dd>
+			</dl>
+			<dl></dl>
+			<dl>
+				<dt>查找景点：</dt>
 				<dd>
 					<input type="text" name="OrderQueue[address]" id="OrderQueue_address" size=35 class="required" alt="请输入关键字查询景点"/>
 				</dd>

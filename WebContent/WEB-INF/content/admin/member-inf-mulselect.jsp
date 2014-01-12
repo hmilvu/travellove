@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
     
-<form id="pagerForm" method="post" action="admin/member-inf!list.action?fromSelect=1">
+<form id="pagerForm" method="post" action="admin/member-inf!mulselect.action?fromSelect=1">
 	<input type="hidden" name="phoneNumber" value="<s:property value='%{#request.phoneNumber}'/>" />
 	<input type="hidden" name="name" value="<s:property value='%{#request.name}'/>" />
 	<input type="hidden" name="idNumber" value="<s:property value='%{#request.idNumber}'/>" />
@@ -12,7 +12,7 @@
 </form>
 
 <div class="pageHeader">
-	<form action="admin/member-inf!list.action?fromSelect=1" method="post" onsubmit="return dwzSearch(this, 'dialog');">
+	<form action="admin/member-inf!mulselect.action?fromSelect=1" method="post" onsubmit="return dwzSearch(this, 'dialog');">
 	<input type="hidden" name="pageNumber" value="0" />
 	<div class="searchBar">		
 		<table class="searchContent">

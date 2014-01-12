@@ -13,7 +13,7 @@ function checkupload(){
 	} else if(response.code == "-1"){
 		navTabAjaxDone({"statusCode":"300", "message":"上传失败，请重试", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
 	} else if(response.code == "-2"){
-		navTabAjaxDone({"statusCode":"300", "message":"公共景点不能修改图片", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});
+		navTabAjaxDone({"statusCode":"300", "message":"公共特产不能修改图片", "navTabId":"销售品管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});
 	}
 }
 </script>

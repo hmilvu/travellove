@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.ITEM_TYPE;
 import com.travel.common.Constants.VIEW_SPOT_TYPE;
+import com.travel.entity.ItemInf;
 import com.travel.entity.ViewSpotInfo;
 import com.travel.service.FileService;
 import com.travel.service.ImgService;
+import com.travel.service.ItemInfService;
 import com.travel.service.ViewSpotService;
 import com.travel.utils.Config;
 import com.travel.utils.JsonUtils;
@@ -32,6 +35,8 @@ public class MultiFileUploadAction extends AuthorityAction {
 	private static final long serialVersionUID = 1L;
 	@Autowired
 	private ViewSpotService viewSpotService;
+	@Autowired
+	private ItemInfService itemService;
 	@Autowired
 	private ImgService imgService;
 	@Autowired
@@ -95,6 +100,11 @@ public class MultiFileUploadAction extends AuthorityAction {
 			}
 		} else if (StringUtils.equals(uploadBizType, ITEM_IMAGE)) {
 			String itemId = request.getParameter("itemId");
+			ItemInf item = itemService.getItemById(Long.valueOf(itemId));
+			if(item.getType().intValue() == ITEM_TYPE.PUBLIC.getValue() && isTravelUser()){
+				JsonUtils.write(response, "{\"code\":\"-2\",\"msg\":\"\"}");
+				return null;
+			}
 			String folderName = "item";
 			if(StringUtils.isBlank(imgId1)){//新增或者删除
 				if(upload1 != null){

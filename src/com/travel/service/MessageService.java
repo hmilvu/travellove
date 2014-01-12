@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ import com.baidu.yun.core.log.YunLogEvent;
 import com.baidu.yun.core.log.YunLogHandler;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.MESSAGE_REMIND_MODE;
+import com.travel.common.Constants.MESSAGE_STATUS;
+import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.Constants.PUSH_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.MessageDTO;
@@ -33,6 +37,7 @@ import com.travel.dao.TeamInfoDAO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
+import com.travel.entity.TravelInf;
 import com.travel.utils.Config;
 
 @Service
@@ -183,7 +188,12 @@ public class MessageService extends AbstractBaseService
 				newMsgList.add(messageList.get(i));
 			}
 		}
-		sendMemberPushMsg(newMsgList, content, newMemberList);
+		int result = sendMemberPushMsg(newMsgList, content, newMemberList);
+		if(result == newMemberList.size()){
+			log.info("全部推送成功");
+		} else {
+			log.info("部分或全部推送失败");
+		}
 /*		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
 		String secretKey = Config.getProperty("baidu.secretkey");
@@ -240,25 +250,26 @@ public class MessageService extends AbstractBaseService
 	 * @brief	推送单播消息(消息类型为透传，由开发方应用自己来解析消息内容)
 	* 			message_type = 0 (默认为0)
 	 */
-	public void sendMemberPushMsg(List<Message>messageList, String content,
+	public int sendMemberPushMsg(List<Message>messageList, String content,
 			List<MemberInf> memberList) {
+		int result = 0;
 		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
 		String secretKey = Config.getProperty("baidu.secretkey");
-		ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
-		
-		// 2. 创建BaiduChannelClient对象实例
-		BaiduChannelClient channelClient = new BaiduChannelClient(pair);
-		
-		// 3. 若要了解交互细节，请注册YunLogHandler类
-		channelClient.setChannelLogHandler(new YunLogHandler() {
-			@Override
-			public void onHandle(YunLogEvent event) {
-				log.info(event.getMessage());
-			}
-		});
-		
 		for(int i = 0; i < memberList.size(); i++){
+			ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
+			
+			// 2. 创建BaiduChannelClient对象实例
+			BaiduChannelClient channelClient = new BaiduChannelClient(pair);
+			
+			// 3. 若要了解交互细节，请注册YunLogHandler类
+			channelClient.setChannelLogHandler(new YunLogHandler() {
+				@Override
+				public void onHandle(YunLogEvent event) {
+					log.info(event.getMessage());
+				}
+			});
+		
 			MemberInf member = memberList.get(i);
 			Message msg = messageList.get(i);
 			try {				
@@ -273,8 +284,10 @@ public class MessageService extends AbstractBaseService
 				// 5. 调用pushMessage接口
 				PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
 				// 6. 认证推送成功
+				log.info("单点推送成功 memberId = " + member.getId() +", channelId = " + member.getChannelId());
 				log.info("push amount : " + response.getSuccessAmount()); 	
 				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
+				result++;
 			} catch (ChannelClientException e) {
 				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
 				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
@@ -293,6 +306,7 @@ public class MessageService extends AbstractBaseService
 				messageDAO.update(msg);
 			}
 		}
+		return result;
 	}
 
 	/**
@@ -346,6 +360,53 @@ public class MessageService extends AbstractBaseService
 	 */
 	public Reply getReplyById(Long idLong) {
 		return replyDAO.findById(idLong);
+	}
+
+	/**
+	 * @param idLong
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<MessageDTO> getMessageByViewspotId(Long viewspotId,
+			PageInfoDTO pageInfo) {
+		List<Message> list = messageDAO.getMessageByViewspotId(viewspotId, pageInfo);
+		List<MessageDTO> resultList = new ArrayList<MessageDTO>();
+		for(Message msg : list){
+			MemberInf member = memberDAO.findById(msg.getReceiverId());
+			MessageDTO dto = msg.toDTO();
+			dto.setCreatorName(member.getNickname());
+			resultList.add(dto);
+		}
+		return resultList;
+	}
+
+	/**
+	 * @param memberIdLong
+	 * @param idLong
+	 * @param content
+	 */
+	public void saveViewspotMessage(MemberInf member, Long viewSpotId,
+			String content) {
+		Message msg = new Message();
+		msg.setRemindTime(new Timestamp(new Date().getTime()));
+		msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
+		msg.setStatus(MESSAGE_STATUS.ACTIVE.getValue());
+		msg.setPriority(Integer.valueOf(0));
+		msg.setType(MESSAGE_TYPE.NOTE.getValue());
+		msg.setTopic("");
+		msg.setContent(content);
+		msg.setCreateType(MESSAGE_CREATE_TYPE.MEMBER.getValue());
+		msg.setCreateId(member.getId());
+		msg.setCreateDate(new Timestamp(new Date().getTime()));
+		msg.setUpdateDate(msg.getCreateDate());
+		msg.setPushStatus(PUSH_STATUS.NOT_PUSH.getValue());
+		Hibernate.initialize(member.getTeamInfo());
+		TravelInf travelInf = new TravelInf();
+		travelInf.setId(member.getTeamInfo().getTravelInf().getId());
+		msg.setReceiverId(viewSpotId);
+		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue());
+		msg.setTravelInf(travelInf);
+		messageDAO.save(msg);
 	}
 	
 }

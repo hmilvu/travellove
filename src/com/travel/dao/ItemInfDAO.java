@@ -8,6 +8,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -17,12 +18,11 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
-import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.Constants.ITEM_TYPE;
+import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
-import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ItemInf;
-import com.travel.entity.MemberInf;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -128,6 +128,10 @@ public class ItemInfDAO extends BaseDAO {
 	private Criteria buildSearchCriteria(Session session, SearchItemDTO dto) {
 		Criteria cr = session.createCriteria(ItemInf.class);
 		cr.createAlias("sysUser", "s");
+		cr.createAlias("travelInf", "t", CriteriaSpecification.LEFT_JOIN);
+		if (dto.getTravelId() != null) {
+			cr.add(Restrictions.or(Restrictions.eq("t.id", dto.getTravelId()), Restrictions.eq("type", ITEM_TYPE.PUBLIC.getValue())));
+		}
 		if (StringUtils.isNotBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
 		}
@@ -179,16 +183,18 @@ public class ItemInfDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<ItemInf> findItems(final PageInfoDTO pageInfo) {
+	public List<ItemInf> findItems(final Long travelId, final PageInfoDTO pageInfo) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<ItemInf>>() {
 			@Override
 			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				Criteria cr = session.createCriteria(ItemInf.class);
+				cr.createAlias("travelInf", "t", CriteriaSpecification.LEFT_JOIN);
+				cr.add(Restrictions.or(Restrictions.eq("t.id", travelId), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-				cr.addOrder(Order.desc("creatDate"));
+				cr.addOrder(Order.desc("createDate"));
 				return cr.list();
 			}
 		});	

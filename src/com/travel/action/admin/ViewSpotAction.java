@@ -77,6 +77,7 @@ public class ViewSpotAction extends AuthorityAction{
 	@SuppressWarnings("static-access")
 	public void create(){
 		String name = request.getParameter("name");
+		String address = request.getParameter("address");
 		String longitudeStr = request.getParameter("longitudeInput");
 		String latitudeStr = request.getParameter("latitudeInput");
 		String description = request.getParameter("description");
@@ -95,6 +96,7 @@ public class ViewSpotAction extends AuthorityAction{
 		view.setName(name);
 		view.setDescription(description);
 		view.setLatitude(latitude);
+		view.setAddress(address);
 		view.setLongitude(longitude);
 		view.setSysUser(getCurrentUser());
 		if(isTravelUser()){
@@ -143,6 +145,7 @@ public class ViewSpotAction extends AuthorityAction{
 	public void update(){
 		String id = request.getParameter("viewSpotId");		
 		String name = request.getParameter("name");
+		String address = request.getParameter("address");
 		String longitudeStr = request.getParameter("longitudeInput");
 		String latitudeStr = request.getParameter("latitudeInput");
 		String description = request.getParameter("description");	
@@ -161,6 +164,7 @@ public class ViewSpotAction extends AuthorityAction{
 			// if the view spot is public and the user is traveler, update is create.
 			ViewSpotInfo cloneView = new ViewSpotInfo();
 			cloneView.setName(name);
+			cloneView.setAddress(address);
 			cloneView.setDescription(description);
 			cloneView.setLatitude(latitude);
 			cloneView.setLongitude(longitude);
@@ -178,6 +182,7 @@ public class ViewSpotAction extends AuthorityAction{
 			}
 		} else {// if the view spot is private, update is modify.		
 			view.setName(name);
+			view.setAddress(address);
 			view.setDescription(description);
 			view.setLatitude(latitude);
 			view.setLongitude(longitude);

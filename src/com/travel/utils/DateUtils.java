@@ -9,6 +9,7 @@ package com.travel.utils;
 import hirondelle.date4j.DateTime;
 import hirondelle.date4j.DateTime.DayOverflow;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -263,5 +264,29 @@ public class DateUtils {
 			return "";
 		}
 		return DATE_FORMAT.format(date);
+	}
+	
+	public static Time strToHHssTime(String timeStr){
+		try {
+			DateFormat format = new SimpleDateFormat(
+					 "HH:mm");
+			Date d = format.parse(timeStr);
+			Time time = new Time(d.getTime());
+			return time;
+		} catch (ParseException e) {
+			log.info("无法转换为时间格式！", e);
+		}
+		return null;
+	}
+	
+	public static String timeToHHssStr(Time time){
+		try{
+			DateFormat format = new SimpleDateFormat(
+					 "HH:mm");
+			return format.format(new Date(time.getTime()));
+		} catch(Exception e){
+			log.info("无法转换为字符串！", e);
+		}
+		return "";
 	}
 }

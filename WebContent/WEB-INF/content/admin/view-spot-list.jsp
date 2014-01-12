@@ -39,8 +39,8 @@
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="640">景点名称</th>
-				<th width="40">类型</th>
+				<th width="600">景点名称</th>
+				<th width="60">类型</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
 				<th width="40">操作</th>

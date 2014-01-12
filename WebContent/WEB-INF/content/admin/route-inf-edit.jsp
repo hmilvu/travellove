@@ -86,8 +86,9 @@ function save(){
 						<tr>
 							<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
 							<th type="lookup" name="items[#index#].viewSpotForm.viewName" lookupGroup="items[#index#].viewSpotForm" lookupUrl="admin/view-spot!selectView.action" postField="keywords" size="60" fieldClass="required readonly">景点名称</th>
-							<th type="date" name="items[#index#].viewSpotForm.startDate" dateFmt="yyyy-MM-dd HH:mm" size=20 fieldClass="required">开始日期</th>
-							<th type="date" name="items[#index#].viewSpotForm.endDate" dateFmt="yyyy-MM-dd HH:mm" size=20 fieldClass="required">结束日期</th>
+							<th type="text" name="items[#index#].numberOfDay" defaultVal="#index#" size="10" fieldClass="digits required">第几天</th>
+							<th type="date" name="items[#index#].viewSpotForm.startTime" dateFmt="HH:mm" size=20 mmStep="15" readonly="true" fieldClass="required">开始时间</th>
+							<th type="date" name="items[#index#].viewSpotForm.endTime" dateFmt="HH:mm" size=20 mmStep="15" readonly="true" fieldClass="required">结束时间</th>
 							<th type="del" width="60">操作</th>
 						</tr>
 					</thead>
@@ -103,11 +104,14 @@ function save(){
 								<a class="btnLook" title="查找带回" lookuppk="id" lookupgroup="items[<s:property value='%{#statu.index}'/>].viewSpotForm" href="admin/view-spot!selectView.action">查找带回</a>
 							</td>
 							<td>
-								<input class="date textInput required" type="text" size="20" dateFmt="yyyy-MM-dd HH:mm" value="<s:property value='%{#routeView.startDateStr}'/>" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.startDate">
+								<input class="digits required textInput" type="text" size="10" value="<s:property value='%{#routeView.numberOfDay}'/>" name="items[<s:property value='%{#statu.index}'/>].numberOfDay">
+							</td>
+							<td>
+								<input class="date textInput required" type="text" size="20" dateFmt="HH:mm" mmStep="15" readonly="true" value="<s:property value='%{#routeView.startTimeStr}'/>" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.startTime">
 								<a class="inputDateButton" href="javascript:void(0)">选择</a>
 							</td>
 							<td>
-								<input class="date textInput required" type="text" size="20" dateFmt="yyyy-MM-dd HH:mm" value="<s:property value='%{#routeView.endDateStr}'/>" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.endDate">
+								<input class="date textInput required" type="text" size="20" dateFmt="HH:mm" mmStep="15" readonly="true" value="<s:property value='%{#routeView.endTimeStr}'/>" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.endTime">
 								<a class="inputDateButton" href="javascript:void(0)">选择</a>
 							</td>
 							<td>

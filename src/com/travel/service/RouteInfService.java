@@ -2,7 +2,6 @@ package com.travel.service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -87,8 +86,9 @@ public class RouteInfService extends AbstractBaseService
 					rView.setCreateDate(route.getCreateDate());
 					rView.setUpdateDate(route.getCreateDate());
 					rView.setSysUser(route.getSysUser());
-					rView.setStartDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getStartDate()).getTime()));
-					rView.setEndDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getEndDate()).getTime()));
+					rView.setStartTime(DateUtils.strToHHssTime(viewForm.getViewSpotForm().getStartTime()));
+					rView.setEndTime(DateUtils.strToHHssTime(viewForm.getViewSpotForm().getEndTime()));
+					rView.setNumberOfDay(viewForm.getNumberOfDay());
 					routeViewSpotDAO.save(rView);
 				}
 			}
@@ -127,8 +127,9 @@ public class RouteInfService extends AbstractBaseService
 					rView.setCreateDate(route.getCreateDate());
 					rView.setUpdateDate(route.getCreateDate());
 					rView.setSysUser(route.getSysUser());
-					rView.setStartDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getStartDate()).getTime()));
-					rView.setEndDate(new Timestamp(DateUtils.toTime2(viewForm.getViewSpotForm().getEndDate()).getTime()));
+					rView.setStartTime(DateUtils.strToHHssTime(viewForm.getViewSpotForm().getStartTime()));
+					rView.setEndTime(DateUtils.strToHHssTime(viewForm.getViewSpotForm().getEndTime()));
+					rView.setNumberOfDay(viewForm.getNumberOfDay());
 					routeViewSpotDAO.save(rView);
 				}
 			}

@@ -85,7 +85,7 @@ public class TeamRouteDAO extends BaseDAO {
 					String queryString = "from TeamRoute as model where model.teamInfo.id = ? order by model.routeOrder";
 					Query queryObject = session.createQuery(queryString);
 					int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-					queryObject.setFirstResult(pageInfo.getPageNumber() * maxResults);
+					queryObject.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
 					queryObject.setMaxResults(maxResults);
 					queryObject.setParameter(0, teamId);
 					return queryObject.list();

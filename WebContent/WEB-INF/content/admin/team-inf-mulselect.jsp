@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags"%>
     
-<form id="pagerForm" method="post" action="admin/team-inf!list.action?fromSelect=1">
+<form id="pagerForm" method="post" action="admin/team-inf!mulselect.action?fromSelect=1">
 	<input type="hidden" name="travelName" value="<s:property value='%{#request.travelName}'/>" />
 	<input type="hidden" name="teamName" value="<s:property value='%{#request.teamName}'/>" />
 	<input type="hidden" name="startDate" value="<s:property value='%{#request.startDate}'/>" />
@@ -12,7 +12,7 @@
 </form>
 
 <div class="pageHeader">
-	<form action="admin/team-inf!list.action?fromSelect=1" method="post" onsubmit="return dwzSearch(this, 'dialog');">
+	<form action="admin/team-inf!mulselect.action?fromSelect=1" method="post" onsubmit="return dwzSearch(this, 'dialog');">
 	<input type="hidden" name="pageNumber" value="0" />
 	<div class="searchBar">		
 		<ul class="searchContent">

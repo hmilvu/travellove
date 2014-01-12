@@ -25,6 +25,7 @@ import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.PUSH_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
+import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
@@ -302,5 +303,29 @@ public class MessageDAO extends BaseDAO {
 			log.error("update failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param viewspotId
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Message> getMessageByViewspotId(final Long viewspotId,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
+			@Override
+			public List<Message> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(Message.class);
+				cr.add(Restrictions.ne("status", MESSAGE_STATUS.DELETED.getValue()));
+				cr.add(Restrictions.eq("receiverId", viewspotId));
+				cr.add(Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue()));
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.desc("createDate"));
+				return cr.list();
+			}
+		});
 	}
 }
