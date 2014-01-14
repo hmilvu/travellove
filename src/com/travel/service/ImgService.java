@@ -41,13 +41,13 @@ public class ImgService extends AbstractBaseService
 		String url = null;
 		switch (type){
 		case AVATAR:
-			url = serverUrl + "/images/avatar/" + imgName + extFileName;
+			url = serverUrl + "/images/avatar/" + associateId + "/" + imgName + extFileName;
 			break;
 		case VIEWSPOT:
-			url = serverUrl + "/images/viewspot/" + imgName + extFileName;
+			url = serverUrl + "/images/viewspot/" + associateId + "/" + imgName + extFileName;
 			break;
 		case ITEM:
-			url = serverUrl + "/images/item/" + imgName + extFileName;
+			url = serverUrl + "/images/item/" + associateId + "/" + imgName + extFileName;
 			break;
 		default:
 			return 1;

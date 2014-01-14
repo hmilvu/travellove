@@ -119,7 +119,7 @@ public class ViewSpotInfoDAO extends BaseDAO {
 			cr.add(Restrictions.or(Restrictions.eq("t.id", dto.getTravelId()), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
 		}
 		if (StringUtils.isNotBlank(dto.getName())) {
-			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
+			cr.add(Restrictions.like("name", StringUtils.trim("%" + dto.getName()) + "%").ignoreCase());
 		}
 		return cr;
 	}

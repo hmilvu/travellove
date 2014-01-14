@@ -26,6 +26,7 @@ public class RouteInfDTO {
 	private String startDate;
 	private String endDate;
 	private int status;
+	private String attachmentUrl;
 	
 	private List<ViewSpotDTO> viewSportList = new ArrayList<ViewSpotDTO>();
 	
@@ -106,6 +107,12 @@ public class RouteInfDTO {
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	public String getAttachmentUrl() {
+		return attachmentUrl;
+	}
+	public void setAttachmentUrl(String attachmentUrl) {
+		this.attachmentUrl = attachmentUrl;
 	}
 	
 	

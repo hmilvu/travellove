@@ -372,7 +372,7 @@ public class MessageService extends AbstractBaseService
 		List<Message> list = messageDAO.getMessageByViewspotId(viewspotId, pageInfo);
 		List<MessageDTO> resultList = new ArrayList<MessageDTO>();
 		for(Message msg : list){
-			MemberInf member = memberDAO.findById(msg.getReceiverId());
+			MemberInf member = memberDAO.findById(msg.getCreateId());
 			MessageDTO dto = msg.toDTO();
 			dto.setCreatorName(member.getNickname());
 			resultList.add(dto);
@@ -407,6 +407,31 @@ public class MessageService extends AbstractBaseService
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue());
 		msg.setTravelInf(travelInf);
 		messageDAO.save(msg);
+	}
+
+	/**
+	 * @param valueOf
+	 * @return
+	 */
+	public int getTotalMessageNumByViewSpotId(Long viewSpotId) {
+		return messageDAO.getTotalMessageNum(viewSpotId);
+	}
+
+	/**
+	 * @param valueOf
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Message> findMessageByViewSpotId(Long viewSpotId,
+			PageInfoDTO pageInfo) {
+		List<Message> list = messageDAO.findMessages(viewSpotId, pageInfo);
+		List<Message> result = new ArrayList<Message>();
+		for(Message msg : list){
+			String memberName = memberDAO.findById(msg.getCreateId()).getMemberName();
+			msg.setReceiverName(memberName);
+			result.add(msg);
+		}
+		return result;
 	}
 	
 }

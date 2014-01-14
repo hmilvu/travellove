@@ -63,6 +63,7 @@
 				<td><s:date name="#viewSpot.createDate" format="yyyy-MM-dd" /></td>
 				<td>
 					<a class="btnAttach" href="admin/view-spot!upload.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" title="上传图片">上传图片</a>
+					<a class="btnAssign" href="admin/view-spot!message.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" title="查看评论">查看评论</a>
 				</td>
 			</tr>
 			</s:iterator>

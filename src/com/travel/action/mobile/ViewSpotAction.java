@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MessageDTO;
@@ -19,6 +21,7 @@ import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.common.dto.ViewSpotDTO;
 import com.travel.entity.MemberInf;
+import com.travel.entity.Message;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.ViewSpotInfo;
 import com.travel.service.MemberService;
@@ -71,6 +74,10 @@ public class ViewSpotAction extends BaseAction{
 		}catch(Throwable ignore){			
 		}
 		SearchViewSpotDTO dto = new SearchViewSpotDTO();		
+		Object keyword = getMobileParameter(data, "keyword");
+		if(keyword != null && StringUtils.isNotBlank(keyword.toString())){
+			dto.setName(keyword.toString().trim());
+		}
 		dto.setTravelId(team.getTravelInf().getId());
 		List<ViewSpotDTO> list = viewSpotService.findViewSpotsDTO(dto, pageInfo);		
 		SuccessResult<List<ViewSpotDTO>> result = new SuccessResult<List<ViewSpotDTO>>(list);
@@ -172,8 +179,50 @@ public class ViewSpotAction extends BaseAction{
 		messageService.saveViewspotMessage(member, idLong, content.toString());
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);
+		return;		
+	}
+	
+	public void deleteComment(){
+		String data = getMobileData();
+		Object commentId = getMobileParameter(data, "commentId");
+		Long commendIdLong = Long.valueOf(0);
+		try {
+			commendIdLong = Long.valueOf(commentId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("commentId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Message msg = messageService.getMessageById(commendIdLong);
+		if(msg == null){
+			FailureResult result = new FailureResult("此评论"+commendIdLong+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(memberIdLong);
+		if (member == null) {
+			FailureResult result = new FailureResult("该用户不存在memberId = " + memberId);
+			sendToMobile(result);
+			return;
+		}
+		if(msg.getCreateId().longValue() != member.getId().longValue() || msg.getReceiverType().intValue() != MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue()){
+			FailureResult result = new FailureResult("该评论不是次团员创建，不能删除memeberId="+memberId + " msgId=" + commentId);
+			sendToMobile(result);
+			return;
+		}
+		messageService.deleteMessage(msg);
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);
 		return;
-		
 	}
 	
 }

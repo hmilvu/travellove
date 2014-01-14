@@ -7,9 +7,11 @@ package com.travel.action.mobile;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.BaseAction;
+import com.travel.common.admin.dto.SearchItemDTO;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -55,8 +57,14 @@ public class ItemInfAction extends BaseAction {
 			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
 		}catch(Throwable ignore){			
 		}
+		SearchItemDTO dto = new SearchItemDTO();
+		Object keyword = getMobileParameter(data, "keyword");
+		if(keyword != null && StringUtils.isNotBlank(keyword.toString())){
+			dto.setName(keyword.toString().trim());
+		}
 		TeamInfo team = teamService.getTeamById(teamIdLong);
-		List<ItemInfDTO> list = itemService.getItemList(team.getTravelInf().getId(), pageInfo);
+		dto.setTravelId(team.getTravelInf().getId());
+		List<ItemInfDTO> list = itemService.getItemList(dto, pageInfo);
 		SuccessResult<List<ItemInfDTO>> result = new SuccessResult<List<ItemInfDTO>>(list);
 		sendToMobile(result);
 		return;

@@ -17,9 +17,11 @@ import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ImgInf;
+import com.travel.entity.Message;
 import com.travel.entity.RouteViewSpot;
 import com.travel.entity.ViewSpotInfo;
 import com.travel.service.ImgService;
+import com.travel.service.MessageService;
 import com.travel.service.RouteInfService;
 import com.travel.service.ViewSpotService;
 import com.travel.utils.JsonUtils;
@@ -39,6 +41,8 @@ public class ViewSpotAction extends AuthorityAction{
 	private RouteInfService routeService;
 	@Autowired
 	private ImgService imageServcie;
+	@Autowired
+	private MessageService messageService;
 
 	public String list(){
 		String name = request.getParameter("name");		
@@ -212,5 +216,38 @@ public class ViewSpotAction extends AuthorityAction{
 			request.setAttribute("imageName" + img.getImgName(), "images/viewspot/" + view.getId() + "/" +img.getImgName() + img.getSuffix());
 		}
 		return "upload";
+	}
+	
+	public String message(){
+		edit();
+		String viewSpotId = request.getParameter("uid");
+		String pageSize = request.getParameter("numPerPage");
+		String pageNumber = request.getParameter("pageNum");
+		PageInfoDTO pageInfo = new PageInfoDTO();
+		try{
+			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
+		}catch(Throwable ignore){	
+			pageInfo.setPageNumber(1);
+		}
+		try{			
+			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
+		}catch(Throwable ignore){	
+			pageInfo.setPageSize(Constants.ADMIN_DEFAULT_PAGE_SIZE);
+		}
+		int totalNum = messageService.getTotalMessageNumByViewSpotId(Long.valueOf(viewSpotId));
+		List<Message> list = messageService.findMessageByViewSpotId(Long.valueOf(viewSpotId), pageInfo);
+		request.setAttribute("messageList", list);
+		request.setAttribute("totalCount", totalNum+"");
+		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
+		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
+		return "message";
+	}
+	
+	public void deleteMessage(){
+		String id = request.getParameter("id");
+		Message msg = messageService.getMessageById(Long.valueOf(id));
+		messageService.deleteMessage(msg);
+		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"查看评论\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
+	
 	}
 }

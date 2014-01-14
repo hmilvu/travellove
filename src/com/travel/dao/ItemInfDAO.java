@@ -183,14 +183,17 @@ public class ItemInfDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<ItemInf> findItems(final Long travelId, final PageInfoDTO pageInfo) {
+	public List<ItemInf> findItemList(final SearchItemDTO dto, final PageInfoDTO pageInfo) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<ItemInf>>() {
 			@Override
 			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				Criteria cr = session.createCriteria(ItemInf.class);
 				cr.createAlias("travelInf", "t", CriteriaSpecification.LEFT_JOIN);
-				cr.add(Restrictions.or(Restrictions.eq("t.id", travelId), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
+				cr.add(Restrictions.or(Restrictions.eq("t.id", dto.getTravelId()), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
+				if (StringUtils.isNotBlank(dto.getName())) {
+					cr.add(Restrictions.like("name", StringUtils.trim("%" + dto.getName()) + "%").ignoreCase());
+				}
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
