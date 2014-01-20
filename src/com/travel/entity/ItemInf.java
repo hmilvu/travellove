@@ -61,6 +61,9 @@ public class ItemInf extends AbstractItemInf implements java.io.Serializable {
 		dto.setPrice(getPrice());
 		dto.setCreateTime(DateUtils.toStr(getCreateDate()));
 		dto.addImageUrl(urls);		
+		dto.setDescription(getDescription());
+		dto.setBrands(getBrands());
+		dto.setSpecification(getSpecification());
 		return dto;
 	}
 

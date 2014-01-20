@@ -19,6 +19,9 @@ public class ItemInfDTO {
 	private String itemName;
 	private Double price;
 	private String createTime;
+	private String description;
+	private String brands;
+	private String specification;
 	private List<String> imageUrls = new ArrayList<String>();	
 	
 	public List<String> getImageUrls() {
@@ -51,6 +54,24 @@ public class ItemInfDTO {
 	}
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getBrands() {
+		return brands;
+	}
+	public void setBrands(String brands) {
+		this.brands = brands;
+	}
+	public String getSpecification() {
+		return specification;
+	}
+	public void setSpecification(String specification) {
+		this.specification = specification;
 	}
 	
 }

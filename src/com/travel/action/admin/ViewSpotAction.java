@@ -13,6 +13,7 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -234,8 +235,8 @@ public class ViewSpotAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			pageInfo.setPageSize(Constants.ADMIN_DEFAULT_PAGE_SIZE);
 		}
-		int totalNum = messageService.getTotalMessageNumByViewSpotId(Long.valueOf(viewSpotId));
-		List<Message> list = messageService.findMessageByViewSpotId(Long.valueOf(viewSpotId), pageInfo);
+		int totalNum = messageService.getTotalMessageNumByReceiverId(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, Long.valueOf(viewSpotId));
+		List<Message> list = messageService.findMessageByReceiverId(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, Long.valueOf(viewSpotId), pageInfo);
 		request.setAttribute("messageList", list);
 		request.setAttribute("totalCount", totalNum+"");
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
@@ -247,7 +248,7 @@ public class ViewSpotAction extends AuthorityAction{
 		String id = request.getParameter("id");
 		Message msg = messageService.getMessageById(Long.valueOf(id));
 		messageService.deleteMessage(msg);
-		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"查看评论\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
+		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"查看评论\", \"forwardUrl\":\"\", \"callbackType\":\"closeCurrent\", \"rel\":\"\"}");
 	
 	}
 }

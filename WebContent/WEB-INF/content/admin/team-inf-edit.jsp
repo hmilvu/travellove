@@ -63,6 +63,7 @@ function save(){
 								<th type="date" name="items[#index#].routeForm.date" size="12" fieldClass="required">开始日期</th>
 								<th type="date" name="items[#index#].routeForm.endDate" size="12" fieldClass="required">结束日期</th>
 								<!-- th type="enum" name="items[#index#].routeForm.status" enumUrl="admin/team-inf!status.action" size="22">状态</th> -->
+								<th type="attach" name="items[#index#].attachmentForm.fileName" lookupGroup="items[#index#].attachmentForm" lookupUrl="admin/route-inf!upload.action" size="12">附件</th>
 								<th type="del" width="60">操作</th>
 							</tr>
 						</thead>
@@ -99,6 +100,11 @@ function save(){
 										</div>
 									</div>
 								</td> -->
+								<td>
+									<input type="hidden" name="items[0].attachmentForm.id" value="1000">
+									<input class="textInput readonly" type="text" readonly="readonly" size="12" name="items[0].attachmentForm.fileName">
+									<a class="btnAttach" title="查找带回" height="300" width="560" lookuppk="id" undefined="" lookupgroup="items[0].attachmentForm" href="admin/route-inf!upload.action">查找带回</a>
+								</td>
 								<td>
 									<a class="btnDel " href="javascript:void(0)">删除</a>
 								</td>

@@ -189,6 +189,7 @@ public class MessageDAO extends BaseDAO {
 		}
 		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
 		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue())));
+		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.ITEM.getValue())));
 		return cr;
 	}
 
@@ -307,39 +308,15 @@ public class MessageDAO extends BaseDAO {
 	}
 
 	/**
-	 * @param viewspotId
-	 * @param pageInfo
-	 * @return
-	 */
-	public List<Message> getMessageByViewspotId(final Long viewspotId,
-			final PageInfoDTO pageInfo) {
-		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
-			@Override
-			public List<Message> doInHibernate(Session session) throws HibernateException,
-					SQLException {
-				Criteria cr = session.createCriteria(Message.class);
-				cr.add(Restrictions.ne("status", MESSAGE_STATUS.DELETED.getValue()));
-				cr.add(Restrictions.eq("receiverId", viewspotId));
-				cr.add(Restrictions.eq("receiverType", MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue()));
-				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-				cr.setMaxResults(maxResults);
-				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-				cr.addOrder(Order.desc("createDate"));
-				return cr.list();
-			}
-		});
-	}
-
-	/**
 	 * @param viewSpotId
 	 * @return
 	 */
-	public int getTotalMessageNum(final Long viewSpotId) {
+	public int getTotalMessageNum(final MESSAGE_RECEIVER_TYPE type, final Long receiverId) {
 		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
 			@Override
 			public Integer doInHibernate(Session session) throws HibernateException,
 					SQLException {
-			Criteria cr = buildSearchCriteria(session, viewSpotId);
+			Criteria cr = buildSearchCriteria(session, type, receiverId);
 			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
 			return  total.intValue();
 			}
@@ -351,12 +328,12 @@ public class MessageDAO extends BaseDAO {
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<Message> findMessages(final Long viewSpotId, final PageInfoDTO pageInfo) {
+	public List<Message> findMessages(final MESSAGE_RECEIVER_TYPE type, final Long receiverId, final PageInfoDTO pageInfo) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
 			@Override
 			public List<Message> doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Criteria cr = buildSearchCriteria(session, viewSpotId);
+				Criteria cr = buildSearchCriteria(session, type, receiverId);
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
@@ -366,11 +343,11 @@ public class MessageDAO extends BaseDAO {
 		});	
 	}
 	
-	private Criteria buildSearchCriteria(Session session, final Long viewSpotId) {
+	private Criteria buildSearchCriteria(Session session, MESSAGE_RECEIVER_TYPE type, final Long receiverId) {
 		Criteria cr = session.createCriteria(Message.class);
-		cr.add(Restrictions.eq("receiverId", viewSpotId));
+		cr.add(Restrictions.eq("receiverId", receiverId));
 		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
-		cr.add(Restrictions.eq("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue())));
+		cr.add(Restrictions.eq("receiverType", Integer.valueOf(type.getValue())));
 		return cr;
 	}
 }

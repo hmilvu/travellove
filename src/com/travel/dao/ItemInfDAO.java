@@ -203,4 +203,20 @@ public class ItemInfDAO extends BaseDAO {
 		});	
 	}
 
+	/**
+	 * @param viewSpotId
+	 * @return
+	 */
+	public List<ItemInf> findByViewSpotId(final Long viewSpotId) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ItemInf>>() {
+			@Override
+			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Query query = session.createQuery("select v.itemInf from ViewSpotItem v where v.viewSpotInf.id = ? ");
+				query.setParameter(0, viewSpotId);
+				return query.list();
+			}
+		});	
+	}
+
 }

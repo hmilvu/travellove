@@ -367,9 +367,9 @@ public class MessageService extends AbstractBaseService
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<MessageDTO> getMessageByViewspotId(Long viewspotId,
+	public List<MessageDTO> getMessageDTOByReceiverId(MESSAGE_RECEIVER_TYPE type, Long recieverId,
 			PageInfoDTO pageInfo) {
-		List<Message> list = messageDAO.getMessageByViewspotId(viewspotId, pageInfo);
+		List<Message> list = messageDAO.findMessages(type, recieverId, pageInfo);
 		List<MessageDTO> resultList = new ArrayList<MessageDTO>();
 		for(Message msg : list){
 			MemberInf member = memberDAO.findById(msg.getCreateId());
@@ -386,6 +386,19 @@ public class MessageService extends AbstractBaseService
 	 * @param content
 	 */
 	public void saveViewspotMessage(MemberInf member, Long viewSpotId,
+			String content) {
+		Message msg = setupComment(member, viewSpotId, content);
+		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue());
+		messageDAO.save(msg);
+	}
+
+	/**
+	 * @param member
+	 * @param viewSpotId
+	 * @param content
+	 * @return
+	 */
+	private Message setupComment(MemberInf member, Long viewSpotId,
 			String content) {
 		Message msg = new Message();
 		msg.setRemindTime(new Timestamp(new Date().getTime()));
@@ -404,17 +417,16 @@ public class MessageService extends AbstractBaseService
 		TravelInf travelInf = new TravelInf();
 		travelInf.setId(member.getTeamInfo().getTravelInf().getId());
 		msg.setReceiverId(viewSpotId);
-		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue());
 		msg.setTravelInf(travelInf);
-		messageDAO.save(msg);
+		return msg;
 	}
 
 	/**
 	 * @param valueOf
 	 * @return
 	 */
-	public int getTotalMessageNumByViewSpotId(Long viewSpotId) {
-		return messageDAO.getTotalMessageNum(viewSpotId);
+	public int getTotalMessageNumByReceiverId(MESSAGE_RECEIVER_TYPE type, Long recieverId) {
+		return messageDAO.getTotalMessageNum(type, recieverId);
 	}
 
 	/**
@@ -422,9 +434,9 @@ public class MessageService extends AbstractBaseService
 	 * @param pageInfo
 	 * @return
 	 */
-	public List<Message> findMessageByViewSpotId(Long viewSpotId,
+	public List<Message> findMessageByReceiverId(MESSAGE_RECEIVER_TYPE type, Long receiverId,
 			PageInfoDTO pageInfo) {
-		List<Message> list = messageDAO.findMessages(viewSpotId, pageInfo);
+		List<Message> list = messageDAO.findMessages(type, receiverId, pageInfo);
 		List<Message> result = new ArrayList<Message>();
 		for(Message msg : list){
 			String memberName = memberDAO.findById(msg.getCreateId()).getMemberName();
@@ -433,5 +445,18 @@ public class MessageService extends AbstractBaseService
 		}
 		return result;
 	}
+
+	/**
+	 * @param member
+	 * @param itemIdLong
+	 * @param string
+	 */
+	public void savItemMessage(MemberInf member, Long itemIdLong, String content) {
+		Message msg = setupComment(member, itemIdLong, content);
+		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.ITEM.getValue());
+		messageDAO.save(msg);
+	}
+	
+	
 	
 }

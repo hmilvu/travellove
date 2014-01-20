@@ -111,7 +111,7 @@ public class Constants {
 	} 
 	
 	public enum MESSAGE_RECEIVER_TYPE {
-		TEAM(0), MEMBER(1), VIEW_SPOT(2);
+		TEAM(0), MEMBER(1), VIEW_SPOT(2), ITEM(3);
 		private int value;
 		private MESSAGE_RECEIVER_TYPE(int value) {
 			this.value = value;

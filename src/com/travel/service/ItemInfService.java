@@ -91,4 +91,18 @@ public class ItemInfService extends AbstractBaseService
 		}
 		return result;
 	}
+
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<ItemInfDTO> getItemByViewSpotId(Long viewSpotId) {
+		List<ItemInf> list = itemDao.findByViewSpotId(viewSpotId);
+		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
+		for(ItemInf item : list){
+			result.add(item.toDTO());
+		}
+		return result;
+	}
 }

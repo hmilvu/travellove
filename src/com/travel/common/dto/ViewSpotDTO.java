@@ -24,6 +24,17 @@ public class ViewSpotDTO {
 	private String endDate;
 	private Integer numberOfDay;
 	private List<String> imageUrls = new ArrayList<String>();	
+
+	private List<ItemInfDTO> itemList = new ArrayList<ItemInfDTO>();
+	
+
+	public List<ItemInfDTO> getItemList() {
+		return itemList;
+	}
+
+	public void setItemList(List<ItemInfDTO> itemList) {
+		this.itemList = itemList;
+	}
 	
 	public List<String> getImageUrls() {
 		return Collections.unmodifiableList(imageUrls);

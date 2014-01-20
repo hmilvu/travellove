@@ -72,6 +72,7 @@
 				<td><s:date name="#itemInf.createDate" format="yyyy-MM-dd" /></td>
 				<td>
 					<a class="btnAttach" href="admin/item-inf!upload.action?uid=<s:property value="%{#itemInf.id}"/>" target="navTab" title="上传图片">上传图片</a>
+					<a class="btnAssign" href="admin/item-inf!message.action?uid=<s:property value="%{#itemInf.id}"/>" target="navTab" title="查看评论">查看评论</a>
 				</td>
 			</tr>
 			</s:iterator>

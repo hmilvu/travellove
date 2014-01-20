@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
-import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.FailureResult;
+import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.SuccessResult;
@@ -24,6 +24,7 @@ import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.ViewSpotInfo;
+import com.travel.service.ItemInfService;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
 import com.travel.service.TeamInfoService;
@@ -47,6 +48,8 @@ public class ViewSpotAction extends BaseAction{
 	private MemberService memberService;
 	@Autowired
 	private TeamInfoService teamService;
+	@Autowired
+	private ItemInfService itemService;
 	
 	public void list(){
 		String data = getMobileData();
@@ -97,6 +100,8 @@ public class ViewSpotAction extends BaseAction{
 		}
 		ViewSpotInfo viewSpot = viewSpotService.getViewSpotById(idLong);
 		if(viewSpot != null && viewSpot.getId() > 0){
+			List<ItemInfDTO> itemList = itemService.getItemByViewSpotId(viewSpot.getId());
+			viewSpot.setItemList(itemList);
 			SuccessResult <ViewSpotDTO>result = new SuccessResult<ViewSpotDTO>(viewSpot.toDTO());
 			JsonUtils.write(response, binder.toJson(result));
 		} else {
@@ -132,7 +137,7 @@ public class ViewSpotAction extends BaseAction{
 			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
 		}catch(Throwable ignore){			
 		}
-		List<MessageDTO> list = messageService.getMessageByViewspotId(idLong, pageInfo);
+		List<MessageDTO> list = messageService.getMessageDTOByReceiverId(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, idLong, pageInfo);
 		SuccessResult<List<MessageDTO>> result = new SuccessResult<List<MessageDTO>>(list);
 		sendToMobile(result);		
 	}

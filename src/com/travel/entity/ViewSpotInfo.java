@@ -9,8 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.ViewSpotDTO;
-import com.travel.utils.DateUtils;
 
 /**
  * ViewSpotInfo entity. @author MyEclipse Persistence Tools
@@ -49,6 +49,17 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	public void setUrls(List<String> urls) {
 		this.urls = urls;
 	}
+	
+	private List<ItemInfDTO> itemList = new ArrayList<ItemInfDTO>();
+	
+	@Transient
+	public List<ItemInfDTO> getItemList() {
+		return itemList;
+	}
+
+	public void setItemList(List<ItemInfDTO> itemList) {
+		this.itemList = itemList;
+	}
 
 	/**
 	 * @return
@@ -66,6 +77,7 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 			dto.setAddress(getAddress());
 		}
 		dto.addImageUrl(urls);
+		dto.setItemList(itemList);
 		return dto;
 	}
 
