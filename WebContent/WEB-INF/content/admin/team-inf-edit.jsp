@@ -101,9 +101,9 @@ function save(){
 									</div>
 								</td> -->
 								<td>
-									<input type="hidden" name="items[0].attachmentForm.id" value="1000">
-									<input class="textInput readonly" type="text" readonly="readonly" size="12" name="items[0].attachmentForm.fileName">
-									<a class="btnAttach" title="查找带回" height="300" width="560" lookuppk="id" undefined="" lookupgroup="items[0].attachmentForm" href="admin/route-inf!upload.action">查找带回</a>
+									<input type="hidden" name="items[<s:property value='%{#statu.index}'/>].attachmentForm.id" value="<s:property value='%{#routeView.attachmentId}'/>">
+									<input class="textInput readonly" type="text" readonly="readonly" size="12" name="items[<s:property value='%{#statu.index}'/>].attachmentForm.fileName"  value="<s:property value='%{#routeView.attachmentFileName}'/>">
+									<a class="btnAttach" title="查找带回" height="300" width="560" lookuppk="id" undefined="" lookupgroup="items[<s:property value='%{#statu.index}'/>].attachmentForm" href="admin/route-inf!upload.action">查找带回</a>
 								</td>
 								<td>
 									<a class="btnDel " href="javascript:void(0)">删除</a>

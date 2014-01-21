@@ -34,7 +34,7 @@
 				<th width="60">触发器名称</th>
 				<th width="40">开始时间</th>
 				<th width="40">触发类型</th>
-				<th width="40">触发频率（次）</th>
+				<th width="40">触发频次</th>
 				<th width="120">触发内容</th>
 				<th width="40">状态</th>
 				<th width="40">操作</th>
@@ -66,7 +66,7 @@
 				</td>
 				<td>
 					<a class="btnEdit" href="admin/trigger-config!edit.action?uid=<s:property value="%{#trigger.id}"/>" target="navTab" title="修改">修改</a>
-					<a href="admin/trigger-config!changeStatus.action?uid=<s:property value="%{#trigger.id}"/>" target="navTab" title="打开/关闭">打开/关闭</a>
+					<a href="admin/trigger-config!changeStatus.action?uid=<s:property value="%{#trigger.id}"/>" target="ajaxTodo">打开/关闭</a>
 				</td>
 			</tr>
 			</s:iterator>

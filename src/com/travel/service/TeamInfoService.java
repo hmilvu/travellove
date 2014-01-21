@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +20,13 @@ import com.travel.common.dto.RouteInfDTO;
 import com.travel.common.dto.TeamLocationDTO;
 import com.travel.common.dto.TeamRouteDTO;
 import com.travel.common.dto.ViewSpotDTO;
+import com.travel.dao.AttachmentInfDAO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.RouteViewSpotDAO;
 import com.travel.dao.TeamInfoDAO;
 import com.travel.dao.TeamRouteDAO;
+import com.travel.entity.AttachmentInf;
 import com.travel.entity.LocationLog;
 import com.travel.entity.RouteInf;
 import com.travel.entity.TeamInfo;
@@ -46,6 +47,8 @@ public class TeamInfoService extends AbstractBaseService
 	private RouteViewSpotDAO routeViewSpotDao;
 	@Autowired
 	private ImgInfDAO imageDao;
+	@Autowired
+	private AttachmentInfDAO attachmentDAO;
 	
 	public TeamRouteDTO getRouteInfByTeamId(Long id, PageInfoDTO pageInfo){
 		TeamRouteDTO dto = new TeamRouteDTO();
@@ -57,6 +60,15 @@ public class TeamInfoService extends AbstractBaseService
 			 for(TeamRoute teamRoute : list){
 				dto.setTeamInfo(teamRoute.getTeamInfo().toDTO());
 				RouteInfDTO routeDTO = teamRoute.getRouteInf().toDTO();
+				if(teamRoute.getAttachmentId() != null){
+					AttachmentInf a = attachmentDAO.findById(teamRoute.getAttachmentId());
+					if(a != null){
+						String extFileName = a.getFileName().substring(a.getFileName().lastIndexOf("."));	
+						routeDTO.setAttachmentUrl("/attachment/"+a.getId()+extFileName);
+						routeDTO.setAttachmentFileName(a.getFileName());
+					}
+				}
+
 				routeDTO.setStartDate(teamRoute.getDateStr());
 				routeDTO.setEndDate(teamRoute.getEndDateStr());
 				if(teamRoute.getEndDate().before(new Date())){
@@ -156,6 +168,7 @@ public class TeamInfoService extends AbstractBaseService
 					teamRoute.setCreateDate(team.getCreateDate());
 					teamRoute.setUpdateDate(team.getCreateDate());
 					teamRoute.setSysUser(team.getSysUser());
+					teamRoute.setAttachmentId(routeItem.getAttachmentForm().getId());
 					teamRouteDao.save(teamRoute);
 				}
 			}
@@ -205,6 +218,7 @@ public class TeamInfoService extends AbstractBaseService
 					teamRoute.setUpdateDate(team.getCreateDate());
 					teamRoute.setSysUser(team.getSysUser());
 					teamRoute.setEndDate(team.getEndDate());
+					teamRoute.setAttachmentId(item.getAttachmentForm().getId());
 					teamRouteDao.save(teamRoute);
 				}
 			}
@@ -244,6 +258,14 @@ public class TeamInfoService extends AbstractBaseService
 	 */
 	public List<TeamRoute> getRouteInfByTeamId(Long id) {
 		List <TeamRoute> list = teamRouteDao.findByTeamId(id);
+		for(TeamRoute teamRoute : list){
+			if(teamRoute.getAttachmentId() != null && teamRoute.getAttachmentId() > 0){
+				AttachmentInf a = attachmentDAO.findById(teamRoute.getAttachmentId());
+				if(a != null){
+					teamRoute.setAttachmentFileName(a.getFileName());
+				}
+			}
+		}
 		return list;
 	}
 	

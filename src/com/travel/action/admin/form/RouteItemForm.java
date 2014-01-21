@@ -13,6 +13,7 @@ package com.travel.action.admin.form;
 public class RouteItemForm{
 	private int order;
 	private RouteForm routeForm;
+	private AttachmentForm attachmentForm;
 	public int getOrder() {
 		return order;
 	}
@@ -24,6 +25,12 @@ public class RouteItemForm{
 	}
 	public void setRouteForm(RouteForm routeForm) {
 		this.routeForm = routeForm;
+	}
+	public AttachmentForm getAttachmentForm() {
+		return attachmentForm;
+	}
+	public void setAttachmentForm(AttachmentForm attachmentForm) {
+		this.attachmentForm = attachmentForm;
 	}
 
 }

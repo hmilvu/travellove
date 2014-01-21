@@ -126,7 +126,11 @@ public class TriggerConfigDAO extends BaseDAO {
 		if (!StringUtils.isBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim(dto.getName()) + "%").ignoreCase());
 		}
-		cr.add(Restrictions.eq("travelId", dto.getTravelId()));
+		if(dto.getTravelId() != null){
+			cr.add(Restrictions.eq("travelId", dto.getTravelId()));
+		} else {
+			cr.add(Restrictions.isNull("sysTriggerConfigId"));
+		}
 		return cr;
 	}
 
@@ -145,7 +149,7 @@ public class TriggerConfigDAO extends BaseDAO {
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-				cr.addOrder(Order.desc("id"));
+				cr.addOrder(Order.asc("id"));
 				return cr.list();
 			}
 		});	
@@ -162,11 +166,11 @@ public class TriggerConfigDAO extends BaseDAO {
 				String sql = "INSERT INTO trigger_config (type_value, content, start_time,times, " + 
 							" trigger_type, condition_value, trigger_condition, " + 
 							" trigger_status, travel_id, sys_trigger_config_id," + 
-							" trigger_name)  " + 
+							" trigger_name, unitage)  " + 
 							"  select b.type_value, b.content, b.start_time, b.times, " + 
 							"  b.trigger_type, b.condition_value, b.trigger_condition, " + 
 							"  b.trigger_status, ?, b.id," + 
-							"  b.trigger_name from trigger_config b " + 
+							"  b.trigger_name, b.unitage from trigger_config b " + 
 							"  where b.sys_trigger_config_id is NULL" + 
 							"  and b.id not in (select c.sys_trigger_config_id from trigger_config c where c.travel_id = ?)" ;
 				SQLQuery query = session.createSQLQuery(sql);

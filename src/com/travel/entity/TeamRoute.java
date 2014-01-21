@@ -54,4 +54,16 @@ public class TeamRoute extends AbstractTeamRoute implements
 	public void setEndDateStr(String endDateStr) {
 		this.endDateStr = endDateStr;
 	}
+	
+	@Transient
+	private String attachmentFileName;
+	@Transient
+	public String getAttachmentFileName() {
+		return attachmentFileName;
+	}
+	@Transient
+	public void setAttachmentFileName(String attachmentFileName) {
+		this.attachmentFileName = attachmentFileName;
+	}
+	
 }

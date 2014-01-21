@@ -37,6 +37,7 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Integer routeOrder;
+	private Long attachmentId;
 	// Constructors
 
 	/** default constructor */
@@ -154,6 +155,15 @@ public abstract class AbstractTeamRoute extends BaseEntity implements
 
 	public void setRouteOrder(Integer routeOrder) {
 		this.routeOrder = routeOrder;
+	}
+	
+	@Column(name = "attachment_id", nullable = true)
+	public Long getAttachmentId() {
+		return this.attachmentId;
+	}
+
+	public void setAttachmentId(Long attachmentId) {
+		this.attachmentId = attachmentId;
 	}
 
 }

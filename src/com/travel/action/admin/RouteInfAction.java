@@ -5,8 +5,8 @@
  */
 package com.travel.action.admin;
 
+import java.io.File;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +22,8 @@ import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.RouteInf;
 import com.travel.entity.RouteViewSpot;
 import com.travel.entity.TeamRoute;
+import com.travel.service.AttachmentService;
+import com.travel.service.FileService;
 import com.travel.service.RouteInfService;
 import com.travel.service.TeamInfoService;
 import com.travel.utils.JsonUtils;
@@ -39,13 +41,32 @@ public class RouteInfAction extends AuthorityAction{
 	private RouteInfService routeService;
 	@Autowired
 	private TeamInfoService teamService;
-	
+	@Autowired
+	private FileService fileService;
+	@Autowired
+	private AttachmentService attachmentService;
 	private List<ViewSpotItemForm>items;
 	private LocationForm startLocation;
 	private LocationForm endLocation;
+	private File upload;   
+	private String uploadFileName;
+	public File getUpload() {
+		return upload;
+	}
 
+	public void setUpload(File upload) {
+		this.upload = upload;
+	}
 	public List<ViewSpotItemForm> getItems() {
 		return items;
+	}
+
+	public String getUploadFileName() {
+		return uploadFileName;
+	}
+
+	public void setUploadFileName(String uploadFileName) {
+		this.uploadFileName = uploadFileName;
 	}
 
 	public void setItems(List<ViewSpotItemForm> items) {
@@ -223,6 +244,12 @@ public class RouteInfAction extends AuthorityAction{
 	}
 	
 	public void saveFile(){
-		JsonUtils.write(response, "{\"id\":\"1000\",\"fileName\":\"测试文件.txt\",\"attachmentPath\":\"/upload/测试文件.txt\",\"attachmentSize\":\"1024\"}");
+		String dstPath = getRealPath() + "\\attachment";
+		String extFileName = uploadFileName.substring(uploadFileName.lastIndexOf("."));	
+		Long attachmentId = attachmentService.createAttachment(uploadFileName, getCurrentUser());
+		boolean uploadResult = fileService.upload(upload, dstPath, attachmentId + extFileName);
+		if(uploadResult){
+			JsonUtils.write(response, "{\"id\":\""+attachmentId+"\",\"fileName\":\""+uploadFileName+"\"}");
+		}
 	}
 }

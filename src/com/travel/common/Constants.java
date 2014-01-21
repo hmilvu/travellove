@@ -197,5 +197,14 @@ public class Constants {
 			return this.value;
 		}
 	}
-	
+	public enum TRIGGER_STATUS {
+		INACTIVE(0), ACTIVE(1);
+		private int value;
+		private TRIGGER_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

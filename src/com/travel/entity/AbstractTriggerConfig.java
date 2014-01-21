@@ -20,7 +20,7 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	private Long id;
 	private Integer typeValue;
 	private String content;
-	private Time startTime;
+	private String startTime;
 	private Integer times;
 	private Integer triggerType;
 	private Double conditionValue;
@@ -29,7 +29,7 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	private Long sysTriggerConfigId;
 	private String triggerName;
 	private Integer triggerStatus;
-
+	private String unitage;
 	// Constructors
 
 	/** default constructor */
@@ -44,24 +44,6 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 		this.times = times;
 		this.triggerType = triggerType;
 		this.triggerCondition = triggerCondition;
-		this.triggerName = triggerName;
-		this.triggerStatus = triggerStatus;
-	}
-
-	/** full constructor */
-	public AbstractTriggerConfig(Integer typeValue, String content,
-			Time startTime, Integer times, Integer triggerType,
-			Double conditionValue, String triggerCondition, Long travelId,
-			Long sysTriggerConfigId, String triggerName, Integer triggerStatus) {
-		this.typeValue = typeValue;
-		this.content = content;
-		this.startTime = startTime;
-		this.times = times;
-		this.triggerType = triggerType;
-		this.conditionValue = conditionValue;
-		this.triggerCondition = triggerCondition;
-		this.travelId = travelId;
-		this.sysTriggerConfigId = sysTriggerConfigId;
 		this.triggerName = triggerName;
 		this.triggerStatus = triggerStatus;
 	}
@@ -98,11 +80,11 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	}
 
 	@Column(name = "start_time", length = 8)
-	public Time getStartTime() {
+	public String getStartTime() {
 		return this.startTime;
 	}
 
-	public void setStartTime(Time startTime) {
+	public void setStartTime(String startTime) {
 		this.startTime = startTime;
 	}
 
@@ -176,6 +158,15 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 
 	public void setTriggerStatus(Integer triggerStatus) {
 		this.triggerStatus = triggerStatus;
+	}
+	
+	@Column(name = "unitage", nullable = false, length = 20)
+	public String getUnitage() {
+		return this.unitage;
+	}
+
+	public void setUnitage(String unitage) {
+		this.unitage = unitage;
 	}
 
 }

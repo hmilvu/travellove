@@ -8,7 +8,7 @@
 <div class="pageContent">
 	<div class="pageFormContent" layoutH="97">
 		<dl>
-			<dt>附件：</dt><dd><input type="file" name="image" size="30" /></dd>
+			<dt>附件：</dt><dd><input type="file" name="upload" size="30" /></dd>
 		</dl>
 	</div>
 	<div class="formBar">

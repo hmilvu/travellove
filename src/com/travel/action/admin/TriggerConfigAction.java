@@ -9,13 +9,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.TeamInfo;
+import com.travel.entity.TravelInf;
 import com.travel.entity.TriggerConfig;
 import com.travel.entity.ViewSpotInfo;
 import com.travel.service.TriggerConfigService;
+import com.travel.utils.JsonUtils;
 
 /**
  * @author Lenovo
@@ -44,10 +48,10 @@ public class TriggerConfigAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			pageInfo.setPageSize(Constants.ADMIN_DEFAULT_PAGE_SIZE);
 		}
-		triggerService.initTriggerConfig(getCurrentUser().getTravelInf().getId());
 		SearchTriggerConfigDTO dto = new SearchTriggerConfigDTO();		
 		dto.setName(name);
 		if(isTravelUser()){
+			triggerService.initTriggerConfig(getCurrentUser().getTravelInf().getId());
 			dto.setTravelId(getCurrentUser().getTravelInf().getId());
 		}
 		int totalNum = triggerService.getTotalTriggerConfigNum(dto);
@@ -60,7 +64,33 @@ public class TriggerConfigAction extends AuthorityAction{
 		return "list";
 	}
 	
-	public String add(){
-		return "add";
+	public String edit(){
+		String id = request.getParameter("uid");
+		TriggerConfig trigger = triggerService.getTriggerConfigById(Long.valueOf(id));
+		if(trigger != null && trigger.getId() != null){
+			request.setAttribute("editTriggerConfig", trigger);
+		}
+		return "edit";
+	}
+	
+	public void changeStatus(){
+		String id = request.getParameter("uid");
+		triggerService.updateTriggerStatus(Long.valueOf(id));		
+		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"更新成功\", \"navTabId\":\"触发器管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
+	}
+	
+	public void update(){
+		String id = request.getParameter("triggerId");
+		String startTime = request.getParameter("startTime");
+		String triggerType = request.getParameter("triggerType");
+		String times = request.getParameter("times");
+		String conditionValue = request.getParameter("conditionValue");
+		TriggerConfig trigger = triggerService.getTriggerConfigById(Long.valueOf(id));
+		trigger.setConditionValue(Double.valueOf(conditionValue));
+		trigger.setStartTime(startTime);
+		trigger.setTimes(Integer.valueOf(times));
+		trigger.setTriggerType(Integer.valueOf(triggerType));
+		triggerService.updateTrigger(trigger);
+		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));	
 	}
 }
