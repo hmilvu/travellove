@@ -276,4 +276,9 @@ public class ItemInfAction extends AuthorityAction{
 		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"查看评论\", \"forwardUrl\":\"\", \"callbackType\":\"closeCurrent\", \"rel\":\"\"}");
 	
 	}
+	
+	public String selectView(){
+		list();
+		return "select";
+	}
 }

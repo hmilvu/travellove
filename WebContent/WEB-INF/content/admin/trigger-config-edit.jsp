@@ -43,6 +43,13 @@ function save(){
 					<input class="date textInput required" type="text" size="20" dateFmt="HH:mm:ss" mmStep="15" readonly="true" value="<s:property value='%{#request.editTriggerConfig.startTime}'/>" name="startTime">
 					<a class="inputDateButton" href="javascript:void(0)">选择</a>
 				</dd>
+			</dl>	
+			<dl>
+				<dt>停止时间：</dt>
+				<dd>
+					<input class="date textInput required" type="text" size="20" dateFmt="HH:mm:ss" mmStep="15" readonly="true" value="<s:property value='%{#request.editTriggerConfig.endTime}'/>" name="endTime">
+					<a class="inputDateButton" href="javascript:void(0)">选择</a>
+				</dd>
 			</dl>		
 			<dl>
 				<dt>触发类型：</dt>
@@ -78,7 +85,7 @@ function save(){
 			<dl>
 				<dt>触发内容：</dt>
 				<dd>
-					<s:property value='%{#request.editTriggerConfig.content}'/>
+					<textarea name="content" cols="80" rows="2" maxlength="140" class="required"><s:property value='%{#request.editTriggerConfig.content}'/></textarea>		
 				</dd>
 			</dl>		
 		</div>

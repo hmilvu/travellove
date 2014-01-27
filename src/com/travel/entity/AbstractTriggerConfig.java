@@ -21,6 +21,7 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	private Integer typeValue;
 	private String content;
 	private String startTime;
+	private String endTime;
 	private Integer times;
 	private Integer triggerType;
 	private Double conditionValue;
@@ -86,6 +87,15 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
+	}
+	
+	@Column(name = "end_time", length = 8)
+	public String getEndTime() {
+		return this.endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 
 	@Column(name = "times", nullable = false)

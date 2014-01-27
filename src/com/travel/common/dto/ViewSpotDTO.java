@@ -24,7 +24,8 @@ public class ViewSpotDTO {
 	private String endDate;
 	private Integer numberOfDay;
 	private List<String> imageUrls = new ArrayList<String>();	
-
+	private String province;
+	private String city;
 	private List<ItemInfDTO> itemList = new ArrayList<ItemInfDTO>();
 	
 
@@ -97,6 +98,30 @@ public class ViewSpotDTO {
 	}
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public String getProvince() {
+		if(province == null){
+			return "";
+		} else {
+			return province;
+		}
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		if(city == null){
+			return "";
+		} else {
+			return city;
+		}
+	}
+
+	public void setCity(String city) {
+		this.city = city;
 	}
 	
 }

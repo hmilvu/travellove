@@ -60,6 +60,26 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	public void setItemList(List<ItemInfDTO> itemList) {
 		this.itemList = itemList;
 	}
+	@Transient
+	private String provinceName;
+	@Transient
+	private String cityName;	
+	@Transient
+	public String getProvinceName() {
+		return provinceName;
+	}
+	@Transient
+	public void setProvinceName(String provinceName) {
+		this.provinceName = provinceName;
+	}
+	@Transient
+	public String getCityName() {
+		return cityName;
+	}
+	@Transient
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
+	}
 
 	/**
 	 * @return
@@ -78,6 +98,8 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		}
 		dto.addImageUrl(urls);
 		dto.setItemList(itemList);
+		dto.setProvince(getProvinceName());
+		dto.setCity(getCityName());
 		return dto;
 	}
 

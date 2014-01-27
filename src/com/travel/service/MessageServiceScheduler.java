@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
+import com.travel.entity.TriggerConfig;
 
 /**
  * @author Lenovo
@@ -29,6 +30,8 @@ public class MessageServiceScheduler {
 	private MessageService messageService;
 	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private TriggerConfigService triggerService;
 	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
 		log.info("检查预约消息，准备推送");
@@ -44,5 +47,11 @@ public class MessageServiceScheduler {
 				messageService.sendMemberPushMsg(messageList, msg.getContent(), memberList);
 			}
 		}
+		
+//		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
+//		for(TriggerConfig trigger : list){
+//			log.info("自动触发：" + trigger.toString());
+//			triggerService.trigger(trigger);
+//		}		
 	}
 }

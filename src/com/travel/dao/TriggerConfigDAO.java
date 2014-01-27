@@ -18,6 +18,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.TRIGGER_STATUS;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TriggerConfig;
@@ -166,11 +167,11 @@ public class TriggerConfigDAO extends BaseDAO {
 				String sql = "INSERT INTO trigger_config (type_value, content, start_time,times, " + 
 							" trigger_type, condition_value, trigger_condition, " + 
 							" trigger_status, travel_id, sys_trigger_config_id," + 
-							" trigger_name, unitage)  " + 
+							" trigger_name, unitage, end_time)  " + 
 							"  select b.type_value, b.content, b.start_time, b.times, " + 
 							"  b.trigger_type, b.condition_value, b.trigger_condition, " + 
 							"  b.trigger_status, ?, b.id," + 
-							"  b.trigger_name, b.unitage from trigger_config b " + 
+							"  b.trigger_name, b.unitage, b.end_time from trigger_config b " + 
 							"  where b.sys_trigger_config_id is NULL" + 
 							"  and b.id not in (select c.sys_trigger_config_id from trigger_config c where c.travel_id = ?)" ;
 				SQLQuery query = session.createSQLQuery(sql);
@@ -180,5 +181,12 @@ public class TriggerConfigDAO extends BaseDAO {
 				return null;
 			}
 		});	
+	}
+
+	/**
+	 * @return
+	 */
+	public List<TriggerConfig> getValidTriggerConfigs() {
+		return  getHibernateTemplate().find("from TriggerConfig where triggerStatus = " + TRIGGER_STATUS.ACTIVE.getValue());
 	}
 }

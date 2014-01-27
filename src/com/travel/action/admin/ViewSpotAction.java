@@ -7,20 +7,25 @@ package com.travel.action.admin;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
+import com.travel.action.admin.form.ItemInfForm;
 import com.travel.common.Constants;
 import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.AreaInf;
 import com.travel.entity.ImgInf;
+import com.travel.entity.ItemInf;
 import com.travel.entity.Message;
 import com.travel.entity.RouteViewSpot;
 import com.travel.entity.ViewSpotInfo;
+import com.travel.service.AreaService;
 import com.travel.service.ImgService;
 import com.travel.service.MessageService;
 import com.travel.service.RouteInfService;
@@ -44,11 +49,28 @@ public class ViewSpotAction extends AuthorityAction{
 	private ImgService imageServcie;
 	@Autowired
 	private MessageService messageService;
+	@Autowired
+	private AreaService areaService;
+	private List<AreaInf> areaList;
+	private List<ItemInfForm> items;
+	
+	public List<ItemInfForm> getItems() {
+		return items;
+	}
+
+	public void setItems(List<ItemInfForm> items) {
+		this.items = items;
+	}
 
 	public String list(){
 		String name = request.getParameter("name");		
 		String pageSize = request.getParameter("numPerPage");
 		String pageNumber = request.getParameter("pageNum");
+		String province = request.getParameter("province");
+		String city = request.getParameter("city");
+		if(areaList == null || areaList.size() == 0){
+			areaList = areaService.getAllProvinces();
+		}
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		try{
 			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
@@ -62,20 +84,33 @@ public class ViewSpotAction extends AuthorityAction{
 		}
 		SearchViewSpotDTO dto = new SearchViewSpotDTO();		
 		dto.setName(name);
+		dto.setProvince(province);
+		dto.setCity(city);
 		if(isTravelUser()){
 			dto.setTravelId(getCurrentUser().getTravelInf().getId());
 		}
 		int totalNum = viewSpotService.getTotalViewSpotNum(dto);
 		List<ViewSpotInfo> list = viewSpotService.findViewSpots(dto, pageInfo);
+		request.setAttribute("areaList", areaList);		
 		request.setAttribute("viewSpotList", list);
 		request.setAttribute("totalCount", totalNum+"");
 		request.setAttribute("name", name);
+		request.setAttribute("province", province);
+		request.setAttribute("city", city);
+		if(StringUtils.isNotBlank(province)){
+			List<AreaInf> subareaList = areaService.getSubCitiesByCode(province);
+			request.setAttribute("subareaList", subareaList);
+		}
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
 		return "list";
 	}
 	
 	public String add(){
+		if(areaList == null || areaList.size() == 0){
+			areaList = areaService.getAllProvinces();
+		}
+		request.setAttribute("areaList", areaList);		
 		return "add";
 	}
 	
@@ -86,6 +121,8 @@ public class ViewSpotAction extends AuthorityAction{
 		String longitudeStr = request.getParameter("longitudeInput");
 		String latitudeStr = request.getParameter("latitudeInput");
 		String description = request.getParameter("description");
+		String province = request.getParameter("province");
+		String city = request.getParameter("city");
 		Double longitude = null;
 		Double latitude = null;
 		try{
@@ -104,6 +141,8 @@ public class ViewSpotAction extends AuthorityAction{
 		view.setAddress(address);
 		view.setLongitude(longitude);
 		view.setSysUser(getCurrentUser());
+		view.setProvince(province);
+		view.setCity(city);
 		if(isTravelUser()){
 			view.setTravelInf(getCurrentUser().getTravelInf());
 			view.setType(VIEW_SPOT_TYPE.PRIVATE.getValue());
@@ -139,8 +178,16 @@ public class ViewSpotAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			return "edit";
 		}
+		if(areaList == null || areaList.size() == 0){
+			areaList = areaService.getAllProvinces();
+		}
 		ViewSpotInfo view = viewSpotService.getViewSpotById(idLong);	
 		if(view != null && view.getId() > 0){
+			if(StringUtils.isNotBlank(view.getProvince())){
+				List<AreaInf> subareaList = areaService.getSubCitiesByCode(view.getProvince());
+				request.setAttribute("subareaList", subareaList);
+			}
+			request.setAttribute("areaList", areaList);
 			request.setAttribute("editView", view);
 		}
 		return "edit";
@@ -154,6 +201,8 @@ public class ViewSpotAction extends AuthorityAction{
 		String longitudeStr = request.getParameter("longitudeInput");
 		String latitudeStr = request.getParameter("latitudeInput");
 		String description = request.getParameter("description");	
+		String province = request.getParameter("province");
+		String city = request.getParameter("city");
 		Double longitude = null;
 		Double latitude = null;
 		try{
@@ -173,6 +222,8 @@ public class ViewSpotAction extends AuthorityAction{
 			cloneView.setDescription(description);
 			cloneView.setLatitude(latitude);
 			cloneView.setLongitude(longitude);
+			cloneView.setProvince(province);
+			cloneView.setCity(city);
 			cloneView.setSysUser(getCurrentUser());
 			cloneView.setTravelInf(getCurrentUser().getTravelInf());
 			cloneView.setType(VIEW_SPOT_TYPE.PRIVATE.getValue());	
@@ -191,6 +242,8 @@ public class ViewSpotAction extends AuthorityAction{
 			view.setDescription(description);
 			view.setLatitude(latitude);
 			view.setLongitude(longitude);
+			view.setProvince(province);
+			view.setCity(city);
 			try {
 				if(viewSpotService.updateViewSpot(view) == 0){
 					JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
@@ -250,5 +303,33 @@ public class ViewSpotAction extends AuthorityAction{
 		messageService.deleteMessage(msg);
 		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"删除成功\", \"navTabId\":\"查看评论\", \"forwardUrl\":\"\", \"callbackType\":\"closeCurrent\", \"rel\":\"\"}");
 	
+	}
+	
+	public String editItem(){
+		if(!isTravelUser()){
+			return "editItem";
+		}
+		String id = request.getParameter("uid");
+		ViewSpotInfo view = viewSpotService.getViewSpotById(Long.valueOf(id));	
+		List<ItemInf> list = viewSpotService.getViewSpotItems(getCurrentUser().getTravelInf().getId(), view.getId());
+		if(view != null && view.getId() > 0){
+			request.setAttribute("editView", view);
+			request.setAttribute("itemInfList", list);
+		}
+		return "editItem";
+	}
+	
+	public String updateItem(){
+		if(!isTravelUser()){
+			return "editItem";
+		}
+		String id = request.getParameter("viewSpotId");
+		int result = viewSpotService.updateItems(getCurrentUser().getTravelInf().getId(), Long.valueOf(id), items);
+		if(result == 0){
+			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));			
+		} else {
+			JsonUtils.write(response, binder.toJson("result", Action.ERROR));
+		}
+		return null;
 	}
 }

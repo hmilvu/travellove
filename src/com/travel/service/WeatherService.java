@@ -18,9 +18,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.travel.utils.HttpUtil;
 
@@ -28,14 +26,14 @@ import com.travel.utils.HttpUtil;
  * @author Lenovo
  * 
  */
-@Component
-public class WheatherServiceScheduler {
-	private static final Logger log = LoggerFactory.getLogger(WheatherServiceScheduler.class);
-	private String[] data = new String[50];
+@Service
+public class WeatherService {
+	private static final Logger log = LoggerFactory.getLogger(WeatherService.class);
 	@SuppressWarnings("unchecked")
-	@Scheduled(cron = "0 0 8,20 * * ?") 
-	void doSomethingWithRate() {
-		log.info("天气推送");
+//	@Scheduled(cron = "0 0 8,20 * * ?") 
+	public String[] getWheatherData(Double latitude, Double longitude) {
+		log.info("获取天气数据");
+		String[] data = new String[50];
 		String apiKey = "SHUp4teTcYTAGKHZef97IbGP";//Config.getProperty("baidu.appkey");
 		Double lat = 37.942125;
 		Double lng = 105.961462;
@@ -79,9 +77,6 @@ public class WheatherServiceScheduler {
 		} catch (Throwable e) {
 			log.error("根据经纬度获取城市名失败 response = " + response, e);
 		}
-	}
-	
-	public static void main(String[] args) {
-		new WheatherServiceScheduler().doSomethingWithRate();
+		return data;
 	}
 }

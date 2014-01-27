@@ -1,12 +1,13 @@
 package com.travel.dao;
 
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -190,6 +191,24 @@ public class TeamInfoDAO extends BaseDAO {
 			return getHibernateTemplate().find(queryString, travelId);
 		} catch (RuntimeException re) {
 			log.error("find all failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param travelId
+	 * @return
+	 */
+	public List<TeamInfo> getActiveTeamByTravelId(Long travelId) {
+		log.debug("getActiveTeamByTravelId instances");
+		try {
+			String queryString = "from TeamInfo where travelInf.id = ? and status=0 and startDate <= ? and endDate >= ?";
+			Calendar endCal=Calendar.getInstance();
+			endCal.setTime(new Date());
+			endCal.add(Calendar.DAY_OF_MONTH, 1);
+			return getHibernateTemplate().find(queryString, travelId, endCal.getTime());
+		} catch (RuntimeException re) {
+			log.error("getActiveTeamByTravelId failed", re);
 			throw re;
 		}
 	}

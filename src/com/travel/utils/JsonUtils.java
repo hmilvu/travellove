@@ -7,6 +7,7 @@
 package com.travel.utils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -85,7 +86,9 @@ public class JsonUtils {
 	public static void write(HttpServletResponse response, String str) {
 		response.setContentType(MIME);
 		try {
-			response.getWriter().write(str);
+			PrintWriter pr = response.getWriter();
+			pr.write(str);
+			pr.close();
 		} catch (IOException e) {
 			log.error("JSON字符串无法写入输出流！", e);
 		}

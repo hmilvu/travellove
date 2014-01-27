@@ -121,6 +121,12 @@ public class ViewSpotInfoDAO extends BaseDAO {
 		if (StringUtils.isNotBlank(dto.getName())) {
 			cr.add(Restrictions.like("name", StringUtils.trim("%" + dto.getName()) + "%").ignoreCase());
 		}
+		if(StringUtils.isNotBlank(dto.getProvince())){
+			cr.add(Restrictions.eq("province", dto.getProvince()));
+		}
+		if(StringUtils.isNotBlank(dto.getCity())){
+			cr.add(Restrictions.eq("city", dto.getCity()));
+		}
 		return cr;
 	}
 
@@ -140,7 +146,8 @@ public class ViewSpotInfoDAO extends BaseDAO {
 				cr.setMaxResults(maxResults);
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
 				cr.addOrder(Order.desc("type"));
-				cr.addOrder(Order.asc("name"));
+				cr.addOrder(Order.asc("province"));
+				cr.addOrder(Order.asc("city"));
 				return cr.list();
 			}
 		});	
@@ -178,5 +185,27 @@ public class ViewSpotInfoDAO extends BaseDAO {
 			throw re;
 		}
 		return result;
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<ViewSpotInfo> findTeamViewSpots(final List<Long> routeIdList,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ViewSpotInfo>>() {
+			@Override
+			public List<ViewSpotInfo> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String queryString = "select rv.viewSpotInfo from RouteViewSpot rv where rv.routeInf.id in (:ids) order by rv.order";
+				Query query = session.createQuery(queryString);
+				query.setParameterList("ids", routeIdList);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				query.setMaxResults(maxResults);
+				query.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				return query.list();
+			}
+		});	
 	}
 }

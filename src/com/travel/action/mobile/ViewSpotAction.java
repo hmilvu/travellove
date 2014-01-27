@@ -81,6 +81,10 @@ public class ViewSpotAction extends BaseAction{
 		if(keyword != null && StringUtils.isNotBlank(keyword.toString())){
 			dto.setName(keyword.toString().trim());
 		}
+		Object allView = getMobileParameter(data, "allView");
+		if(allView == null || !StringUtils.equals(allView.toString(), "1")){
+			dto.setTeamId(idLong);
+		}
 		dto.setTravelId(team.getTravelInf().getId());
 		List<ViewSpotDTO> list = viewSpotService.findViewSpotsDTO(dto, pageInfo);		
 		SuccessResult<List<ViewSpotDTO>> result = new SuccessResult<List<ViewSpotDTO>>(list);
@@ -98,9 +102,24 @@ public class ViewSpotAction extends BaseAction{
 			JsonUtils.write(response, binder.toJson(result));
 			return null;
 		}
+		Object teamId = getMobileParameter(data, "teamId");
+		Long teamIdLong = Long.valueOf(0);
+		try {
+			teamIdLong = Long.valueOf(teamId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("teamId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		TeamInfo team = teamService.getTeamById(teamIdLong);
+		if(team == null){
+			FailureResult result = new FailureResult("此"+teamId+"不存在");
+			sendToMobile(result);
+			return null;
+		}
 		ViewSpotInfo viewSpot = viewSpotService.getViewSpotById(idLong);
 		if(viewSpot != null && viewSpot.getId() > 0){
-			List<ItemInfDTO> itemList = itemService.getItemByViewSpotId(viewSpot.getId());
+			List<ItemInfDTO> itemList = itemService.getItemByViewSpotId(team.getTravelInf().getId(), viewSpot.getId());
 			viewSpot.setItemList(itemList);
 			SuccessResult <ViewSpotDTO>result = new SuccessResult<ViewSpotDTO>(viewSpot.toDTO());
 			JsonUtils.write(response, binder.toJson(result));

@@ -4,6 +4,8 @@
     
 <form id="pagerForm" method="post" action="admin/view-spot!list.action">
 	<input type="hidden" name="name" value="<s:property value='%{#request.name}'/>" />
+	<input type="hidden" name="province" value="<s:property value='%{#request.province}'/>" />
+	<input type="hidden" name="city" value="<s:property value='%{#request."city"}'/>" />
 	<input type="hidden" name="pageNum" value="1" />
 	<input type="hidden" name="numPerPage" value="15" />
 </form>
@@ -15,7 +17,25 @@
 			<tr>
 				<td>
 					景点名称：<input type="text" name="name" id="name" value="<s:property value='%{#request.name}'/>"/>
-				</td>				
+				</td>	
+				<td>					
+					<select class="combox" name="province" ref="w_combox_city" refUrl="admin/area-inf!cityList.action?cityCode={value}">
+						<option value="">请选择省份</option>
+						<s:iterator value="#request.areaList" id="c" status="st">
+							<option value="<s:property value='#c.cityCode'/>" <s:if test="%{#request.province == #c.cityCode}">selected</s:if> >
+								<s:property value="#c.cityName"/>
+							</option>				
+						</s:iterator>
+					</select>
+					<select class="combox" name="city" id="w_combox_city" ref="w_combox_area">
+						<option value="">请选择城市</option>		
+						<s:iterator value="#request.subareaList" id="c" status="st">
+						<option value="<s:property value='#c.cityCode'/>" <s:if test="%{#request.city == #c.cityCode}">selected</s:if> >
+							<s:property value="#c.cityName"/>
+						</option>				
+					</s:iterator>			
+					</select>
+				</td>			
 			</tr>
 		</table>		
 		<div class="subBar">
@@ -32,18 +52,20 @@
 			<li><a class="add" href="admin/view-spot!add.action" target="navTab" title="添加景点"><span>添加景点</span></a></li>
 			<li><a title="确实要删除这些景点吗?" target="selectedTodo" rel="ids" postType="string" href="admin/view-spot!delete.action" class="delete"><span>批量删除</span></a></li>
 			<li><a class="edit" href="admin/view-spot!edit.action?uid={sid_user}" target="navTab" warn="请选择一个景点"><span>修改景点</span></a></li>
+			<li><a class="edit" href="admin/view-spot!editItem.action?uid={sid_user}" target="navTab" warn="请选择一个景点"><span>管理销售品</span></a></li>
 			<li class="line">line</li>			
 		</ul>
 	</div>
-	<table class="table" width="1120" layoutH="138">
+	<table class="table" width="1100" layoutH="138">
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="600">景点名称</th>
+				<th width="400">景点名称</th>
+				<th width="100">省\市</th>
 				<th width="60">类型</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
-				<th width="40">操作</th>
+				<th width="60">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -51,6 +73,7 @@
 			<tr target="sid_user" rel="<s:property value="%{#viewSpot.id}"/>">
 				<td><input name="ids" value="<s:property value="%{#viewSpot.id}"/>" type="checkbox"></td>
 				<td><s:property value="%{#viewSpot.name}"/></td>		
+				<td><s:property value="%{#viewSpot.provinceName}"/>\<s:property value="%{#viewSpot.cityName}"/></td>
 				<td>
 					<s:if test="%{#viewSpot.type == 0}">
 						公共景点

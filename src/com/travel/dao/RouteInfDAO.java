@@ -181,4 +181,12 @@ public class RouteInfDAO extends BaseDAO {
 		return result;
 	}
 
+	/**
+	 * @param teamId
+	 * @return
+	 */
+	public List<Long> getRouteIdsByTeamId(Long teamId) {
+		return getHibernateTemplate().find("select r.routeInf.id from TeamRoute r where r.teamInfo.id = ?", teamId);
+	}
+
 }

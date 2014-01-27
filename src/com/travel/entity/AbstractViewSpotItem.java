@@ -1,9 +1,5 @@
 package com.travel.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -11,7 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -28,7 +23,8 @@ public abstract class AbstractViewSpotItem extends BaseEntity implements
 	private Long id;
 	private ViewSpotInfo viewSpotInf;
 	private ItemInf itemInf;
-	
+	private TravelInf travelInf;
+	private Integer displayOrder;
 	// Constructors
 
 	/** default constructor */
@@ -64,6 +60,23 @@ public abstract class AbstractViewSpotItem extends BaseEntity implements
 
 	public void setItemInf(ItemInf itemInf) {
 		this.itemInf = itemInf;
+	}
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "travel_id", nullable = false)
+	public TravelInf getTravelInf() {
+		return travelInf;
+	}
+
+	public void setTravelInf(TravelInf travelInf) {
+		this.travelInf = travelInf;
+	}
+	@Column(name = "display_order", nullable = false)
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
 	}
 	
 

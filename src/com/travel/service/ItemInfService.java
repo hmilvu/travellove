@@ -97,10 +97,12 @@ public class ItemInfService extends AbstractBaseService
 	 * @param id
 	 * @return
 	 */
-	public List<ItemInfDTO> getItemByViewSpotId(Long viewSpotId) {
-		List<ItemInf> list = itemDao.findByViewSpotId(viewSpotId);
+	public List<ItemInfDTO> getItemByViewSpotId(Long travelId, Long viewSpotId) {
+		List<ItemInf> list = itemDao.findByViewSpotId(travelId, viewSpotId);
 		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
 		for(ItemInf item : list){
+			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
+			item.setUrls(imageUrls);
 			result.add(item.toDTO());
 		}
 		return result;

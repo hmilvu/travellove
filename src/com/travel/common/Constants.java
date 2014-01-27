@@ -207,4 +207,15 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum TRIGGER_TYPE {
+		VELOCITY(1), MEMBER_DISTANCE(2), LANGUAGE_WARNING(3), REMIND(4), WHEATHER(5);
+		private int value;
+		private TRIGGER_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

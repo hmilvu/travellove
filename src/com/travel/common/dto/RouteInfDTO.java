@@ -110,13 +110,22 @@ public class RouteInfDTO {
 		this.status = status;
 	}
 	public String getAttachmentUrl() {
-		return attachmentUrl;
+		if(attachmentUrl == null){
+			return null;
+		} else {
+			return attachmentUrl;
+		}
 	}
+	
 	public void setAttachmentUrl(String attachmentUrl) {
 		this.attachmentUrl = attachmentUrl;
 	}
 	public String getAttachmentFileName() {
-		return attachmentFileName;
+		if(attachmentFileName == null){
+			return "";
+		} else {
+			return attachmentFileName;
+		}
 	}
 	public void setAttachmentFileName(String attachmentFileName) {
 		this.attachmentFileName = attachmentFileName;

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
@@ -22,6 +23,7 @@ import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
+import com.travel.service.TriggerConfigService;
 
 /**
  * @author Lenovo
@@ -36,7 +38,8 @@ public class MemberAction extends BaseAction {
 	private MemberService memberService;
 	@Autowired
 	private MessageService messageService;
-	
+	@Autowired
+	private TriggerConfigService triggerService;
 	public void search() {
 		String data = getMobileData();
 		Object id = getMobileParameter(data, "id");
@@ -78,35 +81,34 @@ public class MemberAction extends BaseAction {
 			member.setNickname((String) getMobileParameter(data, "nickname"));
 			member.setTravelerMobile((String) getMobileParameter(data,
 					"travelerMobile"));
-			Object sexObj = getMobileParameter(data, "sex");
-			Integer sex = Integer.valueOf(0);
-			try {
-				sex = Integer.valueOf(sexObj.toString());
-			} catch (Throwable ignore) {
-			}
-			;
-			member.setSex(sex);
+//			Object sexObj = getMobileParameter(data, "sex");
+//			Integer sex = Integer.valueOf(0);
+//			try {
+//				sex = Integer.valueOf(sexObj.toString());
+//			} catch (Throwable ignore) {
+//			}		
+//			member.setSex(sex);
 
-			Object ageObj = getMobileParameter(data, "age");
-			Integer age = Integer.valueOf(0);
-			try {
-				age = Integer.valueOf(ageObj.toString());
-			} catch (Throwable ignore) {
-			}
-			;
-			member.setAge(age);
+//			Object ageObj = getMobileParameter(data, "age");
+//			Integer age = Integer.valueOf(0);
+//			try {
+//				age = Integer.valueOf(ageObj.toString());
+//			} catch (Throwable ignore) {
+//			}
+//			;
+//			member.setAge(age);
 
-			Object idTypeObj = getMobileParameter(data, "idType");
-			Integer idType = Integer.valueOf(0);
-			try {
-				idType = Integer.valueOf(idTypeObj.toString());
-			} catch (Throwable ignore) {
-			}
-			;
-			member.setIdType(idType);
+//			Object idTypeObj = getMobileParameter(data, "idType");
+//			Integer idType = Integer.valueOf(0);
+//			try {
+//				idType = Integer.valueOf(idTypeObj.toString());
+//			} catch (Throwable ignore) {
+//			}
+//			;
+//			member.setIdType(idType);
 
-			member.setIdNo((String) getMobileParameter(data, "idNo"));
-			member.setAvatarUrl((String) getMobileParameter(data, "avatarUrl"));
+//			member.setIdNo((String) getMobileParameter(data, "idNo"));
+//			member.setAvatarUrl((String) getMobileParameter(data, "avatarUrl"));
 			member.setProfile((String) getMobileParameter(data, "profile"));
 			member.setInterest((String) getMobileParameter(data, "interest"));
 			member.setUpdateDate(new Timestamp(new Date().getTime()));
@@ -156,6 +158,16 @@ public class MemberAction extends BaseAction {
 			FailureResult result = new FailureResult("id不存在");
 			sendToMobile(result);
 		}
+		Object vel = getMobileParameter(data, "velocity");
+		Double velocity = Double.valueOf(0);
+		try {
+			velocity = Double.valueOf(vel.toString());
+		} catch (Throwable e) {
+			log.error("更新会员地理位置时，速度值格式错误velocity = ", vel);
+		}
+		if(velocity > 0){
+			triggerService.triggerVelocity(member, velocity);
+		}
 	}
 	
 	public void uploadChannelId(){
@@ -203,4 +215,62 @@ public class MemberAction extends BaseAction {
 		}
 	}
 	
+	public String changePassword(){
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "id");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("id类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object oldPassword = getMobileParameter(data, "oldPassword");
+		Object newPassword = getMobileParameter(data, "newPassword");
+		Object confirmPassword = getMobileParameter(data, "confirmPassword");
+		if(oldPassword == null || StringUtils.isBlank(oldPassword.toString())){
+			FailureResult result = new FailureResult("原密码不能为空");
+			result.setCode(1);
+			sendToMobile(result);
+			return null;
+		}
+		if(newPassword == null || StringUtils.isBlank(newPassword.toString())){
+			FailureResult result = new FailureResult("新密码不能为空");
+			result.setCode(2);
+			sendToMobile(result);
+			return null;
+		}
+		if(confirmPassword == null || StringUtils.isBlank(confirmPassword.toString())){
+			FailureResult result = new FailureResult("确认密码不能为空");
+			result.setCode(3);
+			sendToMobile(result);
+			return null;
+		}
+		if(!StringUtils.equals(newPassword.toString(), confirmPassword.toString())){
+			FailureResult result = new FailureResult("新密码和确认密码不同");
+			result.setCode(4);
+			sendToMobile(result);
+			return null;
+		}
+		MemberInf member = memberService.getMemberById(idLong);
+		if (member != null && member.getId() > 0) {
+			if(StringUtils.equals(oldPassword.toString(), member.getPassword())){
+				member.setPassword(newPassword.toString());
+				memberService.updateMember(member);
+				SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+				sendToMobile(result);
+				return null;
+			} else {
+				FailureResult result = new FailureResult("原密码密码不同");
+				result.setCode(5);
+				sendToMobile(result);
+				return null;
+			}
+		} else {
+			FailureResult result = new FailureResult("该用户不存在");
+			sendToMobile(result);
+			return null;
+		}
+	}
 }

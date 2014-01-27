@@ -36,6 +36,8 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 	private Set<RouteViewSpot> routeViewSpots = new HashSet<RouteViewSpot>(0);
 	private Integer type;
 	private TravelInf travelInf;
+	private String province;
+	private String city;
 	// Constructors
 
 	/** default constructor */
@@ -179,4 +181,22 @@ public abstract class AbstractViewSpotInfo extends BaseEntity implements
 	public void setTravelInf(TravelInf travelInf) {
 		this.travelInf = travelInf;
 	}
+	@Column(name = "province")
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	@Column(name = "city")
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+	
+	
 }

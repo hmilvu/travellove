@@ -82,14 +82,17 @@ public class TriggerConfigAction extends AuthorityAction{
 	public void update(){
 		String id = request.getParameter("triggerId");
 		String startTime = request.getParameter("startTime");
+		String endTime = request.getParameter("endTime");
 		String triggerType = request.getParameter("triggerType");
 		String times = request.getParameter("times");
 		String conditionValue = request.getParameter("conditionValue");
+		String content = request.getParameter("content");
 		TriggerConfig trigger = triggerService.getTriggerConfigById(Long.valueOf(id));
 		trigger.setConditionValue(Double.valueOf(conditionValue));
 		trigger.setStartTime(startTime);
 		trigger.setTimes(Integer.valueOf(times));
 		trigger.setTriggerType(Integer.valueOf(triggerType));
+		trigger.setContent(content);
 		triggerService.updateTrigger(trigger);
 		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));	
 	}

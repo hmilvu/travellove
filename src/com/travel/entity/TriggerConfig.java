@@ -18,4 +18,22 @@ public class TriggerConfig extends AbstractTriggerConfig implements
 	public TriggerConfig() {
 	}
 
+	@Override
+	public String toString() {
+		return "TriggerConfig [getConditionValue()=" + getConditionValue()
+				+ ", getContent()=" + getContent() + ", getEndTime()="
+				+ getEndTime() + ", getId()=" + getId() + ", getStartTime()="
+				+ getStartTime() + ", getSysTriggerConfigId()="
+				+ getSysTriggerConfigId() + ", getTimes()=" + getTimes()
+				+ ", getTravelId()=" + getTravelId()
+				+ ", getTriggerCondition()=" + getTriggerCondition()
+				+ ", getTriggerName()=" + getTriggerName()
+				+ ", getTriggerStatus()=" + getTriggerStatus()
+				+ ", getTriggerType()=" + getTriggerType()
+				+ ", getTypeValue()=" + getTypeValue() + ", getUnitage()="
+				+ getUnitage() +  "]";
+	}
+
+
+	
 }

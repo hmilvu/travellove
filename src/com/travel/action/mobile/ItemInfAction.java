@@ -213,8 +213,8 @@ public class ItemInfAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
-		if(msg.getCreateId().longValue() != member.getId().longValue() || msg.getReceiverType().intValue() != MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue()){
-			FailureResult result = new FailureResult("该评论不是次团员创建，不能删除memeberId="+memberId + " msgId=" + commentId);
+		if(msg.getCreateId().longValue() != member.getId().longValue() || msg.getReceiverType().intValue() != MESSAGE_RECEIVER_TYPE.ITEM.getValue()){
+			FailureResult result = new FailureResult("该评论不是此团员创建，不能删除memeberId="+memberId + " msgId=" + commentId);
 			sendToMobile(result);
 			return;
 		}
