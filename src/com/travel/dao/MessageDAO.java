@@ -2,6 +2,7 @@ package com.travel.dao;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +25,8 @@ import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.PUSH_STATUS;
+import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.admin.dto.SearchMessageDTO;
-import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
@@ -188,6 +189,7 @@ public class MessageDAO extends BaseDAO {
 			cr.add(Restrictions.eq("status", dto.getStatus()));
 		}
 		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
+		cr.add(Restrictions.eq("triggerId", Long.valueOf(TRIGGER_TYPE.MANUAL.getValue())));
 		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue())));
 		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.ITEM.getValue())));
 		return cr;
@@ -284,8 +286,8 @@ public class MessageDAO extends BaseDAO {
 	 */
 	public List<Message> getNeedToPush() {
 		try {
-			String queryString = "from Message where remindTime < ? and remindMode = ? and push_status != ? and push_status != ? ";
-			return getHibernateTemplate().find(queryString, new Timestamp(new Date().getTime()), MESSAGE_REMIND_MODE.LATER.getValue(), PUSH_STATUS.PUSHED.getValue(), PUSH_STATUS.PUSH_FAILED.getValue());
+			String queryString = "from Message where remindTime < ? and remindMode = ? and push_status != ? and push_status != ? and status = ? ";
+			return getHibernateTemplate().find(queryString, new Timestamp(new Date().getTime()), MESSAGE_REMIND_MODE.LATER.getValue(), PUSH_STATUS.PUSHED.getValue(), PUSH_STATUS.PUSH_FAILED.getValue(), MESSAGE_STATUS.ACTIVE.getValue());
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -349,5 +351,86 @@ public class MessageDAO extends BaseDAO {
 		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
 		cr.add(Restrictions.eq("receiverType", Integer.valueOf(type.getValue())));
 		return cr;
+	}
+
+	/**
+	 * @param id
+	 * @param weather
+	 * @return
+	 */
+	public List<Message> findTriggerMessage(Long teamId, Long triggerId) {
+		Timestamp startTimestamp = new Timestamp(System.currentTimeMillis()/86400000*86400000-(23-Calendar.ZONE_OFFSET)*3600000); 
+		Timestamp endTimestamp = new Timestamp(startTimestamp.getTime() + 3600 * 24 * 1000);
+		String hql = "from Message where receiverType = " + MESSAGE_RECEIVER_TYPE.TEAM.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
+		 + " and receiverId = ? and triggerId = ? and remindTime > ? and remindTime < ?";
+		return getHibernateTemplate().find(hql, teamId, triggerId, startTimestamp, endTimestamp);
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTriggerTotalNum(final SearchMessageDTO dto) {
+		return getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+			Criteria cr = buildTriggerSearchCriteria(session, dto);
+			Long total=(Long)cr.setProjection(Projections.rowCount()).uniqueResult(); 			
+			return  total.intValue();
+			}
+		});	
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Message> findTriggerMessages(final SearchMessageDTO dto,
+			final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Message>>() {
+			@Override
+			public List<Message> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = buildTriggerSearchCriteria(session, dto);
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.ADMIN_DEFAULT_PAGE_SIZE;
+				cr.setMaxResults(maxResults);
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.addOrder(Order.asc("status"));
+				cr.addOrder(Order.desc("remindTime"));
+				return cr.list();
+			}
+		});	
+	}
+	
+	private Criteria buildTriggerSearchCriteria(Session session, SearchMessageDTO dto) {
+		Criteria cr = session.createCriteria(Message.class);
+		cr.createAlias("travelInf", "t");
+		if (dto.getTravelId() != null) {
+			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
+		}
+		cr.add(Restrictions.eq("triggerId", dto.getTriggerId()));
+		cr.add(Restrictions.ne("status", Integer.valueOf(MESSAGE_STATUS.DELETED.getValue())));
+		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue())));
+		cr.add(Restrictions.ne("receiverType", Integer.valueOf(MESSAGE_RECEIVER_TYPE.ITEM.getValue())));
+		return cr;
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Message> getLastHourMessage(MESSAGE_RECEIVER_TYPE receiverType, Long receiverId, Long triggerId) {
+		try {
+			String query = "from Message m where m.receiverType = ? and m.receiverId = ? "
+			 + " and m.triggerId = " + triggerId + " and m.status <>" + MESSAGE_STATUS.DELETED.getValue() 
+			 + " and now() - m.remindTime > 0 and now() - m.remindTime < 3600";
+			return getHibernateTemplate().find(query, receiverType.getValue(), receiverId);
+		} catch (RuntimeException re) {
+			log.error("getLastHourMessage failed", re);
+			throw re;
+		}
 	}
 }

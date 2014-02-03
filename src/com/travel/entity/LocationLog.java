@@ -42,4 +42,12 @@ public class LocationLog extends AbstractLocationLog implements
 		dto.setMemberType(getMemberInf().getMemberType());
 		return dto;
 	}
+
+	@Override
+	public String toString() {
+		return "LocationLog [getId()=" + getId() + ", getLatitude()="
+				+ getLatitude() + ", getLocateTime()=" + getLocateTime()
+				+ ", getLongitude()=" + getLongitude() +"]";
+	}	
+	
 }

@@ -139,4 +139,21 @@ public class TeamRouteDAO extends BaseDAO {
 			throw re;
 		}
 	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<Long> getRouteIdListByTeamId(final Long teamId) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Long>>() {
+			@Override
+			public List<Long> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+					String queryString = "select m.routeInf.id from TeamRoute as m where m.teamInfo.id = ? order by m.routeOrder";
+					Query queryObject = session.createQuery(queryString);
+					queryObject.setParameter(0, teamId);
+					return queryObject.list();
+			}
+		});	
+	}
 }

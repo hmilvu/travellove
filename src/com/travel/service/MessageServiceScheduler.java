@@ -34,6 +34,13 @@ public class MessageServiceScheduler {
 	private TriggerConfigService triggerService;
 	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
+		log.info("检查自动触发");
+		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
+		for(TriggerConfig trigger : list){
+			log.info("自动触发：" + trigger.toString());
+			triggerService.trigger(trigger);
+		}		
+		
 		log.info("检查预约消息，准备推送");
 		List<Message> messageList = messageService.getNeedToPushMessages();
 		for(Message msg : messageList){
@@ -47,11 +54,5 @@ public class MessageServiceScheduler {
 				messageService.sendMemberPushMsg(messageList, msg.getContent(), memberList);
 			}
 		}
-		
-//		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
-//		for(TriggerConfig trigger : list){
-//			log.info("自动触发：" + trigger.toString());
-//			triggerService.trigger(trigger);
-//		}		
 	}
 }

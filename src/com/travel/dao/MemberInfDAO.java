@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
@@ -113,6 +114,7 @@ public class MemberInfDAO extends BaseDAO {
 	 * @param password2
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
 			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
@@ -257,6 +259,7 @@ public class MemberInfDAO extends BaseDAO {
 	 */
 	public List<MemberInf> findByIds(final List<Long> idList) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<MemberInf>>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public List<MemberInf> doInHibernate(Session session) throws HibernateException,
 					SQLException {
@@ -266,5 +269,37 @@ public class MemberInfDAO extends BaseDAO {
 				return queryObject.list();
 			}
 		});	
+	}
+
+	/**
+	 * @param id
+	 * @param driver
+	 * @param guide
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<MemberInf> getTeamMemberByType(Long teamId, MEMBER_TYPE driver,
+			MEMBER_TYPE guide) {
+		try{
+			return getHibernateTemplate().find("from MemberInf m where m.teamInfo.id = ? and (m.memberType = ? or m.memberType = ?)", teamId, driver.getValue(), guide.getValue());
+		} catch (RuntimeException re) {
+			log.error("getTeamMemberByType failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @param guide
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public MemberInf getMemberByType(Long teamId, MEMBER_TYPE memberType) {
+		List<MemberInf> list = getHibernateTemplate().find("from MemberInf m where m.teamInfo.id = ? and m.memberType = ?", teamId, memberType.getValue());
+		if(list != null && list.size() > 0){
+			return list.get(0);
+		} else {
+			return null;
+		}
 	}
 }

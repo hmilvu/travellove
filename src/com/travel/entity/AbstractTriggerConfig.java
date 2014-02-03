@@ -24,7 +24,7 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	private String endTime;
 	private Integer times;
 	private Integer triggerType;
-	private Double conditionValue;
+	private String conditionValue;
 	private String triggerCondition;
 	private Long travelId;
 	private Long sysTriggerConfigId;
@@ -116,12 +116,12 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 		this.triggerType = triggerType;
 	}
 
-	@Column(name = "condition_value", precision = 15, scale = 3)
-	public Double getConditionValue() {
+	@Column(name = "condition_value")
+	public String getConditionValue() {
 		return this.conditionValue;
 	}
 
-	public void setConditionValue(Double conditionValue) {
+	public void setConditionValue(String conditionValue) {
 		this.conditionValue = conditionValue;
 	}
 

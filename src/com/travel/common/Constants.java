@@ -88,6 +88,17 @@ public class Constants {
 		}
 	} 
 	
+	public enum MESSAGE_PRIORITY {
+		TOP(0), NORMAL(1);
+		private int value;
+		private MESSAGE_PRIORITY(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
+	
 	public enum MESSAGE_TYPE {
 		NOTIFICATION(0), NOTE(1);
 		private int value;
@@ -209,7 +220,7 @@ public class Constants {
 	} 
 	
 	public enum TRIGGER_TYPE {
-		VELOCITY(1), MEMBER_DISTANCE(2), LANGUAGE_WARNING(3), REMIND(4), WHEATHER(5);
+		MANUAL(0), VELOCITY(1), MEMBER_DISTANCE(2), VIEW_SPOT_WARNING(3), REMIND(4), WEATHER(5);
 		private int value;
 		private TRIGGER_TYPE(int value) {
 			this.value = value;

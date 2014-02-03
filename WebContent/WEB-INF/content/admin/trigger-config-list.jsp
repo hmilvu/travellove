@@ -27,10 +27,16 @@
 	</form>
 </div>
 <div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			<li><a class="icon" href="admin/trigger-config!changeStatus.action?uid={sid_user}" target="ajaxTodo"><span>打开/关闭</span></a></li>
+			<li class="line">line</li>
+		</ul>
+	</div>
 	<table class="table" width="1110" layoutH="110">
 		<thead>
 			<tr>
-				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
+				<th width="2"></th>
 				<th width="60">触发器名称</th>
 				<th width="40">开始时间</th>
 				<th width="40">触发类型</th>
@@ -43,7 +49,7 @@
 		<tbody>
 		    <s:iterator var="trigger" value="%{#request.triggerConfigList}" status="statu">	
 			<tr target="sid_user" rel="<s:property value="%{#trigger.id}"/>">
-				<td><input name="ids" value="<s:property value="%{#trigger.id}"/>" type="checkbox"></td>
+				<td></td>
 				<td><s:property value="%{#trigger.triggerName}"/></td>	
 				<td><s:property value="%{#trigger.startTime}"/></td>				
 				<td>
@@ -65,8 +71,8 @@
 					</s:else>	
 				</td>
 				<td>
-					<a class="btnEdit" href="admin/trigger-config!edit.action?uid=<s:property value="%{#trigger.id}"/>" target="navTab" title="修改">修改</a>
-					<a href="admin/trigger-config!changeStatus.action?uid=<s:property value="%{#trigger.id}"/>" target="ajaxTodo">打开/关闭</a>
+					<a class="btnEdit" href="admin/trigger-config!edit.action?uid=<s:property value="%{#trigger.id}"/>" target="navTab" title="修改触发器">修改触发器</a>
+					<a class="btnView" href="admin/trigger-config!messageList.action?triggerId=<s:property value="%{#trigger.id}"/>" target="navTab" title="查看消息">查看消息</a>
 				</td>
 			</tr>
 			</s:iterator>

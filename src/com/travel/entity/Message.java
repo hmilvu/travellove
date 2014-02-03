@@ -81,6 +81,7 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		msg.setCreateDate(getCreateDate());
 		msg.setUpdateDate(getUpdateDate());
 		msg.setPushStatus(getPushStatus());
+		msg.setTriggerId(getTriggerId());
 		return msg;
 		
 	}

@@ -7,20 +7,19 @@ package com.travel.action.mobile;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.MEMBER_TYPE;
+import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
-import com.travel.common.dto.MessageDTO;
-import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
-import com.travel.entity.Message;
+import com.travel.entity.TriggerConfig;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
 import com.travel.service.TriggerConfigService;
@@ -151,6 +150,9 @@ public class MemberAction extends BaseAction {
 		}
 		MemberInf member = memberService.getMemberById(idLong);
 		if (member != null && member.getId() > 0 && member.getTeamInfo() != null && member.getTeamInfo().getId() > 0) {
+			triggerVelocity(data, member);
+			triggerDistance(longitude, latitude, member);
+			triggerViewSpotWarning(longitude, latitude, member);			
 			memberService.updateMemberLocation(member, longitude, latitude);
 			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 			sendToMobile(result);
@@ -158,15 +160,49 @@ public class MemberAction extends BaseAction {
 			FailureResult result = new FailureResult("id不存在");
 			sendToMobile(result);
 		}
+	}
+
+	/**
+	 * @param member
+	 */
+	private void triggerViewSpotWarning(Double longitude, Double latitude, MemberInf member) {
+		try {
+			if(member.getMemberType().intValue() == MEMBER_TYPE.GUIDE.getValue()){
+				triggerService.triggerViewSpotWarning(member, latitude, longitude);
+			}	
+		} catch (Throwable e) {
+			log.error("更新会员地理位置时，触发景点消息异常", e);
+		}
+	}
+
+	/**
+	 * @param data
+	 * @param member
+	 */
+	private void triggerVelocity(String data, MemberInf member) {
 		Object vel = getMobileParameter(data, "velocity");
 		Double velocity = Double.valueOf(0);
 		try {
 			velocity = Double.valueOf(vel.toString());
+			if(velocity > 0){	
+				triggerService.triggerVelocity(member, velocity);
+			}
 		} catch (Throwable e) {
 			log.error("更新会员地理位置时，速度值格式错误velocity = ", vel);
 		}
-		if(velocity > 0){
-			triggerService.triggerVelocity(member, velocity);
+	}
+	
+	/**
+	 * @param data
+	 * @param member
+	 */
+	private void triggerDistance(Double longitude, Double latitude, MemberInf member) {
+		try {
+			if(member.getMemberType().intValue() == MEMBER_TYPE.TRAVELER.getValue()){
+				triggerService.triggerDistance(member, latitude, longitude);
+			}
+		} catch (Throwable e) {
+			log.error("更新会员地理位置时，触发距离消息异常", e);
 		}
 	}
 	

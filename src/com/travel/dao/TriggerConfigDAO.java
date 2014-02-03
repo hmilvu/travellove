@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.Constants.TRIGGER_STATUS;
+import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TriggerConfig;
@@ -186,7 +187,33 @@ public class TriggerConfigDAO extends BaseDAO {
 	/**
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<TriggerConfig> getValidTriggerConfigs() {
 		return  getHibernateTemplate().find("from TriggerConfig where triggerStatus = " + TRIGGER_STATUS.ACTIVE.getValue());
+	}
+
+	/**
+	 * @param triggerType
+	 * @return
+	 */
+	public TriggerConfig getByType(Long travelId, TRIGGER_TYPE triggerType) {
+		List<TriggerConfig> list = getViewSpotTriggerByType(travelId, triggerType);
+		if(list != null && list.size() > 0){
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @param viewSpotWarning
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<TriggerConfig> getViewSpotTriggerByType(Long travelId,
+			TRIGGER_TYPE triggerType) {
+		List<TriggerConfig> list = getHibernateTemplate().find("from TriggerConfig where travelId = ? and triggerStatus = " + TRIGGER_STATUS.ACTIVE.getValue() + " and typeValue = ? ", travelId, triggerType.getValue());
+		return list;
 	}
 }

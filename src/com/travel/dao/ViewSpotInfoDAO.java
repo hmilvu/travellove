@@ -93,6 +93,7 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	 * @param password2
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
 			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
@@ -195,6 +196,7 @@ public class ViewSpotInfoDAO extends BaseDAO {
 	public List<ViewSpotInfo> findTeamViewSpots(final List<Long> routeIdList,
 			final PageInfoDTO pageInfo) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<ViewSpotInfo>>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public List<ViewSpotInfo> doInHibernate(Session session) throws HibernateException,
 					SQLException {
@@ -204,6 +206,43 @@ public class ViewSpotInfoDAO extends BaseDAO {
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 				query.setMaxResults(maxResults);
 				query.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				return query.list();
+			}
+		});	
+	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public List<ViewSpotInfo> getTriggeredViewSpot(final Long triggerId, final List<Long> viewSpotIdList) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<ViewSpotInfo>>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public List<ViewSpotInfo> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String queryString = "select t.viewSpotInfo from TriggerViewSpot t where t.viewSpotInfo.id in (:ids) and t.triggerConfig.id = :triggerId";
+				Query query = session.createQuery(queryString);
+				query.setParameterList("ids", viewSpotIdList);
+				query.setParameter("triggerId", triggerId);
+				return query.list();
+			}
+		});	
+	}
+
+	/**
+	 * @param routeIdList
+	 * @return
+	 */
+	public List<Long> getViewSpotIdListByRouteIdList(final List<Long> routeIdList) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Long>>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public List<Long> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				String queryString = "select rv.viewSpotInfo.id from RouteViewSpot rv where rv.routeInf.id in (:ids)";
+				Query query = session.createQuery(queryString);
+				query.setParameterList("ids", routeIdList);
 				return query.list();
 			}
 		});	

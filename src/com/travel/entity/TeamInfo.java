@@ -54,4 +54,13 @@ public class TeamInfo extends AbstractTeamInfo implements java.io.Serializable {
 		return dto;		
 	}
 
+	@Override
+	public String toString() {
+		return "TeamInfo [getBeginDate()="
+				+ getBeginDate() + ", getCreateDate()=" + getCreateDate()
+				+ ", getDescription()=" + getDescription() + ", getEndDate()="
+				+ getEndDate() + ", getId()=" + getId()
+				+ ", getStatus()=" + getStatus() + "]";
+	}
+
 }

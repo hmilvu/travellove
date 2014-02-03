@@ -188,11 +188,18 @@ public class MessageService extends AbstractBaseService
 				newMsgList.add(messageList.get(i));
 			}
 		}
-		int result = sendMemberPushMsg(newMsgList, content, newMemberList);
-		if(result == newMemberList.size()){
-			log.info("全部推送成功");
+		if(newMemberList.size() == 0){
+			for(Message msg : messageList){
+				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
+				messageDAO.update(msg);
+			}
 		} else {
-			log.info("部分或全部推送失败");
+			int result = sendMemberPushMsg(newMsgList, content, newMemberList);
+			if(result == newMemberList.size()){
+				log.info("全部推送成功");
+			} else {
+				log.info("部分或全部推送失败");
+			}
 		}
 /*		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
@@ -256,54 +263,61 @@ public class MessageService extends AbstractBaseService
 		// 1. 设置developer平台的ApiKey/SecretKey
 		String apiKey = Config.getProperty("baidu.appkey");
 		String secretKey = Config.getProperty("baidu.secretkey");
-		for(int i = 0; i < memberList.size(); i++){
-			ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
-			
-			// 2. 创建BaiduChannelClient对象实例
-			BaiduChannelClient channelClient = new BaiduChannelClient(pair);
-			
-			// 3. 若要了解交互细节，请注册YunLogHandler类
-			channelClient.setChannelLogHandler(new YunLogHandler() {
-				@Override
-				public void onHandle(YunLogEvent event) {
-					log.info(event.getMessage());
-				}
-			});
-		
-			MemberInf member = memberList.get(i);
-			Message msg = messageList.get(i);
-			try {				
-				// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
-				PushUnicastMessageRequest request = new PushUnicastMessageRequest();
-				request.setDeviceType(3);	// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
-				request.setChannelId(member.getChannelId());	
-				request.setUserId(member.getBaiduUserId());	
-				request.setMessageType(1);	
-				request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
-				
-				// 5. 调用pushMessage接口
-				PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
-				// 6. 认证推送成功
-				log.info("单点推送成功 memberId = " + member.getId() +", channelId = " + member.getChannelId());
-				log.info("push amount : " + response.getSuccessAmount()); 	
+		if(memberList.size() == 0){
+			for(Message msg : messageList){
 				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
-				result++;
-			} catch (ChannelClientException e) {
-				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-			} catch (ChannelServerException e) {
-				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-				log.error(
-						String.format("request_id: %d, error_code: %d, error_message: %s" , 
-							e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
-							)
-						);
-				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-			} catch (Throwable e){
-				log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-			} finally{
 				messageDAO.update(msg);
+			}
+		} else {
+			for(int i = 0; i < memberList.size(); i++){
+				ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
+				
+				// 2. 创建BaiduChannelClient对象实例
+				BaiduChannelClient channelClient = new BaiduChannelClient(pair);
+				
+				// 3. 若要了解交互细节，请注册YunLogHandler类
+				channelClient.setChannelLogHandler(new YunLogHandler() {
+					@Override
+					public void onHandle(YunLogEvent event) {
+						log.info(event.getMessage());
+					}
+				});
+			
+				MemberInf member = memberList.get(i);
+				Message msg = messageList.get(i);
+				try {				
+					// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
+					PushUnicastMessageRequest request = new PushUnicastMessageRequest();
+					request.setDeviceType(3);	// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
+					request.setChannelId(member.getChannelId());	
+					request.setUserId(member.getBaiduUserId());	
+					request.setMessageType(1);	
+					request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
+					
+					// 5. 调用pushMessage接口
+					PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
+					// 6. 认证推送成功
+					log.info("单点推送成功 memberId = " + member.getId() +", channelId = " + member.getChannelId());
+					log.info("push amount : " + response.getSuccessAmount()); 	
+					msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
+					result++;
+				} catch (ChannelClientException e) {
+					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+				} catch (ChannelServerException e) {
+					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+					log.error(
+							String.format("request_id: %d, error_code: %d, error_message: %s" , 
+								e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
+								)
+							);
+					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+				} catch (Throwable e){
+					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+				} finally{
+					messageDAO.update(msg);
+				}
 			}
 		}
 		return result;
@@ -455,6 +469,36 @@ public class MessageService extends AbstractBaseService
 		Message msg = setupComment(member, itemIdLong, content);
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.ITEM.getValue());
 		messageDAO.save(msg);
+	}
+
+	/**
+	 * @param dto
+	 * @return
+	 */
+	public int getTotalTriggerMessageNum(SearchMessageDTO dto) {
+		return messageDAO.getTriggerTotalNum(dto);
+	}
+
+	/**
+	 * @param dto
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Message> findTriggerMessages(SearchMessageDTO dto,
+			PageInfoDTO pageInfo) {
+		List<Message> list = messageDAO.findTriggerMessages(dto, pageInfo);
+		List<Message> result = new ArrayList<Message>();
+		for(Message msg : list){
+			if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
+				String teamName = teamDAO.findById(msg.getReceiverId()).getName();
+				msg.setReceiverName(teamName);
+			} else {
+				String memberName = memberDAO.findById(msg.getReceiverId()).getMemberName();
+				msg.setReceiverName(memberName);
+			}
+			result.add(msg);
+		}
+		return result;
 	}
 	
 	

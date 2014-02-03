@@ -35,8 +35,8 @@ public class WeatherService {
 		log.info("获取天气数据");
 		String[] data = new String[50];
 		String apiKey = "SHUp4teTcYTAGKHZef97IbGP";//Config.getProperty("baidu.appkey");
-		Double lat = 37.942125;
-		Double lng = 105.961462;
+		Double lat = latitude;// 37.942125;
+		Double lng = longitude;//105.961462;
 		String url = "http://api.map.baidu.com/geocoder?location=" + lat + "," + lng + "&output=json&key=" + apiKey;
 		String response = HttpUtil.post(url, null);
 		ObjectMapper objectMapper = new ObjectMapper();

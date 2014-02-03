@@ -17,6 +17,7 @@ public class SearchMessageDTO extends BaseAdminDTO{
 	private Integer type;
 	private Integer priority;
 	private Integer status;
+	private Long triggerId;
 	public String getTopic() {
 		return topic;
 	}
@@ -46,6 +47,12 @@ public class SearchMessageDTO extends BaseAdminDTO{
 	}
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	public Long getTriggerId() {
+		return triggerId;
+	}
+	public void setTriggerId(Long triggerId) {
+		this.triggerId = triggerId;
 	}
 	
 

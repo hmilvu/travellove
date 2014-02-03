@@ -42,7 +42,7 @@ public abstract class AbstractMessage extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private Set<Reply> replies = new HashSet<Reply>(0);
-
+	private Long triggerId;
 	// Constructors
 
 	/** default constructor */
@@ -252,6 +252,14 @@ public abstract class AbstractMessage extends BaseEntity implements
 
 	public void setReplies(Set<Reply> replies) {
 		this.replies = replies;
+	}
+	@Column(name = "trigger_id")
+	public Long getTriggerId() {
+		return triggerId;
+	}
+
+	public void setTriggerId(Long triggerId) {
+		this.triggerId = triggerId;
 	}
 
 }

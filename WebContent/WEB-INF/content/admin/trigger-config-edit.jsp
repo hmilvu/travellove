@@ -53,11 +53,12 @@ function save(){
 			</dl>		
 			<dl>
 				<dt>触发类型：</dt>
-				<dd>
-					<select class="combox required" name="triggerType">
+				<dd><s:if test="%{#request.editTriggerConfig.triggerType == 0}">每小时</s:if>
+					<s:if test="%{#request.editTriggerConfig.triggerType == 1}">每天</s:if>
+					<!-- select class="combox required" name="triggerType">
 						<option <s:if test="%{#request.editTriggerConfig.triggerType == 0}">selected</s:if> value="0">每小时</option>
 						<option <s:if test="%{#request.editTriggerConfig.triggerType == 1}">selected</s:if> value="1">每天</option>
-					</select>
+					</select> -->
 				</dd>
 			</dl>
 			<dl>
@@ -73,7 +74,7 @@ function save(){
 			<dl>
 				<dt>触发阀值：</dt>
 				<dd>
-					<input type="text" name="conditionValue" maxlength="64" class="required number" size="30" value="<s:property value='%{#request.editTriggerConfig.conditionValue}'/>"/><s:property value='%{#request.editTriggerConfig.unitage}'/>
+					<input type="text" name="conditionValue" maxlength="64" class="required" size="30" value="<s:property value='%{#request.editTriggerConfig.conditionValue}'/>"/><s:property value='%{#request.editTriggerConfig.unitage}'/>
 				</dd>
 			</dl>
 			<dl>
@@ -87,7 +88,40 @@ function save(){
 				<dd>
 					<textarea name="content" cols="80" rows="2" maxlength="140" class="required"><s:property value='%{#request.editTriggerConfig.content}'/></textarea>		
 				</dd>
-			</dl>		
+			</dl>	
+			<s:if test="%{#request.editTriggerConfig.typeValue == 3}">
+				<div class="panel" defH="380">
+					<h1>触发景点列表</h1>
+					<div>
+						<table class="list nowrap itemDetail" addButton="添加触发景点" width="100%">
+							<thead>
+								<tr>
+									<th type="text" name="items[#index#].order" defaultVal="#index#" size="10" fieldClass="digits required">次序</th>
+									<th type="lookup" name="items[#index#].viewSpotForm.viewName" lookupGroup="items[#index#].viewSpotForm" lookupUrl="admin/view-spot!selectView.action" postField="keywords" size="60" fieldClass="required readonly">景点名称</th>
+									<th type="del" width="60">操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<s:iterator var="routeView" value="%{#request.triggerViewSpotList}" status="statu">
+								<tr class="unitBox">
+									<td>
+										<input class="digits required textInput" type="text" size="10" value="<s:property value='%{#statu.index+1}'/>" name="items[<s:property value='%{#statu.index}'/>].order">
+									</td>
+									<td>
+										<input type="hidden" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.id" value="<s:property value='%{#routeView.viewSpotInfo.id}'/>">
+										<input class="required readonly textInput" type="text" size="60" lookuppk="id" name="items[<s:property value='%{#statu.index}'/>].viewSpotForm.viewName" value="<s:property value='%{#routeView.viewSpotInfo.name}'/>">
+										<a class="btnLook" title="查找带回" lookuppk="id" lookupgroup="items[<s:property value='%{#statu.index}'/>].viewSpotForm" href="admin/view-spot!selectView.action">查找带回</a>
+									</td>
+									<td>
+										<a class="btnDel " href="javascript:void(0)">删除</a>
+									</td>
+								</tr>
+								</s:iterator>
+							</tbody>
+						</table>				
+					</div>
+				</div>
+			</s:if>				
 		</div>
 		<div class="formBar">
 			<ul>
