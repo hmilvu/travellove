@@ -1,5 +1,6 @@
 package com.travel.service;
 
+import java.awt.print.Printable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -161,12 +162,15 @@ public class TriggerConfigService extends AbstractBaseService
 		for(TeamInfo team : teamList){
 			List<Message> existingMessages = messageDao.findTriggerMessage(team.getId(), trigger.getId());
 			if(existingMessages != null && existingMessages.size() > 0){
+				log.info("消息大于设置次数 teamId="  + team.getId() + " teamName=" + team.getName());
 				continue;
 			}
 			boolean triggered = false;
 			List <TeamRoute> list = teamRouteDao.findByTeamId(team.getId(), pageInfo);	
+			log.info("线路总数 = " + list.size() + " teamId = " + team.getId());
 			for(TeamRoute teamRoute : list){			
 				List<Object[]> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
+				log.info("景点数量 = " + viewSpotList.size() + " routeId = " + teamRoute.getRouteInf().getId());
 				for(Object[] objArr : viewSpotList){
 					ViewSpotInfo view = (ViewSpotInfo)objArr[0];
 					Integer numberOfDay = (Integer)objArr[3] - 1;
@@ -177,9 +181,16 @@ public class TriggerConfigService extends AbstractBaseService
 					cal.setTime(teamRoute.getDate()); 
 					cal.add(Calendar.DAY_OF_YEAR, numberOfDay);
 					cal.add(Calendar.HOUR_OF_DAY, 8);
-					Long startDateLong = cal.getTime().getTime();
-					Long currentLong = System.currentTimeMillis();
-					if(startDateLong - currentLong > 0 && startDateLong - currentLong < 24 * 3600 * 1000 ){ // 提前一天								
+//					Long startDateLong = cal.getTime().getTime();
+//					Long currentLong = System.currentTimeMillis();
+					log.info("景点 viewId = " + view.getId() + " viewName = " + view.getName());
+//					if(startDateLong - currentLong > 0 && startDateLong - currentLong < 24 * 3600 * 1000 ){ // 提前一天	
+						try {
+							log.info("查询天气线程休眠10秒");
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							log.error("查询天气线程休眠10秒错误", e);
+						}
 						String []data = weahterService.getWheatherData(view.getLatitude(), view.getLongitude());
 						if(data != null && data.length > 14){
 							if(data[13] != null){
@@ -225,7 +236,9 @@ public class TriggerConfigService extends AbstractBaseService
 								}
 							}
 						}
-					}
+//					} else {
+//				
+//					}
 					if(triggered){
 						break;
 					}
@@ -241,7 +254,7 @@ public class TriggerConfigService extends AbstractBaseService
 		Long travelId = trigger.getTravelId();
 		List<TeamInfo> teamList =teamDao.getActiveTeamByTravelId(travelId);
 		for(TeamInfo team : teamList){
-			List<Message> existingMessages = messageDao.findTriggerMessage(team.getId(), trigger.getId());
+			List<Message> existingMessages = messageDao.findWaringTriggerMessage(team.getId(), trigger.getId());
 			if(existingMessages != null && existingMessages.size() > 0){
 				continue;
 			}
@@ -287,6 +300,20 @@ public class TriggerConfigService extends AbstractBaseService
 		msg.setTravelInf(travelInf);
 		msg.setTriggerId(triggerId);
 		return msg;
+	}
+	
+	public void triggerVelocity(MemberInf member, Double latitude, Double longitude) {
+		LocationLog lastLocation = locationDao.getLocationByMember(member.getTeamInfo().getId(), member.getId());
+		if(lastLocation != null){
+			long current = System.currentTimeMillis();
+			double distance = getDistance(latitude, longitude, lastLocation.getLatitude(), lastLocation.getLongitude());
+			long duration = current - lastLocation.getCreateDate().getTime();
+			Double velocity = Math.abs(distance*1.0 / (duration * 1.0 / 3600000));
+			log.info("计算出的平均速度为：velocity = " + velocity + ";" + latitude +";"+ longitude +";"+ lastLocation.getLatitude() +";"+ lastLocation.getLongitude());
+			log.info("当前时间（毫秒）：" + current);
+			log.info("上次地理位置记录时间（毫秒）: " + lastLocation.getCreateDate().getTime());
+			this.triggerVelocity(member, velocity);
+		}
 	}
 
 	/**
@@ -334,6 +361,12 @@ public class TriggerConfigService extends AbstractBaseService
 		}
 		
 	}
+	
+	public static void main(String[] args) {
+		TriggerConfigService s = new TriggerConfigService();
+		double a = s.getDistance(31.349134, 121.488716, 31.275961, 121.483952);
+		System.out.println("a = " + a);
+	}
 
 	/**
 	 * @param member
@@ -352,11 +385,15 @@ public class TriggerConfigService extends AbstractBaseService
 		MemberInf guider = memberDao.getMemberByType(member.getTeamInfo().getId(), MEMBER_TYPE.GUIDE);
 		if(guider != null && trigger != null){
 			LocationLog location = locationDao.getLocationByMember(member.getTeamInfo().getId(), guider.getId());
+			log.info("计算距离 memberId = " + member.getId() + " guiderId = " + guider.getId());
 			//导游的位置是最近一个小时的位置
-			boolean isNowLocation = (System.currentTimeMillis() - location.getLocateTime().getTime()) > 0 
-					&& (System.currentTimeMillis() - location.getLocateTime().getTime()) < 3600 * 1000;
-			if(location != null && isNowLocation){
+//			boolean isNowLocation = (System.currentTimeMillis() - location.getLocateTime().getTime()) > 0 
+//					&& (System.currentTimeMillis() - location.getLocateTime().getTime()) < 3600 * 1000;
+//			if(location != null && isNowLocation){
+			if(location != null){
 				double distance = getDistance(latitude, longitude, location.getLatitude(), location.getLongitude());
+				log.info("计算距离 memberId = " + member.getId() + " guiderId = " + guider.getId());
+				log.info("latitude1="+latitude+", longitude1="+longitude+", latitude2="+location.getLatitude()+", longitude2="+location.getLongitude() + ", distance="+distance);
 				Double triggerValue = null;
 				try{
 					triggerValue = Double.valueOf(trigger.getConditionValue());
@@ -381,6 +418,8 @@ public class TriggerConfigService extends AbstractBaseService
 						List<MemberInf> memberList = new ArrayList<MemberInf>();
 						memberList.add(member);
 						messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+					} else {
+						log.info("会员提醒超过提醒次数 memberId = " + member.getId());
 					}
 					triggeredMessages = messageDao.getLastHourMessage(MESSAGE_RECEIVER_TYPE.MEMBER, guider.getId(), trigger.getId());
 					if(triggeredMessages.size() < trigger.getTimes()){
@@ -399,6 +438,8 @@ public class TriggerConfigService extends AbstractBaseService
 						List<MemberInf> memberList = new ArrayList<MemberInf>();
 						memberList.add(guider);
 						messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+					} else {
+						log.info("导游提醒超过提醒次数 memberId = " + guider.getId());
 					}
 				}
 			} else{
@@ -408,6 +449,9 @@ public class TriggerConfigService extends AbstractBaseService
 	}
 	
 	private double getDistance(double lat1, double lon1, double lat2, double lon2) { 
+		if(lat1 < 1 || lon1 < 1 || lat2 < 1 || lon2 < 1){
+			return 0;
+		}
         double R = 6371; 
         double distance = 0.0; 
         double dLat = (lat2 - lat1) * Math.PI / 180; 

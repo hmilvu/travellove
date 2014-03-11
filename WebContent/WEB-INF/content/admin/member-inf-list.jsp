@@ -79,11 +79,12 @@ function printQrCode(){
 				<th width="80">旅行团名称</th>
 				<th width="60">姓名</th>
 				<th width="60">电话</th>
-				<th width="40">类型</th>
+				<th width="50">类型</th>
 				<th width="80">证件号码</th>
-				<th width="40">创建人</th>
+				<th width="60">创建人</th>
 				<th width="70">创建日期</th>
-				<!-- th width="70">操作</th> -->
+				<th width="30">百度UserId</th>
+				<th width="70">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -102,7 +103,10 @@ function printQrCode(){
 				<td><s:property value="%{#member.idNo}"/></td>
 				<td><s:property value="%{#member.sysUser.name}"/></td>
 				<td><s:date name="#member.createDate" format="yyyy-MM-dd" /></td>
-				<!-- td><a class="btnAttach" href="admin/member-inf!profile.action?memberId=<s:property value='%{#member.id}'/>" lookupGroup="attachment" width="560" height="300" title="上传头像">上传头像</a></td> -->
+				<td><s:property value="%{#member.baiduUserId}"/></td>
+				<td>
+					<a href="admin/member-inf!view.action?uid=<s:property value='%{#member.id}'/>" target="navTab" style='color:Peru' title="查看团员">查看</a>
+				</td>
 			</tr>
 			</s:iterator>
 			</tbody>

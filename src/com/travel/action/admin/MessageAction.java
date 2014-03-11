@@ -161,6 +161,7 @@ public class MessageAction extends AuthorityAction{
 			travelInf.setId(getCurrentUser().getTravelInf().getId());
 			msg.setTravelInf(travelInf);
 		}
+		msg.setTriggerId(0L);
 		return msg;
 	}
 	

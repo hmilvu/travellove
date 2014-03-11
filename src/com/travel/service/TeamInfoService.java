@@ -5,7 +5,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,10 +117,14 @@ public class TeamInfoService extends AbstractBaseService
 	public TeamLocationDTO getTeamMemeberLocation(Long teamId, Long memberId) {
 		List <LocationLog> list = locationDao.findByTeamId(teamId);
 		TeamLocationDTO dto = new TeamLocationDTO();
+		Set<Long> memberIdSet = new HashSet<Long>();
 		for(LocationLog location : list){
 			if(location.getMemberInf().getId().longValue() != memberId.longValue()){
-				dto.setTeamInfo(location.getTeamInfo().toDTO());
-				dto.addLocation(location.toDTO());
+				if(!memberIdSet.contains(location.getMemberInf().getId())){
+					dto.setTeamInfo(location.getTeamInfo().toDTO());
+					dto.addLocation(location.toDTO());
+					memberIdSet.add(location.getMemberInf().getId());
+				}
 			}
 		}
 		return dto;

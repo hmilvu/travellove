@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.TriggerConfig;
@@ -38,7 +39,9 @@ public class MessageServiceScheduler {
 		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
 		for(TriggerConfig trigger : list){
 			log.info("自动触发：" + trigger.toString());
-			triggerService.trigger(trigger);
+			if(trigger.getTriggerType().intValue() != TRIGGER_TYPE.WEATHER.getValue()){
+				triggerService.trigger(trigger);
+			}
 		}		
 		
 		log.info("检查预约消息，准备推送");

@@ -150,10 +150,11 @@ public class MemberAction extends BaseAction {
 		}
 		MemberInf member = memberService.getMemberById(idLong);
 		if (member != null && member.getId() > 0 && member.getTeamInfo() != null && member.getTeamInfo().getId() > 0) {
-			triggerVelocity(data, member);
+//			triggerVelocity(data, member);
+			triggerVelocity(longitude, latitude, member);
 			triggerDistance(longitude, latitude, member);
 			triggerViewSpotWarning(longitude, latitude, member);			
-			memberService.updateMemberLocation(member, longitude, latitude);
+			memberService.saveMemberLocation(member, longitude, latitude);
 			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 			sendToMobile(result);
 		} else {
@@ -167,11 +168,21 @@ public class MemberAction extends BaseAction {
 	 */
 	private void triggerViewSpotWarning(Double longitude, Double latitude, MemberInf member) {
 		try {
-			if(member.getMemberType().intValue() == MEMBER_TYPE.GUIDE.getValue()){
+			if(member.getMemberType().intValue() == MEMBER_TYPE.GUIDE.getValue() && longitude > 1 && latitude > 1){
 				triggerService.triggerViewSpotWarning(member, latitude, longitude);
 			}	
 		} catch (Throwable e) {
 			log.error("更新会员地理位置时，触发景点消息异常", e);
+		}
+	}
+	
+	private void triggerVelocity(Double longitude, Double latitude, MemberInf member) {
+		try {
+			if(longitude > 1 && latitude > 1){
+				triggerService.triggerVelocity(member, latitude, longitude);	
+			}
+		} catch (Throwable e) {
+			log.error("更新会员地理位置时", e);
 		}
 	}
 
@@ -179,6 +190,7 @@ public class MemberAction extends BaseAction {
 	 * @param data
 	 * @param member
 	 */
+	@Deprecated
 	private void triggerVelocity(String data, MemberInf member) {
 		Object vel = getMobileParameter(data, "velocity");
 		Double velocity = Double.valueOf(0);
@@ -188,7 +200,7 @@ public class MemberAction extends BaseAction {
 				triggerService.triggerVelocity(member, velocity);
 			}
 		} catch (Throwable e) {
-			log.error("更新会员地理位置时，速度值格式错误velocity = ", vel);
+			log.error("更新会员地理位置时，速度值格式错误velocity = " + vel, e);
 		}
 	}
 	
@@ -198,7 +210,7 @@ public class MemberAction extends BaseAction {
 	 */
 	private void triggerDistance(Double longitude, Double latitude, MemberInf member) {
 		try {
-			if(member.getMemberType().intValue() == MEMBER_TYPE.TRAVELER.getValue()){
+			if(member.getMemberType().intValue() == MEMBER_TYPE.TRAVELER.getValue() && longitude > 1 && latitude > 1){
 				triggerService.triggerDistance(member, latitude, longitude);
 			}
 		} catch (Throwable e) {

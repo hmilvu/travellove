@@ -1,16 +1,12 @@
 package com.travel.dao;
 
-import static org.hibernate.criterion.Example.create;
-
+import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.LockMode;
-import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import com.travel.common.Constants;
 import com.travel.entity.LocationLog;
 
 /**
@@ -82,9 +78,10 @@ public class LocationLogDAO extends BaseDAO {
 	 * @param id
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<LocationLog> findByTeamId(Long teamId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ?";
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? order by lo.createDate desc";
 			return getHibernateTemplate().find(queryString, teamId);			
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
@@ -97,9 +94,10 @@ public class LocationLogDAO extends BaseDAO {
 	 * @param id2
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public LocationLog getLocationByMember(Long teamId, Long memberId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ?";
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
 			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId);
 			if(list != null && list.size() > 0){
 				return list.get(0);

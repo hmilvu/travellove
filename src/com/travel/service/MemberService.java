@@ -57,29 +57,30 @@ public class MemberService extends AbstractBaseService
 	 * @param longitude
 	 * @param latitude
 	 */
-	public void updateMemberLocation(MemberInf member, Double longitude,
+	public void saveMemberLocation(MemberInf member, Double longitude,
 			Double latitude) {
-		LocationLog location = locationDao.getLocationByMember(member.getTeamInfo().getId(), member.getId());
-		if(location != null && location.getId() > 0){
-			location.setLatitude(latitude);
-			location.setLongitude(longitude);
-			location.setLocateTime(new Timestamp(System.currentTimeMillis()));
-			location.setUpdateDate(location.getLocateTime());
-			locationDao.update(location);
-		} else {
-			location = new LocationLog();
-			location.setMemberInf(member);
-			TeamInfo teamInfo = new TeamInfo();
-			teamInfo.setId(member.getTeamInfo().getId());
-			location.setTeamInfo(teamInfo);
-			location.setCreateDate(new Timestamp(System.currentTimeMillis()));
-			location.setUpdateDate(location.getCreateDate());
-			location.setLocateTime(location.getCreateDate());
-			location.setLongitude(longitude);
-			location.setLatitude(latitude);
-			locationDao.save(location);
+		if(longitude > 1 && latitude > 1){
+			LocationLog location = locationDao.getLocationByMember(member.getTeamInfo().getId(), member.getId());
+	//		if(location != null && location.getId() > 0){
+	//			location.setLatitude(latitude);
+	//			location.setLongitude(longitude);
+	//			location.setLocateTime(new Timestamp(System.currentTimeMillis()));
+	//			location.setUpdateDate(location.getLocateTime());
+	//			locationDao.update(location);
+	//		} else {
+				location = new LocationLog();
+				location.setMemberInf(member);
+				TeamInfo teamInfo = new TeamInfo();
+				teamInfo.setId(member.getTeamInfo().getId());
+				location.setTeamInfo(teamInfo);
+				location.setCreateDate(new Timestamp(System.currentTimeMillis()));
+				location.setUpdateDate(location.getCreateDate());
+				location.setLocateTime(location.getCreateDate());
+				location.setLongitude(longitude);
+				location.setLatitude(latitude);
+				locationDao.save(location);
+	//		}	
 		}
-		
 	}
 
 

@@ -52,6 +52,7 @@
 			<li class="line">line</li>
 			<!-- li><a class="add" href="admin/member-inf!assign.action?teamId={sid_user}" target="navTab" title="分配团员"><span>分配团员</span></a></li> -->
 			<li><a class="icon" href="downloadMemberTemplate.action" target="dwzExport" targetType="navTab"><span>下载会员模板</span></a></li>
+			<li><a class="add" href="admin/member-inf!add.action" target="navTab" title="添加团员"><span>添加团员</span></a></li>
 			<li><a class="edit" href="admin/team-inf!upload.action?uid={sid_user}" target="dialog" mask="true"  title="导入团员" warn="请选择一个旅行团"><span>导入团员</span></a></li>
 		</ul>
 	</div>
@@ -96,6 +97,8 @@
 				</td>
 				<td>
 					<a class="btnAssign" href="admin/member-inf!list.action?teamId=<s:property value='%{#team.id}'/>&fromTeam=1" target="navTab" title="查看会员">查看会员</a>
+					&nbsp;&nbsp;
+					<a href="admin/team-inf!view.action?uid=<s:property value='%{#team.id}'/>" target="navTab" style='color:Peru' title="查看旅行团">查看</a>
 				</td>
 			</tr>
 		</s:iterator>

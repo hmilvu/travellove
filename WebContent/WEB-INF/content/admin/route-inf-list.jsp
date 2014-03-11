@@ -42,7 +42,7 @@
 				<th width="180">线路名称</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
-				<!-- th width="70">操作</th> -->
+				<th width="70">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -52,7 +52,9 @@
 				<td><s:property value="%{#route.routeName}"/></td>				
 				<td><s:property value="%{#route.sysUser.name}"/></td>
 				<td><s:date name="#route.createDate" format="yyyy-MM-dd" /></td>
-				<!-- td><a class="btnAttach" href="admin/member-inf!profile.action?memberId=<s:property value='%{#member.id}'/>" lookupGroup="attachment" width="560" height="300" title="上传头像">上传头像</a></td> -->
+				<td>					
+					<a href="admin/route-inf!view.action?uid=<s:property value='%{#route.id}'/>" target="navTab" style='color:Peru' title="查看线路">查看</a>
+				</td>
 			</tr>
 			</s:iterator>
 			</tbody>

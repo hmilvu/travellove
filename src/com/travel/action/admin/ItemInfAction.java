@@ -195,6 +195,11 @@ public class ItemInfAction extends AuthorityAction{
 		return "edit";
 	}
 	
+	public String view(){
+		edit();
+		return "view";
+	}
+	
 	@SuppressWarnings("static-access")
 	public void update(){
 		String id = request.getParameter("itemInfId");		

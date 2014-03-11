@@ -365,6 +365,17 @@ public class MessageDAO extends BaseDAO {
 		 + " and receiverId = ? and triggerId = ? and remindTime > ? and remindTime < ?";
 		return getHibernateTemplate().find(hql, teamId, triggerId, startTimestamp, endTimestamp);
 	}
+	
+	/**
+	 * @param id
+	 * @param weather
+	 * @return
+	 */
+	public List<Message> findWaringTriggerMessage(Long teamId, Long triggerId) {
+		String hql = "from Message where receiverType = " + MESSAGE_RECEIVER_TYPE.TEAM.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
+		 + " and receiverId = ? and triggerId = ?";
+		return getHibernateTemplate().find(hql, teamId, triggerId);
+	}
 
 	/**
 	 * @param dto

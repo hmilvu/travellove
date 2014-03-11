@@ -73,6 +73,7 @@
 				<td>
 					<a class="btnAttach" href="admin/item-inf!upload.action?uid=<s:property value="%{#itemInf.id}"/>" target="navTab" title="上传图片">上传图片</a>
 					<a class="btnAssign" href="admin/item-inf!message.action?uid=<s:property value="%{#itemInf.id}"/>" target="navTab" title="查看评论">查看评论</a>
+				&nbsp;&nbsp;<a href="admin/item-inf!view.action?uid=<s:property value='%{#itemInf.id}'/>" target="navTab" style='color:Peru' title="查看销售品">查看</a>
 				</td>
 			</tr>
 			</s:iterator>

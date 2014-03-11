@@ -60,12 +60,12 @@
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="400">景点名称</th>
+				<th width="300">景点名称</th>
 				<th width="100">省\市</th>
 				<th width="60">类型</th>
 				<th width="40">创建人</th>
 				<th width="70">创建日期</th>
-				<th width="60">操作</th>
+				<th width="80">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -87,6 +87,7 @@
 				<td>
 					<a class="btnAttach" href="admin/view-spot!upload.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" title="上传图片">上传图片</a>
 					<a class="btnAssign" href="admin/view-spot!message.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" title="查看评论">查看评论</a>
+					&nbsp;&nbsp;<a href="admin/view-spot!view.action?uid=<s:property value="%{#viewSpot.id}"/>" target="navTab" style='color:Peru' title="查看景点">查看</a>
 				</td>
 			</tr>
 			</s:iterator>
