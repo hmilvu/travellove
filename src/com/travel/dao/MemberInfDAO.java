@@ -8,6 +8,7 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -21,6 +22,7 @@ import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.ItemInf;
 import com.travel.entity.MemberInf;
 
 /**
@@ -301,5 +303,15 @@ public class MemberInfDAO extends BaseDAO {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * @param memberId
+	 * @param type
+	 * @return
+	 */
+	public List<Long> getVisibilityByType(Long memberId, int type) {
+		List<Long> list = getHibernateTemplate().find("select m.memberInfByVisibleMemberId.id from MemberPrivate m where m.memberInfByMemberId.id = ? and m.type = ?", memberId, type);
+		return list;
 	}
 }

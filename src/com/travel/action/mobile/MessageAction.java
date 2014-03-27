@@ -153,6 +153,7 @@ public class MessageAction extends BaseAction {
 		reply.setMessage(msg);
 		reply.setContent(content);
 		if(messageService.saveReply(reply) == 0){
+			messageService.deleteVisible(memberIdLong, msgIdLong);
 			SuccessResult<String> result = new SuccessResult<String>("success");
 			sendToMobile(result);		
 		} else {
@@ -251,6 +252,31 @@ public class MessageAction extends BaseAction {
 			FailureResult result = new FailureResult("此回复不存在，不能删除");
 			sendToMobile(result);
 		}
+	}
+	
+	public void addVisibility(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Object messageId = getMobileParameter(data, "messageId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Long messageIdLong = Long.valueOf(0);
+		try {
+			messageIdLong = Long.valueOf(messageId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("messageId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		messageService.addVisibility(memberIdLong, messageIdLong);
+		SuccessResult<String> result = new SuccessResult<String>("success");
+		sendToMobile(result);
 	}
 	
 }

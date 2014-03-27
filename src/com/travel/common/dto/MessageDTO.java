@@ -25,6 +25,8 @@ public class MessageDTO {
 	private String creatorName;
 	private Integer createType;
 	private Long createId;
+	private Integer read;
+	private Integer score;
 	
 	public Integer getCreateType() {
 		return createType;
@@ -86,7 +88,18 @@ public class MessageDTO {
 	public void setCreatorName(String creatorName) {
 		this.creatorName = creatorName;
 	}
-	
+	public Integer getRead() {
+		return read;
+	}
+	public void setRead(Integer read) {
+		this.read = read;
+	}
+	public Integer getScore() {
+		return score;
+	}
+	public void setScore(Integer score) {
+		this.score = score;
+	}
 	
 	
 }

@@ -20,12 +20,17 @@ import org.springframework.stereotype.Service;
 
 import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
+import com.travel.common.Constants.VISIBLITY;
 import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.MemberDTO;
+import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberInfDAO;
+import com.travel.dao.MemberPrivateDAO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.MemberInf;
+import com.travel.entity.MemberPrivate;
 import com.travel.entity.SysUser;
 import com.travel.entity.TeamInfo;
 
@@ -36,6 +41,8 @@ public class MemberService extends AbstractBaseService
 	private MemberInfDAO memberInfDao;	
 	@Autowired
 	private LocationLogDAO locationDao;	
+	@Autowired
+	private MemberPrivateDAO memberPrivateDao;
 	
 	public MemberInf getMemberById(Long id){
 		return memberInfDao.findById(id);
@@ -266,5 +273,52 @@ public class MemberService extends AbstractBaseService
 			idList.add(Long.valueOf(id));
 		}
 		return memberInfDao.findByIds(idList);
+	}
+
+
+	/**
+	 * @param memberIdLong
+	 * @param teamIdLong
+	 * @param type
+	 * @return
+	 */
+	public MemberPrivateDTO getVisiableMember(Long memberId, Long teamId, int type) {
+		List<Long> idList = new ArrayList<Long>();
+		idList.add(Long.valueOf(teamId));
+		List<MemberInf> memberList = memberInfDao.findByTeamIds(idList);
+		List<Long> visibiltyList = memberInfDao.getVisibilityByType(memberId, type);
+		List<MemberDTO> list = new ArrayList<MemberDTO>();
+		for(MemberInf m : memberList){
+			list.add(m.toDTO());
+		}
+		MemberPrivateDTO dto = new MemberPrivateDTO();
+		dto.setMemberList(list);
+		dto.setVisibleMemberIdList(visibiltyList);
+		return dto;
+	}
+
+
+	/**
+	 * @param memberId
+	 * @param string
+	 */
+	public void addMemberVisibility(Long memberId, String visibleMemberIds, int type) {
+		String []visibleMemberArr = StringUtils.split(visibleMemberIds, ",");
+		memberPrivateDao.deleteByMemberId(memberId, type);
+		for(String visibleMemberId : visibleMemberArr){
+			MemberInf m = new MemberInf();
+			m.setId(memberId);
+			
+			MemberInf vm = new MemberInf();
+			vm.setId(Long.valueOf(visibleMemberId.trim()));
+			
+			MemberPrivate p = new MemberPrivate();
+			p.setMemberInfByMemberId(m);
+			p.setMemberInfByVisibleMemberId(vm);
+			p.setType(type);
+			p.setVisibility(VISIBLITY.VISIBLE.getValue());
+			memberPrivateDao.save(p);
+		}
+		
 	}
 }

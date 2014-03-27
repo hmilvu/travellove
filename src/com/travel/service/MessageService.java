@@ -14,8 +14,6 @@ import com.baidu.yun.channel.auth.ChannelKeyPair;
 import com.baidu.yun.channel.client.BaiduChannelClient;
 import com.baidu.yun.channel.exception.ChannelClientException;
 import com.baidu.yun.channel.exception.ChannelServerException;
-import com.baidu.yun.channel.model.PushTagMessageRequest;
-import com.baidu.yun.channel.model.PushTagMessageResponse;
 import com.baidu.yun.channel.model.PushUnicastMessageRequest;
 import com.baidu.yun.channel.model.PushUnicastMessageResponse;
 import com.baidu.yun.core.log.YunLogEvent;
@@ -31,10 +29,12 @@ import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.ReplyDTO;
 import com.travel.dao.MemberInfDAO;
+import com.travel.dao.MemberMessageVisibilityDAO;
 import com.travel.dao.MessageDAO;
 import com.travel.dao.ReplyDAO;
 import com.travel.dao.TeamInfoDAO;
 import com.travel.entity.MemberInf;
+import com.travel.entity.MemberMessageVisibility;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
 import com.travel.entity.TravelInf;
@@ -53,6 +53,8 @@ public class MessageService extends AbstractBaseService
 	private TeamInfoDAO teamDAO;
 	@Autowired
 	private MemberInfDAO memberDAO;
+	@Autowired
+	private MemberMessageVisibilityDAO mvDao;
 	public Message getMessageById(Long id){
 		return messageDAO.findById(id);
 	}
@@ -63,6 +65,7 @@ public class MessageService extends AbstractBaseService
 	 */
 	public List<MessageDTO> getMessageByMemberId(Long memberId, Long teamId, PageInfoDTO pageInfo) {
 		List <Message>list = messageDAO.findByReceiverId(memberId, teamId, pageInfo);
+		List <Long>visibleIdList = mvDao.getVisibleIdList(memberId);		
 		List <MessageDTO> result = new ArrayList<MessageDTO>();
 		for(Message msg : list){
 			MessageDTO dto = msg.toDTO();
@@ -75,6 +78,11 @@ public class MessageService extends AbstractBaseService
 				} else {
 					dto.setCreatorName(member.getMemberName());
 				}
+			}
+			if(visibleIdList.contains(msg.getId())){
+				dto.setRead(1);
+			} else {
+				dto.setRead(0);
 			}
 			result.add(dto);
 		}
@@ -400,8 +408,8 @@ public class MessageService extends AbstractBaseService
 	 * @param content
 	 */
 	public void saveViewspotMessage(MemberInf member, Long viewSpotId,
-			String content) {
-		Message msg = setupComment(member, viewSpotId, content);
+			String content, Integer scoreInt) {
+		Message msg = setupComment(member, viewSpotId, content, scoreInt);
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue());
 		messageDAO.save(msg);
 	}
@@ -413,7 +421,7 @@ public class MessageService extends AbstractBaseService
 	 * @return
 	 */
 	private Message setupComment(MemberInf member, Long viewSpotId,
-			String content) {
+			String content, Integer score) {
 		Message msg = new Message();
 		msg.setRemindTime(new Timestamp(new Date().getTime()));
 		msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
@@ -432,6 +440,7 @@ public class MessageService extends AbstractBaseService
 		travelInf.setId(member.getTeamInfo().getTravelInf().getId());
 		msg.setReceiverId(viewSpotId);
 		msg.setTravelInf(travelInf);
+		msg.setScore(score);
 		return msg;
 	}
 
@@ -470,7 +479,11 @@ public class MessageService extends AbstractBaseService
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.ITEM.getValue());
 		messageDAO.save(msg);
 	}
-
+	
+	private Message setupComment(MemberInf member, Long viewSpotId,
+			String content) { 
+		return setupComment(member, viewSpotId, content, 0);
+	}	
 	/**
 	 * @param dto
 	 * @return
@@ -499,6 +512,34 @@ public class MessageService extends AbstractBaseService
 			result.add(msg);
 		}
 		return result;
+	}
+
+	/**
+	 * @param memberIdLong
+	 * @param messageIdLong
+	 */
+	public void addVisibility(Long memberId, Long messageId) {
+		MemberMessageVisibility v = new MemberMessageVisibility();
+		MemberInf m = new MemberInf();
+		m.setId(memberId);
+		
+		Message msg = new Message();
+		msg.setId(messageId);
+		
+		v.setMemberInf(m);
+		v.setMessage(msg);
+		
+		mvDao.save(v);
+		
+	}
+
+	/**
+	 * @param memberIdLong
+	 * @param msgIdLong
+	 */
+	public void deleteVisible(Long memberId, Long msgId) {
+		mvDao.deleteVisible(memberId, msgId);
+		
 	}
 	
 	

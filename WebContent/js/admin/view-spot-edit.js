@@ -11,13 +11,13 @@ function save(){
 			success: function(data){				
 				switch(data.result){
 						case "success":	
-							navTabAjaxDone({"statusCode":"200", "message":"修改成功", "navTabId":"景点管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
+							navTabAjaxDone({"statusCode":"200", "message":"修改成功", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
 							break;
 						case "input":	
-							navTabAjaxDone({"statusCode":"300", "message":"经纬度格式不正确，保存失败", "navTabId":"景点管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
+							navTabAjaxDone({"statusCode":"300", "message":"经纬度格式不正确，保存失败", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
 							break;
 						default:
-							navTabAjaxDone({"statusCode":"300", "message":"修改失败，请重试", "navTabId":"景点管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
+							navTabAjaxDone({"statusCode":"300", "message":"修改失败，请重试", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
 							break;	
 					}
 			}

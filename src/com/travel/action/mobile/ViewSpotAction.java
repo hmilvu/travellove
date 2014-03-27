@@ -187,6 +187,17 @@ public class ViewSpotAction extends BaseAction{
 			sendToMobile(result);
 			return;
 		}
+		Object score = getMobileParameter(data, "score");
+		Integer scoreInt = Integer.valueOf(0);
+		try {
+			scoreInt = Double.valueOf(score.toString()).intValue();
+			if(scoreInt < 0){
+				scoreInt = 0;
+			} else if(scoreInt > 5){
+				scoreInt = 5;
+			}
+		} catch (Exception ignore) {			
+		}
 		MemberInf member = memberService.getMemberById(memberIdLong);
 		if (member == null) {
 			FailureResult result = new FailureResult("该用户不存在memberId = " + memberId);
@@ -200,7 +211,7 @@ public class ViewSpotAction extends BaseAction{
 			return;
 		}
 		
-		messageService.saveViewspotMessage(member, idLong, content.toString());
+		messageService.saveViewspotMessage(member, idLong, content.toString(), scoreInt);
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);
 		return;		

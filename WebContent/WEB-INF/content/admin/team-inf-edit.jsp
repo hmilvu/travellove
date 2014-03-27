@@ -15,10 +15,10 @@ function save(){
 			success: function(data){				
 				switch(data.result){
 						case "success":	
-							navTabAjaxDone({"statusCode":"200", "message":"保存成功", "navTabId":"旅行团管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
+							navTabAjaxDone({"statusCode":"200", "message":"保存成功", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
 							break;
 						default:
-							navTabAjaxDone({"statusCode":"300", "message":"保存失败，请重试", "navTabId":"旅行团管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
+							navTabAjaxDone({"statusCode":"300", "message":"保存失败，请重试", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
 							break;	
 					}
 			}

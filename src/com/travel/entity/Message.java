@@ -59,6 +59,7 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		dto.setContent(getContent());
 		dto.setCreateId(getCreateId());
 		dto.setCreateType(getCreateType());
+		dto.setScore(getScore());
 		return dto;
 	}
 	

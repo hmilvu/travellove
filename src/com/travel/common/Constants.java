@@ -229,4 +229,26 @@ public class Constants {
 			return this.value;
 		}
 	} 
+	
+	public enum VISIBLITY{
+		INVISIBLE(0), VISIBLE(1);
+		private int value;
+		private VISIBLITY(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
+	
+	public enum VISIBLE_TYPE{
+		GEO(0), PHONE(1);
+		private int value;
+		private VISIBLE_TYPE(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
 }

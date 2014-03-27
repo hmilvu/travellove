@@ -16,10 +16,10 @@ function save(){
 			success: function(data){				
 				switch(data.result){
 						case "success":	
-							navTabAjaxDone({"statusCode":"200", "message":"更新成功", "navTabId":"团员管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
+							navTabAjaxDone({"statusCode":"200", "message":"更新成功", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});	
 							break;
 						default:
-							navTabAjaxDone({"statusCode":"300", "message":"更新失败，请重试", "navTabId":"团员管理", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
+							navTabAjaxDone({"statusCode":"300", "message":"更新失败，请重试", "navTabId":"", "forwardUrl":"", "callbackType":"closeCurrent", "rel":""});							
 							break;	
 					}
 			}

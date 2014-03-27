@@ -14,12 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.Constants.MEMBER_TYPE;
-import com.travel.common.Constants.TRIGGER_TYPE;
+import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
+import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.SuccessResult;
 import com.travel.entity.MemberInf;
-import com.travel.entity.TriggerConfig;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
 import com.travel.service.TriggerConfigService;
@@ -320,5 +320,93 @@ public class MemberAction extends BaseAction {
 			sendToMobile(result);
 			return null;
 		}
+	}
+	
+	public String getVisibility(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object type = getMobileParameter(data, "type");
+		int typeInteger = VISIBLE_TYPE.GEO.getValue();
+		try {
+			typeInteger = Integer.valueOf(type.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("type类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		if(typeInteger != VISIBLE_TYPE.GEO.getValue() && typeInteger != VISIBLE_TYPE.PHONE.getValue()){
+			FailureResult result = new FailureResult("type取值错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object teamId = getMobileParameter(data, "teamId");
+		Long teamIdLong = Long.valueOf(0);
+		try {
+			teamIdLong = Long.valueOf(teamId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("teamId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		MemberInf member = memberService.getMemberById(memberIdLong);
+		if(member == null || member.getId().intValue() <= 0){
+			FailureResult result = new FailureResult("此会员"+memberId+"不存在");
+			sendToMobile(result);
+			return null;
+		}
+		if(member.getTeamInfo().getId().longValue() != teamIdLong.longValue()){
+			FailureResult result = new FailureResult("此会员"+memberId+"不在此团"+teamIdLong+"中存在");
+			sendToMobile(result);
+			return null;
+		}
+		MemberPrivateDTO dto = memberService.getVisiableMember(memberIdLong, teamIdLong, typeInteger);		
+		SuccessResult<MemberPrivateDTO> result = new SuccessResult<MemberPrivateDTO>(dto);
+		sendToMobile(result);
+		return null;
+	}
+	
+	public String addVisibility(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object type = getMobileParameter(data, "type");
+		int typeInteger = VISIBLE_TYPE.GEO.getValue();
+		try {
+			typeInteger = Integer.valueOf(type.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("type类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		if(typeInteger != VISIBLE_TYPE.GEO.getValue() && typeInteger != VISIBLE_TYPE.PHONE.getValue()){
+			FailureResult result = new FailureResult("type取值错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object visibleIdList = getMobileParameter(data, "visibleIdList");
+		if(visibleIdList == null || StringUtils.isBlank(visibleIdList.toString())){
+			FailureResult result = new FailureResult("visibleIdList不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		memberService.addMemberVisibility(memberIdLong, visibleIdList.toString(), typeInteger);
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);
+		return null;
 	}
 }
