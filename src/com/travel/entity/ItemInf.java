@@ -50,7 +50,16 @@ public class ItemInf extends AbstractItemInf implements java.io.Serializable {
 	public void setUrls(List<String> urls) {
 		this.urls = urls;
 	}
-
+	@Transient
+	private int commentCount;
+	@Transient
+	public int getCommentCount() {
+		return commentCount;
+	}
+	@Transient
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
 	/**
 	 * @return
 	 */
@@ -64,6 +73,7 @@ public class ItemInf extends AbstractItemInf implements java.io.Serializable {
 		dto.setDescription(getDescription());
 		dto.setBrands(getBrands());
 		dto.setSpecification(getSpecification());
+		dto.setCommentCount(commentCount);
 		return dto;
 	}
 

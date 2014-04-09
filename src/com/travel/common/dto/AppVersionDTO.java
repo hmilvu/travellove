@@ -14,6 +14,8 @@ public class AppVersionDTO {
 	private String url;
 	private Integer size;
 	private String coverImgUrl;
+	private String currentVersionNo;
+	private String lastVersionNo;
 	public Integer getMust() {
 		return must;
 	}
@@ -37,6 +39,18 @@ public class AppVersionDTO {
 	}
 	public void setCoverImgUrl(String coverImgUrl) {
 		this.coverImgUrl = coverImgUrl;
+	}
+	public String getCurrentVersionNo() {
+		return currentVersionNo;
+	}
+	public void setCurrentVersionNo(String currentVersionNo) {
+		this.currentVersionNo = currentVersionNo;
+	}
+	public String getLastVersionNo() {
+		return lastVersionNo;
+	}
+	public void setLastVersionNo(String lastVersionNo) {
+		this.lastVersionNo = lastVersionNo;
 	}
 	
 }

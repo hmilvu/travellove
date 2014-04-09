@@ -20,15 +20,18 @@ import org.springframework.stereotype.Service;
 
 import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
+import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.Constants.VISIBLITY;
 import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.LocationLogDAO;
+import com.travel.dao.MemberAdviceDAO;
 import com.travel.dao.MemberInfDAO;
 import com.travel.dao.MemberPrivateDAO;
 import com.travel.entity.LocationLog;
+import com.travel.entity.MemberAdvice;
 import com.travel.entity.MemberInf;
 import com.travel.entity.MemberPrivate;
 import com.travel.entity.SysUser;
@@ -43,7 +46,8 @@ public class MemberService extends AbstractBaseService
 	private LocationLogDAO locationDao;	
 	@Autowired
 	private MemberPrivateDAO memberPrivateDao;
-	
+	@Autowired
+	private MemberAdviceDAO adviceDao;
 	public MemberInf getMemberById(Long id){
 		return memberInfDao.findById(id);
 	}
@@ -282,18 +286,20 @@ public class MemberService extends AbstractBaseService
 	 * @param type
 	 * @return
 	 */
-	public MemberPrivateDTO getVisiableMember(Long memberId, Long teamId, int type) {
+	public MemberPrivateDTO getVisiableMember(Long memberId, Long teamId) {
 		List<Long> idList = new ArrayList<Long>();
 		idList.add(Long.valueOf(teamId));
 		List<MemberInf> memberList = memberInfDao.findByTeamIds(idList);
-		List<Long> visibiltyList = memberInfDao.getVisibilityByType(memberId, type);
+		List<Long> geoVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
+		List<Long> phoneVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
 		List<MemberDTO> list = new ArrayList<MemberDTO>();
 		for(MemberInf m : memberList){
 			list.add(m.toDTO());
 		}
 		MemberPrivateDTO dto = new MemberPrivateDTO();
 		dto.setMemberList(list);
-		dto.setVisibleMemberIdList(visibiltyList);
+		dto.setGeoVisibleMemberIdList(geoVisibleMemberIdList);
+		dto.setPhoneVisibleMemberIdList(phoneVisibleMemberIdList);
 		return dto;
 	}
 
@@ -320,5 +326,22 @@ public class MemberService extends AbstractBaseService
 			memberPrivateDao.save(p);
 		}
 		
+	}
+
+
+	/**
+	 * @param memberIdLong
+	 * @param topic
+	 * @param string
+	 */
+	public void addAdvice(Long memberIdLong, String topic, String content) {
+		MemberAdvice ad = new MemberAdvice();
+		MemberInf memberInf = new MemberInf();
+		memberInf.setId(memberIdLong);
+		ad.setMemberInf(memberInf);
+		ad.setTopic(topic);
+		ad.setContent(content);
+		ad.setCreateTime(new Timestamp(new Date().getTime()));
+		adviceDao.save(ad);
 	}
 }

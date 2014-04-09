@@ -474,16 +474,12 @@ public class MessageService extends AbstractBaseService
 	 * @param itemIdLong
 	 * @param string
 	 */
-	public void savItemMessage(MemberInf member, Long itemIdLong, String content) {
-		Message msg = setupComment(member, itemIdLong, content);
+	public void savItemMessage(MemberInf member, Long itemIdLong, String content, int scoreInt) {
+		Message msg = setupComment(member, itemIdLong, content, scoreInt);
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.ITEM.getValue());
 		messageDAO.save(msg);
 	}
 	
-	private Message setupComment(MemberInf member, Long viewSpotId,
-			String content) { 
-		return setupComment(member, viewSpotId, content, 0);
-	}	
 	/**
 	 * @param dto
 	 * @return

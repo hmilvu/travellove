@@ -16,6 +16,8 @@ import java.util.List;
 public class TeamLocationDTO {
 	private TeamInfoDTO teamInfo;
 	private List<LocationLogDTO> locationList = new ArrayList<LocationLogDTO>();
+	private List<Long>geoVisibleMemberIdList;
+	private List<Long>phoneVisibleMemberIdList;
 	public TeamInfoDTO getTeamInfo() {
 		return teamInfo;
 	}
@@ -27,6 +29,18 @@ public class TeamLocationDTO {
 	}
 	public void addLocation(LocationLogDTO locationLogDTO) {
 		this.locationList.add(locationLogDTO);
+	}
+	public List<Long> getGeoVisibleMemberIdList() {
+		return geoVisibleMemberIdList;
+	}
+	public void setGeoVisibleMemberIdList(List<Long> geoVisibleMemberIdList) {
+		this.geoVisibleMemberIdList = geoVisibleMemberIdList;
+	}
+	public List<Long> getPhoneVisibleMemberIdList() {
+		return phoneVisibleMemberIdList;
+	}
+	public void setPhoneVisibleMemberIdList(List<Long> phoneVisibleMemberIdList) {
+		this.phoneVisibleMemberIdList = phoneVisibleMemberIdList;
 	}	
 
 }

@@ -11,6 +11,7 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -443,5 +444,28 @@ public class MessageDAO extends BaseDAO {
 			log.error("getLastHourMessage failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param viewSpot
+	 * @param id
+	 * @return
+	 */
+	public Double caculateScore(final MESSAGE_RECEIVER_TYPE type, final Long receiverId) {
+		return getHibernateTemplate().execute(new HibernateCallback<Double>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public Double doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				SQLQuery query = session.createSQLQuery("select if(isnull(score),0,score) as score from message where receiver_type = "+type.getValue()+" and receiver_id = ? and status <> " + MESSAGE_STATUS.DELETED.getValue());
+				query.setLong(0, receiverId);
+				List list = query.list();
+				if(list.size() > 0){
+					return Double.valueOf(list.get(0).toString());
+				} else {
+					return 0D;
+				}
+			}
+		});	
 	}
 }

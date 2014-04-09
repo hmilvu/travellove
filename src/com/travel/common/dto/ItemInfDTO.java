@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Transient;
+
 /**
  * @author Lenovo
  *
@@ -22,8 +24,15 @@ public class ItemInfDTO {
 	private String description;
 	private String brands;
 	private String specification;
+	private Double score;
 	private List<String> imageUrls = new ArrayList<String>();	
-	
+	private int commentCount;
+	public int getCommentCount() {
+		return commentCount;
+	}
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
 	public List<String> getImageUrls() {
 		return Collections.unmodifiableList(imageUrls);
 	}
@@ -72,6 +81,12 @@ public class ItemInfDTO {
 	}
 	public void setSpecification(String specification) {
 		this.specification = specification;
+	}
+	public Double getScore() {
+		return score;
+	}
+	public void setScore(Double score) {
+		this.score = score;
 	}
 	
 }

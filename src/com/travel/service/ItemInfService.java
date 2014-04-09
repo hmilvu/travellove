@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
 import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.common.dto.ViewSpotDTO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.ItemInfDAO;
+import com.travel.dao.MessageDAO;
 import com.travel.entity.ItemInf;
 
 @Service
@@ -23,7 +26,8 @@ public class ItemInfService extends AbstractBaseService
 	private ItemInfDAO itemDao;
 	@Autowired
 	private ImgInfDAO imgDao;
-	
+	@Autowired
+	private MessageDAO messageDAO;
 	public ItemInf getItemById(Long id){
 		return itemDao.findById(id);
 	}
@@ -85,9 +89,14 @@ public class ItemInfService extends AbstractBaseService
 		List<ItemInf> list = itemDao.findItemList(dto, pageInfo);
 		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
 		for(ItemInf item : list){
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			item.setCommentCount(commentCount);
 			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
 			item.setUrls(imageUrls);
-			result.add(item.toDTO());
+			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			ItemInfDTO itemDto = item.toDTO();
+			itemDto.setScore(score);
+			result.add(itemDto);
 		}
 		return result;
 	}
@@ -101,9 +110,14 @@ public class ItemInfService extends AbstractBaseService
 		List<ItemInf> list = itemDao.findByViewSpotId(travelId, viewSpotId);
 		List<ItemInfDTO> result = new ArrayList<ItemInfDTO>();
 		for(ItemInf item : list){
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			item.setCommentCount(commentCount);
 			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
 			item.setUrls(imageUrls);
-			result.add(item.toDTO());
+			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			ItemInfDTO itemDto = item.toDTO();
+			itemDto.setScore(score);
+			result.add(itemDto);
 		}
 		return result;
 	}

@@ -65,6 +65,8 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	@Transient
 	private String cityName;	
 	@Transient
+	private int commentCount;
+	@Transient
 	public String getProvinceName() {
 		return provinceName;
 	}
@@ -79,6 +81,14 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	@Transient
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
+	}
+	@Transient
+	public int getCommentCount() {
+		return commentCount;
+	}
+	@Transient
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
 	}
 
 	/**
@@ -100,6 +110,7 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		dto.setItemList(itemList);
 		dto.setProvince(getProvinceName());
 		dto.setCity(getCityName());
+		dto.setCommentCount(commentCount);
 		return dto;
 	}
 

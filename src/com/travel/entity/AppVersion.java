@@ -38,6 +38,8 @@ public class AppVersion extends AbstractAppVersion implements
 		dto.setMust(this.getMust());
 		dto.setSize(this.getSize());
 		dto.setUrl(this.getUrl());
+		dto.setCurrentVersionNo(getCurrentVersionNo());
+		dto.setLastVersionNo(getLastVersionNo());
 		return dto;
 	}
 

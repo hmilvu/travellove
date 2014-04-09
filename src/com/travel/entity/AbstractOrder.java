@@ -106,7 +106,7 @@ public abstract class AbstractOrder extends BaseEntity implements
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "create_user_id", nullable = false)
+	@JoinColumn(name = "create_user_id")
 	public SysUser getSysUser() {
 		return this.sysUser;
 	}

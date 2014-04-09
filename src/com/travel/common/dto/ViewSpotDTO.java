@@ -26,6 +26,8 @@ public class ViewSpotDTO {
 	private List<String> imageUrls = new ArrayList<String>();	
 	private String province;
 	private String city;
+	private int commentCount;
+	private double score;
 	private List<ItemInfDTO> itemList = new ArrayList<ItemInfDTO>();
 	
 
@@ -45,6 +47,14 @@ public class ViewSpotDTO {
 	}
 	
 	
+	public int getCommentCount() {
+		return commentCount;
+	}
+
+	public void setCommentCount(int commentCount) {
+		this.commentCount = commentCount;
+	}
+
 	public Long getViewId() {
 		return viewId;
 	}
@@ -122,6 +132,14 @@ public class ViewSpotDTO {
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 	
 }

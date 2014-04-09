@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.travel.action.admin.form.RouteItemForm;
 import com.travel.common.Constants.IMAGE_TYPE;
 import com.travel.common.Constants.ROUTE_STATUS;
+import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.RouteInfDTO;
@@ -25,6 +26,7 @@ import com.travel.common.dto.ViewSpotDTO;
 import com.travel.dao.AttachmentInfDAO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.LocationLogDAO;
+import com.travel.dao.MemberInfDAO;
 import com.travel.dao.RouteViewSpotDAO;
 import com.travel.dao.TeamInfoDAO;
 import com.travel.dao.TeamRouteDAO;
@@ -51,7 +53,8 @@ public class TeamInfoService extends AbstractBaseService
 	private ImgInfDAO imageDao;
 	@Autowired
 	private AttachmentInfDAO attachmentDAO;
-	
+	@Autowired
+	private MemberInfDAO memberInfDao;
 	public TeamRouteDTO getRouteInfByTeamId(Long id, PageInfoDTO pageInfo){
 		TeamRouteDTO dto = new TeamRouteDTO();
 		 List <TeamRoute> list = teamRouteDao.findByTeamId(id, pageInfo);
@@ -127,6 +130,10 @@ public class TeamInfoService extends AbstractBaseService
 				}
 			}
 		}
+		List<Long> geoVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
+		List<Long> phoneVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
+		dto.setGeoVisibleMemberIdList(geoVisibleMemberIdList);
+		dto.setPhoneVisibleMemberIdList(phoneVisibleMemberIdList);
 		return dto;
 	}
 

@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.travel.action.admin.form.ItemInfForm;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.ViewSpotDTO;
 import com.travel.dao.AreaDAO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.ItemInfDAO;
+import com.travel.dao.MessageDAO;
 import com.travel.dao.RouteInfDAO;
 import com.travel.dao.ViewSpotInfoDAO;
 import com.travel.dao.ViewSpotItemDAO;
@@ -40,6 +42,8 @@ public class ViewSpotService extends AbstractBaseService
 	@Autowired
 	private ItemInfDAO itemDao;
 	@Autowired
+	private MessageDAO messageDAO;
+	@Autowired
 	private ViewSpotItemDAO viewItemDao;
 	public ViewSpotInfo getViewSpotById(Long id){
 		ViewSpotInfo viewSpot = viewSpotDao.findById(id);
@@ -47,6 +51,8 @@ public class ViewSpotService extends AbstractBaseService
 		if(urls != null && urls.size() > 0){
 			viewSpot.setUrls(urls);
 		}
+		int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, id);
+		viewSpot.setCommentCount(commentCount);
 		return viewSpot;
 	}
 
@@ -144,7 +150,10 @@ public class ViewSpotService extends AbstractBaseService
 				AreaInf city = areaDao.getByCode(view.getProvince());
 				view.setProvinceName(city.getCityName());
 			}
-			resultList.add(view.toDTO());
+			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, view.getId());
+			ViewSpotDTO viewSpotDto = view.toDTO();
+			viewSpotDto.setScore(score);
+			resultList.add(viewSpotDto);
 		}
 		return resultList;
 	}

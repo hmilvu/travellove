@@ -12,13 +12,22 @@ import java.util.List;
  *
  */
 public class MemberPrivateDTO {
-	private List<Long>visibleMemberIdList;
-	private List<MemberDTO>memberList;
-	public List<Long> getVisibleMemberIdList() {
-		return visibleMemberIdList;
+	private List<Long>geoVisibleMemberIdList;
+	private List<Long>phoneVisibleMemberIdList;
+	private List<MemberDTO>memberList;	
+
+	
+	public List<Long> getGeoVisibleMemberIdList() {
+		return geoVisibleMemberIdList;
 	}
-	public void setVisibleMemberIdList(List<Long> visibleMemberIdList) {
-		this.visibleMemberIdList = visibleMemberIdList;
+	public void setGeoVisibleMemberIdList(List<Long> geoVisibleMemberIdList) {
+		this.geoVisibleMemberIdList = geoVisibleMemberIdList;
+	}
+	public List<Long> getPhoneVisibleMemberIdList() {
+		return phoneVisibleMemberIdList;
+	}
+	public void setPhoneVisibleMemberIdList(List<Long> phoneVisibleMemberIdList) {
+		this.phoneVisibleMemberIdList = phoneVisibleMemberIdList;
 	}
 	public List<MemberDTO> getMemberList() {
 		return memberList;

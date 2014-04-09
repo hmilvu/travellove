@@ -19,7 +19,9 @@ import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.SuccessResult;
+import com.travel.entity.ItemInf;
 import com.travel.entity.MemberInf;
+import com.travel.service.ItemInfService;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
 import com.travel.service.TriggerConfigService;
@@ -39,6 +41,8 @@ public class MemberAction extends BaseAction {
 	private MessageService messageService;
 	@Autowired
 	private TriggerConfigService triggerService;
+	@Autowired
+	private ItemInfService itemService;
 	public void search() {
 		String data = getMobileData();
 		Object id = getMobileParameter(data, "id");
@@ -333,20 +337,6 @@ public class MemberAction extends BaseAction {
 			sendToMobile(result);
 			return null;
 		}
-		Object type = getMobileParameter(data, "type");
-		int typeInteger = VISIBLE_TYPE.GEO.getValue();
-		try {
-			typeInteger = Integer.valueOf(type.toString());
-		} catch (Exception e) {
-			FailureResult result = new FailureResult("type类型错误");
-			sendToMobile(result);
-			return null;
-		}
-		if(typeInteger != VISIBLE_TYPE.GEO.getValue() && typeInteger != VISIBLE_TYPE.PHONE.getValue()){
-			FailureResult result = new FailureResult("type取值错误");
-			sendToMobile(result);
-			return null;
-		}
 		Object teamId = getMobileParameter(data, "teamId");
 		Long teamIdLong = Long.valueOf(0);
 		try {
@@ -367,7 +357,7 @@ public class MemberAction extends BaseAction {
 			sendToMobile(result);
 			return null;
 		}
-		MemberPrivateDTO dto = memberService.getVisiableMember(memberIdLong, teamIdLong, typeInteger);		
+		MemberPrivateDTO dto = memberService.getVisiableMember(memberIdLong, teamIdLong);	
 		SuccessResult<MemberPrivateDTO> result = new SuccessResult<MemberPrivateDTO>(dto);
 		sendToMobile(result);
 		return null;
@@ -409,4 +399,82 @@ public class MemberAction extends BaseAction {
 		sendToMobile(result);
 		return null;
 	}
+	
+	public String addAdvice(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		Object contentObj = getMobileParameter(data, "content");
+		if(contentObj == null || StringUtils.isBlank(contentObj.toString())){
+			FailureResult result = new FailureResult("content不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object topicObj = getMobileParameter(data, "topic");
+		String topic = topicObj == null ? "" : topicObj.toString();
+		memberService.addAdvice(memberIdLong, topic, contentObj.toString());
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);
+		return null;
+	}
+	
+//	public String buy(){
+//		String data = getMobileData();
+//		Object number = getMobileParameter(data, "number");
+//		Integer numberInt = null;
+//		try{
+//			numberInt = Double.valueOf(number.toString()).intValue();
+//		} catch(Throwable e){
+//			FailureResult result = new FailureResult("number格式错误");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		if(numberInt <= 0){
+//			FailureResult result = new FailureResult("number必须大于0");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		Object memberId = getMobileParameter(data, "memberId");
+//		Long memberIdLong = Long.valueOf(0);
+//		try {
+//			memberIdLong = Long.valueOf(memberId.toString());
+//		} catch (Exception e) {
+//			FailureResult result = new FailureResult("memberId类型错误");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		
+//		Object itemId = getMobileParameter(data, "itemId");
+//		Long itemIdLong = Long.valueOf(0);
+//		try {
+//			itemIdLong = Long.valueOf(itemId.toString());
+//		} catch (Exception e) {
+//			FailureResult result = new FailureResult("itemId类型错误");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		MemberInf member = memberService.getMemberById(memberIdLong);
+//		if(member == null || member.getId().intValue() <= 0){
+//			FailureResult result = new FailureResult("此会员"+memberId+"不存在");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		ItemInf item = itemService.getItemById(itemIdLong);
+//		if(item == null || item.getId().intValue() <= 0){
+//			FailureResult result = new FailureResult("此销售品"+itemId+"不存在");
+//			sendToMobile(result);
+//			return null;
+//		}
+//		memberService.buyItems(member, item, numberInt);
+//		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+//		sendToMobile(result);
+//		return null;
+//	}
 }
