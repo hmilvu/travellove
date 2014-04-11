@@ -48,6 +48,8 @@ public class MemberService extends AbstractBaseService
 	private MemberPrivateDAO memberPrivateDao;
 	@Autowired
 	private MemberAdviceDAO adviceDao;
+	@Autowired
+	private MemberPrivateDAO privateDao;
 	public MemberInf getMemberById(Long id){
 		return memberInfDao.findById(id);
 	}
@@ -290,8 +292,8 @@ public class MemberService extends AbstractBaseService
 		List<Long> idList = new ArrayList<Long>();
 		idList.add(Long.valueOf(teamId));
 		List<MemberInf> memberList = memberInfDao.findByTeamIds(idList);
-		List<Long> geoVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
-		List<Long> phoneVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
+		List<Long> geoVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
+		List<Long> phoneVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
 		List<MemberDTO> list = new ArrayList<MemberDTO>();
 		for(MemberInf m : memberList){
 			list.add(m.toDTO());
@@ -308,9 +310,9 @@ public class MemberService extends AbstractBaseService
 	 * @param memberId
 	 * @param string
 	 */
-	public void addMemberVisibility(Long memberId, String visibleMemberIds, int type) {
+	public void addMemberVisibility(Long memberId, String visibleMemberIds, VISIBLE_TYPE type) {
 		String []visibleMemberArr = StringUtils.split(visibleMemberIds, ",");
-		memberPrivateDao.deleteByMemberId(memberId, type);
+		memberPrivateDao.deleteByMemberId(memberId, type.getValue());
 		for(String visibleMemberId : visibleMemberArr){
 			MemberInf m = new MemberInf();
 			m.setId(memberId);
@@ -321,8 +323,8 @@ public class MemberService extends AbstractBaseService
 			MemberPrivate p = new MemberPrivate();
 			p.setMemberInfByMemberId(m);
 			p.setMemberInfByVisibleMemberId(vm);
-			p.setType(type);
-			p.setVisibility(VISIBLITY.VISIBLE.getValue());
+			p.setType(type.getValue());
+			p.setVisibility(VISIBLITY.INVISIBLE.getValue());
 			memberPrivateDao.save(p);
 		}
 		

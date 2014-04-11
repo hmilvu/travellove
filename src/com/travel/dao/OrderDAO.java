@@ -187,11 +187,12 @@ public class OrderDAO extends BaseDAO {
 	 */
 	public List<Order> getOrdersByMemberId(final Long memberId, final PageInfoDTO pageInfo) {
 		return getHibernateTemplate().execute(new HibernateCallback<List<Order>>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public List<Order> doInHibernate(Session session) throws HibernateException,
 					SQLException {
 				Criteria cr = session.createCriteria(Order.class);
-				cr.add(Restrictions.le("memberInf.id", memberId));
+				cr.add(Restrictions.eq("memberInf.id", memberId));
 				cr.add(Restrictions.ne("status", ORDER_STATUS.DELETED.getValue()));
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
 				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
@@ -200,5 +201,20 @@ public class OrderDAO extends BaseDAO {
 				return cr.list();
 			}
 		});
+	}
+
+	/**
+	 * @param order
+	 */
+	public void update(Order order) {
+		try {
+			getHibernateTemplate().update(order);
+			getHibernateTemplate().flush();
+			log.debug("update successful");
+		} catch (RuntimeException re) {
+			log.error("update failed", re);
+			throw re;
+		}
+		
 	}
 }

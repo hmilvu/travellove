@@ -31,7 +31,8 @@ public abstract class AbstractOrder extends BaseEntity implements
 	private Timestamp createDate;
 	private Timestamp updateDate;
 	private MemberInf createMemberInf;
-
+	private String remark;
+	private String contactTel;
 	// Constructors
 
 	/** default constructor */
@@ -158,6 +159,22 @@ public abstract class AbstractOrder extends BaseEntity implements
 
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
+	}
+	@Column(name = "remark")
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	@Column(name = "contactTel", nullable = false, length = 20)
+	public String getContactTel() {
+		return contactTel;
+	}
+
+	public void setContactTel(String contactTel) {
+		this.contactTel = contactTel;
 	}
 
 }

@@ -7,9 +7,11 @@ package com.travel.action.mobile;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.ORDER_STATUS;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.OrderDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -118,6 +120,14 @@ public class OrderInfAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
+		Object contactTel = getMobileParameter(data, "contactTel");
+		if(contactTel == null || StringUtils.isBlank(contactTel.toString())){
+			FailureResult result = new FailureResult("contactTel不能为空");
+			sendToMobile(result);
+			return;
+		}
+		Object remarkObj = getMobileParameter(data, "remark");
+		String remark = remarkObj == null ? "" : remarkObj.toString();
 		MemberInf member = memberService.getMemberById(memberIdLong);
 		ItemInf item = itemService.getItemById(itemIdLong);
 		if(member == null){
@@ -130,9 +140,102 @@ public class OrderInfAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
-		orderService.addOrder(member, item, itemCountI);
+		orderService.addOrder(member, item, itemCountI, contactTel.toString(), remark);
 		SuccessResult<String> result = new SuccessResult<String>("Success");
 		sendToMobile(result);
 	}
+	
+	public void update(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Object orderId = getMobileParameter(data, "orderId");
+		Long orderIdLong = Long.valueOf(0);
+		try {
+			orderIdLong = Long.valueOf(orderId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("orderId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		
+		Object itemCount = getMobileParameter(data, "itemCount");
+		Integer itemCountI = Integer.valueOf(0);
+		try {
+			itemCountI = Integer.valueOf(itemCount.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("itemCount类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Object contactTel = getMobileParameter(data, "contactTel");
+		if(contactTel == null || StringUtils.isBlank(contactTel.toString())){
+			FailureResult result = new FailureResult("contactTel不能为空");
+			sendToMobile(result);
+			return;
+		}
+		Object remarkObj = getMobileParameter(data, "remark");
+		String remark = remarkObj == null ? "" : remarkObj.toString();
+		Order o = orderService.getOrderById(orderIdLong);
+		if(o == null){			
+			FailureResult result = new FailureResult("订单不存在orderId=" + orderId);
+			sendToMobile(result);
+			return;
+		}
+		if(memberIdLong.longValue() != o.getMemberInf().getId()){
+			FailureResult result = new FailureResult("此订单不是由该会员订购，不能修改");
+			sendToMobile(result);
+			return;
+		}
+		orderService.updateOrder(o, itemCountI, contactTel.toString(), remark);
+		SuccessResult<String> result = new SuccessResult<String>("Success");
+		sendToMobile(result);
+		return;
+	} 
+	
+	public void delete(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Object orderId = getMobileParameter(data, "orderId");
+		Long orderIdLong = Long.valueOf(0);
+		try {
+			orderIdLong = Long.valueOf(orderId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("orderId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		
+		Order o = orderService.getOrderById(orderIdLong);
+		if(o == null){			
+			FailureResult result = new FailureResult("订单不存在orderId=" + orderId);
+			sendToMobile(result);
+			return;
+		}
+		if(memberIdLong.longValue() != o.getMemberInf().getId()){
+			FailureResult result = new FailureResult("此订单不是由该会员订购，不能删除");
+			sendToMobile(result);
+			return;
+		}
+		orderService.deleteOrderByIds(o.getId()+"");
+		SuccessResult<String> result = new SuccessResult<String>("Success");
+		sendToMobile(result);
+		return;
+	} 
 	
 }

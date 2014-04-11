@@ -153,6 +153,8 @@ public class ViewSpotService extends AbstractBaseService
 			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, view.getId());
 			ViewSpotDTO viewSpotDto = view.toDTO();
 			viewSpotDto.setScore(score);
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, view.getId());
+			viewSpotDto.setCommentCount(commentCount);
 			resultList.add(viewSpotDto);
 		}
 		return resultList;

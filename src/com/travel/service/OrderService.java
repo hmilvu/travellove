@@ -102,7 +102,7 @@ public class OrderService extends AbstractBaseService
 	 * @param item
 	 * @param itemCount
 	 */
-	public void addOrder(MemberInf member, ItemInf item, Integer itemCount) {
+	public void addOrder(MemberInf member, ItemInf item, Integer itemCount, String tel, String remark) {
 		Order o = new Order();
 		o.setCreateDate(new Timestamp(new Date().getTime()));
 		o.setUpdateDate(o.getCreateDate());
@@ -115,6 +115,8 @@ public class OrderService extends AbstractBaseService
 		team.setId(member.getTeamInfo().getId());
 		o.setTeamInfo(team);
 		o.setTotalPrice(item.getPrice() * itemCount);
+		o.setRemark(remark);
+		o.setContactTel(tel);
 		orderDao.save(o);
 	}
 
@@ -125,7 +127,19 @@ public class OrderService extends AbstractBaseService
 	public Order getOrderById(Long orderIdLong) {
 		Order o = orderDao.findById(orderIdLong);
 		return o;
-	}	
-	
+	}
+
+	/**
+	 * @param itemCountI
+	 * @param string
+	 * @param remark
+	 */
+	public void updateOrder(Order order, Integer itemCountI, String contactTel, String remark) {
+		order.setContactTel(contactTel);
+		order.setRemark(remark);
+		order.setItemCount(itemCountI);
+		order.setUpdateDate(new Timestamp(new Date().getTime()));
+		orderDao.update(order);
+	}
 	
 }

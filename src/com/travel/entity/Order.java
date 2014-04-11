@@ -52,6 +52,7 @@ public class Order extends AbstractOrder implements java.io.Serializable {
 		dto.setItemCount(getItemCount());
 		dto.setOrderId(getId());
 		dto.setTotalPrice(getTotalPrice());
+		dto.setContactTel(getContactTel());
 		return dto;
 	}
 	

@@ -27,6 +27,7 @@ import com.travel.dao.AttachmentInfDAO;
 import com.travel.dao.ImgInfDAO;
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberInfDAO;
+import com.travel.dao.MemberPrivateDAO;
 import com.travel.dao.RouteViewSpotDAO;
 import com.travel.dao.TeamInfoDAO;
 import com.travel.dao.TeamRouteDAO;
@@ -55,6 +56,8 @@ public class TeamInfoService extends AbstractBaseService
 	private AttachmentInfDAO attachmentDAO;
 	@Autowired
 	private MemberInfDAO memberInfDao;
+	@Autowired
+	private MemberPrivateDAO privateDao;
 	public TeamRouteDTO getRouteInfByTeamId(Long id, PageInfoDTO pageInfo){
 		TeamRouteDTO dto = new TeamRouteDTO();
 		 List <TeamRoute> list = teamRouteDao.findByTeamId(id, pageInfo);
@@ -130,8 +133,8 @@ public class TeamInfoService extends AbstractBaseService
 				}
 			}
 		}
-		List<Long> geoVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
-		List<Long> phoneVisibleMemberIdList = memberInfDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
+		List<Long> geoVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
+		List<Long> phoneVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
 		dto.setGeoVisibleMemberIdList(geoVisibleMemberIdList);
 		dto.setPhoneVisibleMemberIdList(phoneVisibleMemberIdList);
 		return dto;

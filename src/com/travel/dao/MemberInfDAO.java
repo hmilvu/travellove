@@ -304,14 +304,4 @@ public class MemberInfDAO extends BaseDAO {
 			return null;
 		}
 	}
-
-	/**
-	 * @param memberId
-	 * @param type
-	 * @return
-	 */
-	public List<Long> getVisibilityByType(Long memberId, int type) {
-		List<Long> list = getHibernateTemplate().find("select m.memberInfByVisibleMemberId.id from MemberPrivate m where m.memberInfByMemberId.id = ? and m.type = ?", memberId, type);
-		return list;
-	}
 }

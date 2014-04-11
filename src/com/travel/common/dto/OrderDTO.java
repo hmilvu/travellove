@@ -16,6 +16,7 @@ public class OrderDTO {
 	private Double totalPrice;
 	private String createTime;
 	private ItemInfDTO item;
+	private String contactTel;
 	public Long getOrderId() {
 		return orderId;
 	}
@@ -45,6 +46,12 @@ public class OrderDTO {
 	}
 	public void setItem(ItemInfDTO item) {
 		this.item = item;
+	}
+	public String getContactTel() {
+		return contactTel;
+	}
+	public void setContactTel(String contactTel) {
+		this.contactTel = contactTel;
 	}
 	
 }

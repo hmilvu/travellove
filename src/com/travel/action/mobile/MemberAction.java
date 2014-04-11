@@ -374,27 +374,22 @@ public class MemberAction extends BaseAction {
 			sendToMobile(result);
 			return null;
 		}
-		Object type = getMobileParameter(data, "type");
-		int typeInteger = VISIBLE_TYPE.GEO.getValue();
-		try {
-			typeInteger = Integer.valueOf(type.toString());
-		} catch (Exception e) {
-			FailureResult result = new FailureResult("type类型错误");
+		
+		Object geoVisibleIdList = getMobileParameter(data, "geoVisibleIdList");
+		if(geoVisibleIdList == null || StringUtils.isBlank(geoVisibleIdList.toString())){
+			FailureResult result = new FailureResult("geoVisibleIdList不能为空");
 			sendToMobile(result);
 			return null;
 		}
-		if(typeInteger != VISIBLE_TYPE.GEO.getValue() && typeInteger != VISIBLE_TYPE.PHONE.getValue()){
-			FailureResult result = new FailureResult("type取值错误");
+		Object phoneVisibleIdList = getMobileParameter(data, "phoneVisibleIdList");
+		if(phoneVisibleIdList == null || StringUtils.isBlank(phoneVisibleIdList.toString())){
+			FailureResult result = new FailureResult("phoneVisibleIdList不能为空");
 			sendToMobile(result);
 			return null;
 		}
-		Object visibleIdList = getMobileParameter(data, "visibleIdList");
-		if(visibleIdList == null || StringUtils.isBlank(visibleIdList.toString())){
-			FailureResult result = new FailureResult("visibleIdList不能为空");
-			sendToMobile(result);
-			return null;
-		}
-		memberService.addMemberVisibility(memberIdLong, visibleIdList.toString(), typeInteger);
+		
+		memberService.addMemberVisibility(memberIdLong, geoVisibleIdList.toString(), VISIBLE_TYPE.GEO);
+		memberService.addMemberVisibility(memberIdLong, phoneVisibleIdList.toString(), VISIBLE_TYPE.PHONE);
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);
 		return null;
