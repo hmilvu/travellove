@@ -10,12 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.ORDER_STATUS;
 import com.travel.common.admin.dto.SearchOrderDTO;
+import com.travel.common.dto.ItemInfDTO;
 import com.travel.common.dto.OrderDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.ImgInfDAO;
+import com.travel.dao.ItemInfDAO;
 import com.travel.dao.MemberInfDAO;
+import com.travel.dao.MessageDAO;
 import com.travel.dao.OrderDAO;
 import com.travel.dao.SysUserDAO;
 import com.travel.entity.ItemInf;
@@ -35,6 +39,10 @@ public class OrderService extends AbstractBaseService
 	private SysUserDAO sysDao;
 	@Autowired
 	private ImgInfDAO imgDao;
+	@Autowired
+	private ItemInfDAO itemDao;
+	@Autowired
+	private MessageDAO messageDAO;
 	/**
 	 * @param ids
 	 * @return
@@ -93,7 +101,18 @@ public class OrderService extends AbstractBaseService
 		List<Order> list = orderDao.getOrdersByMemberId(memberId, pageInfo);
 		List<OrderDTO> result = new ArrayList<OrderDTO>();
 		for(Order o : list){
-			result.add(o.toDTO());
+			ItemInf item = o.getItemInf();
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			item.setCommentCount(commentCount);
+			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
+			item.setUrls(imageUrls);
+			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			ItemInfDTO itemDto = item.toDTO();
+			itemDto.setScore(score);
+			
+			OrderDTO orderDto = o.toDTO();
+			orderDto.setItem(itemDto);
+			result.add(orderDto);
 		}
 		return result;
 	}
@@ -102,7 +121,7 @@ public class OrderService extends AbstractBaseService
 	 * @param item
 	 * @param itemCount
 	 */
-	public void addOrder(MemberInf member, ItemInf item, Integer itemCount, String tel, String remark) {
+	public void addOrder(MemberInf member, ItemInf item, Integer itemCount, String tel, String remark, String contactName) {
 		Order o = new Order();
 		o.setCreateDate(new Timestamp(new Date().getTime()));
 		o.setUpdateDate(o.getCreateDate());
@@ -117,6 +136,7 @@ public class OrderService extends AbstractBaseService
 		o.setTotalPrice(item.getPrice() * itemCount);
 		o.setRemark(remark);
 		o.setContactTel(tel);
+		o.setContactName(contactName);
 		orderDao.save(o);
 	}
 
@@ -134,10 +154,11 @@ public class OrderService extends AbstractBaseService
 	 * @param string
 	 * @param remark
 	 */
-	public void updateOrder(Order order, Integer itemCountI, String contactTel, String remark) {
+	public void updateOrder(Order order, Integer itemCountI, String contactTel, String remark, String contactName) {
 		order.setContactTel(contactTel);
 		order.setRemark(remark);
 		order.setItemCount(itemCountI);
+		order.setContactName(contactName);
 		order.setUpdateDate(new Timestamp(new Date().getTime()));
 		orderDao.update(order);
 	}

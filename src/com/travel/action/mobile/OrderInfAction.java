@@ -128,6 +128,8 @@ public class OrderInfAction extends BaseAction {
 		}
 		Object remarkObj = getMobileParameter(data, "remark");
 		String remark = remarkObj == null ? "" : remarkObj.toString();
+		Object contactNameObj = getMobileParameter(data, "contactName");
+		String contactName = contactNameObj == null ? "" : contactNameObj.toString();		
 		MemberInf member = memberService.getMemberById(memberIdLong);
 		ItemInf item = itemService.getItemById(itemIdLong);
 		if(member == null){
@@ -140,7 +142,7 @@ public class OrderInfAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
-		orderService.addOrder(member, item, itemCountI, contactTel.toString(), remark);
+		orderService.addOrder(member, item, itemCountI, contactTel.toString(), remark, contactName);
 		SuccessResult<String> result = new SuccessResult<String>("Success");
 		sendToMobile(result);
 	}
@@ -183,6 +185,8 @@ public class OrderInfAction extends BaseAction {
 		}
 		Object remarkObj = getMobileParameter(data, "remark");
 		String remark = remarkObj == null ? "" : remarkObj.toString();
+		Object contactNameObj = getMobileParameter(data, "contactName");
+		String contactName = contactNameObj == null ? "" : contactNameObj.toString();
 		Order o = orderService.getOrderById(orderIdLong);
 		if(o == null){			
 			FailureResult result = new FailureResult("订单不存在orderId=" + orderId);
@@ -194,7 +198,7 @@ public class OrderInfAction extends BaseAction {
 			sendToMobile(result);
 			return;
 		}
-		orderService.updateOrder(o, itemCountI, contactTel.toString(), remark);
+		orderService.updateOrder(o, itemCountI, contactTel.toString(), remark, contactName);
 		SuccessResult<String> result = new SuccessResult<String>("Success");
 		sendToMobile(result);
 		return;

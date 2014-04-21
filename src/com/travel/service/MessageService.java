@@ -84,6 +84,8 @@ public class MessageService extends AbstractBaseService
 			} else {
 				dto.setRead(0);
 			}
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.MEMBER, memberId);
+			dto.setCommentCount(commentCount);
 			result.add(dto);
 		}
 		return result;
@@ -342,6 +344,7 @@ public class MessageService extends AbstractBaseService
 		if(StringUtils.isBlank(msg.getTopic())){
 			msg.setTopic("");
 		}
+		msg.setScore(0);
 		msg.setCreateDate(new Timestamp(new Date().getTime()));
 		msg.setUpdateDate(msg.getCreateDate());
 		msg.setPushStatus(PUSH_STATUS.NOT_PUSH.getValue());

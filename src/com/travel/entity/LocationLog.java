@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.travel.common.dto.LocationLogDTO;
+import com.travel.utils.DateUtils;
 
 /**
  * LocationLog entity. @author MyEclipse Persistence Tools
@@ -40,6 +41,8 @@ public class LocationLog extends AbstractLocationLog implements
 		dto.setTravelerMobile(getMemberInf().getTravelerMobile());
 		dto.setMemberId(getMemberInf().getId());
 		dto.setMemberType(getMemberInf().getMemberType());
+		String dateStr = DateUtils.toStr(new Date(getCreateDate().getTime()));
+		dto.setCreateDate(dateStr.substring(0, dateStr.length() - 3));
 		return dto;
 	}
 

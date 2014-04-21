@@ -27,6 +27,7 @@ public class MessageDTO {
 	private Long createId;
 	private Integer read;
 	private Integer score;
+	private Integer commentCount;
 	
 	public Integer getCreateType() {
 		return createType;
@@ -99,6 +100,12 @@ public class MessageDTO {
 	}
 	public void setScore(Integer score) {
 		this.score = score;
+	}
+	public Integer getCommentCount() {
+		return commentCount;
+	}
+	public void setCommentCount(Integer commentCount) {
+		this.commentCount = commentCount;
 	}
 	
 	

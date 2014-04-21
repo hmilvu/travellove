@@ -18,11 +18,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.travel.common.Constants;
 import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.Constants.VISIBLITY;
 import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.LocationLogDTO;
 import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -73,7 +75,7 @@ public class MemberService extends AbstractBaseService
 	public void saveMemberLocation(MemberInf member, Double longitude,
 			Double latitude) {
 		if(longitude > 1 && latitude > 1){
-			LocationLog location = locationDao.getLocationByMember(member.getTeamInfo().getId(), member.getId());
+//			LocationLog location = locationDao.getLocationByMember(member.getTeamInfo().getId(), member.getId());
 	//		if(location != null && location.getId() > 0){
 	//			location.setLatitude(latitude);
 	//			location.setLongitude(longitude);
@@ -81,7 +83,8 @@ public class MemberService extends AbstractBaseService
 	//			location.setUpdateDate(location.getLocateTime());
 	//			locationDao.update(location);
 	//		} else {
-				location = new LocationLog();
+			locationDao.updateLocationLog(member.getTeamInfo().getId(), member.getId());
+				LocationLog location = new LocationLog();
 				location.setMemberInf(member);
 				TeamInfo teamInfo = new TeamInfo();
 				teamInfo.setId(member.getTeamInfo().getId());
@@ -91,6 +94,7 @@ public class MemberService extends AbstractBaseService
 				location.setLocateTime(location.getCreateDate());
 				location.setLongitude(longitude);
 				location.setLatitude(latitude);
+				location.setIsNew(Constants.IS_NEW.TRUE.getValue());
 				locationDao.save(location);
 	//		}	
 		}
@@ -345,5 +349,25 @@ public class MemberService extends AbstractBaseService
 		ad.setContent(content);
 		ad.setCreateTime(new Timestamp(new Date().getTime()));
 		adviceDao.save(ad);
+	}
+
+
+	/**
+	 * @param memberId
+	 * @param date
+	 * @return
+	 */
+	public List<LocationLogDTO> getMemberRoute(MemberInf member, Date date) {
+		List<LocationLog> list = null;
+		if(date == null){
+			list = locationDao.getLocationListByMember(member.getTeamInfo().getId(), member.getId());
+		} else {
+			list = locationDao.getLocationListByMember(member.getTeamInfo().getId(), member.getId(), date);
+		}
+		List<LocationLogDTO> resultList = new ArrayList<LocationLogDTO>();
+		for(LocationLog log : list){
+			resultList.add(log.toDTO());
+		}
+		return resultList;
 	}
 }

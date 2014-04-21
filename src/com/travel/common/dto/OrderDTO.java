@@ -17,6 +17,8 @@ public class OrderDTO {
 	private String createTime;
 	private ItemInfDTO item;
 	private String contactTel;
+	private String remark;
+	private String contactName;
 	public Long getOrderId() {
 		return orderId;
 	}
@@ -52,6 +54,18 @@ public class OrderDTO {
 	}
 	public void setContactTel(String contactTel) {
 		this.contactTel = contactTel;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getContactName() {
+		return contactName;
+	}
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
 	}
 	
 }

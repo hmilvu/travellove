@@ -33,6 +33,7 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 	private Timestamp locateTime;
 	private Double longitude;
 	private Double latitude;
+	private Integer isNew;
 	private Timestamp createDate;
 	private Timestamp updateDate;
 
@@ -134,6 +135,14 @@ public abstract class AbstractLocationLog extends BaseEntity implements
 
 	public void setUpdateDate(Timestamp updateDate) {
 		this.updateDate = updateDate;
+	}
+	@Column(name = "is_new", nullable = false, length = 1)
+	public Integer getIsNew() {
+		return isNew;
+	}
+
+	public void setIsNew(Integer isNew) {
+		this.isNew = isNew;
 	}
 
 }

@@ -21,6 +21,7 @@ public class LocationLogDTO {
 	private Integer memberType;
 	private Integer sex;
 	private Long memberId;
+	private String createDate;
 	public Double getLongitude() {
 		return longitude;
 	}
@@ -68,6 +69,12 @@ public class LocationLogDTO {
 	}
 	public void setMemberId(Long memberId) {
 		this.memberId = memberId;
+	}
+	public String getCreateDate() {
+		return createDate;
+	}
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
 	}
 	
 	

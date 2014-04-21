@@ -251,4 +251,15 @@ public class Constants {
 			return this.value;
 		}
 	}
+	
+	public enum IS_NEW{
+		TRUE(1), FALSE(0);
+		private int value;
+		private IS_NEW(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	}
 }

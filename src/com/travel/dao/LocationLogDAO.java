@@ -1,12 +1,19 @@
 package com.travel.dao;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
+import com.travel.common.Constants;
 import com.travel.entity.LocationLog;
 
 /**
@@ -81,8 +88,8 @@ public class LocationLogDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public List<LocationLog> findByTeamId(Long teamId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? order by lo.createDate desc";
-			return getHibernateTemplate().find(queryString, teamId);			
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and isNew = ? order by lo.createDate desc";
+			return getHibernateTemplate().find(queryString, teamId, Constants.IS_NEW.TRUE.getValue());			
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -108,5 +115,62 @@ public class LocationLogDAO extends BaseDAO {
 			log.error("find by property name failed", re);
 			throw re;
 		}
+	}
+	
+	/**
+	 * @param id
+	 * @param id2
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<LocationLog> getLocationListByMember(Long teamId, Long memberId) {
+		try {
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
+			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId);
+			return list;
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @param id2
+	 * @param date
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<LocationLog> getLocationListByMember(Long teamId, Long memberId,
+			Date date) {
+		try {
+			Timestamp startTimestamp = new Timestamp(date.getTime()); 
+			Timestamp endTimestamp = new Timestamp(startTimestamp.getTime() + 3600 * 24 * 1000);
+			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? and lo.createDate >= ? and lo.createDate < ? order by lo.createDate desc";
+			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId, startTimestamp, endTimestamp);
+			return list;
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	/**
+	 * @param id
+	 * @param id2
+	 */
+	public void updateLocationLog(final Long teamId, final Long memberId) {
+		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				SQLQuery query = session.createSQLQuery("update location_log set is_new = ? where team_id = ? and member_id = ?");
+				query.setInteger(0, Constants.IS_NEW.FALSE.getValue());
+				query.setLong(1, teamId);
+				query.setLong(2, memberId);
+				return query.executeUpdate();
+			}
+		});		
 	}
 }

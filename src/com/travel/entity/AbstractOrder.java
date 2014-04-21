@@ -33,6 +33,7 @@ public abstract class AbstractOrder extends BaseEntity implements
 	private MemberInf createMemberInf;
 	private String remark;
 	private String contactTel;
+	private String contactName;
 	// Constructors
 
 	/** default constructor */
@@ -168,13 +169,21 @@ public abstract class AbstractOrder extends BaseEntity implements
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-	@Column(name = "contactTel", nullable = false, length = 20)
+	@Column(name = "contact_tel", nullable = false, length = 20)
 	public String getContactTel() {
 		return contactTel;
 	}
 
 	public void setContactTel(String contactTel) {
 		this.contactTel = contactTel;
+	}
+	@Column(name = "contact_name", length = 20)	
+	public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
 	}
 
 }
