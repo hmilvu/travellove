@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
 import com.travel.common.Constants.ORDER_STATUS;
 import com.travel.common.dto.FailureResult;
@@ -241,5 +242,68 @@ public class OrderInfAction extends BaseAction {
 		sendToMobile(result);
 		return;
 	} 
+	
+	public void list() {
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "teamId");
+		Object pageSize = getMobileParameter(data, "pageSize");
+		Object pageNumber = getMobileParameter(data, "pageNumber");
+		Long idLong = Long.valueOf(0);
+		PageInfoDTO pageInfo = new PageInfoDTO();
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("teamId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		try{
+			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
+			pageInfo.setPageSize(Integer.valueOf(pageSize.toString()));
+		}catch(Throwable ignore){			
+		}
+		List<OrderDTO> list = orderService.getOrdersByTeamId(idLong, pageInfo);		
+		SuccessResult<List<OrderDTO>> result = new SuccessResult<List<OrderDTO>>(list);
+		sendToMobile(result);
+		
+	}
+	
+	public void confirm(){
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "teamId");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("teamId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Object orderId = getMobileParameter(data, "orderId");
+		Long orderIdLong = Long.valueOf(0);
+		try {
+			orderIdLong = Long.valueOf(orderId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("orderId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		
+		Order o = orderService.getOrderById(orderIdLong);
+		if(o == null){			
+			FailureResult result = new FailureResult("订单不存在orderId=" + orderId);
+			sendToMobile(result);
+			return;
+		}
+		if(o.getTeamInfo().getId().longValue() != idLong.longValue()){
+			FailureResult result = new FailureResult("订单不属于该旅行团，不能确认");
+			sendToMobile(result);
+			return;
+		}
+		o.setStatus(ORDER_STATUS.CONFIRM.getValue());
+		orderService.updateOrder(o);
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);
+	}
 	
 }

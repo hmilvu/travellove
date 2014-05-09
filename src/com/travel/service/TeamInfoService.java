@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 
 import com.travel.action.admin.form.RouteItemForm;
 import com.travel.common.Constants.IMAGE_TYPE;
+import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.Constants.ROUTE_STATUS;
 import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.admin.dto.SearchTeamDTO;
+import com.travel.common.dto.LocationLogDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.common.dto.RouteInfDTO;
 import com.travel.common.dto.TeamLocationDTO;
@@ -33,6 +35,7 @@ import com.travel.dao.TeamInfoDAO;
 import com.travel.dao.TeamRouteDAO;
 import com.travel.entity.AttachmentInf;
 import com.travel.entity.LocationLog;
+import com.travel.entity.MemberInf;
 import com.travel.entity.RouteInf;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.TeamRoute;
@@ -133,8 +136,8 @@ public class TeamInfoService extends AbstractBaseService
 				}
 			}
 		}
-		List<Long> geoVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
-		List<Long> phoneVisibleMemberIdList = privateDao.getVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
+		List<Long> geoVisibleMemberIdList = privateDao.getInVisibilityByType(memberId, VISIBLE_TYPE.GEO.getValue());
+		List<Long> phoneVisibleMemberIdList = privateDao.getInVisibilityByType(memberId, VISIBLE_TYPE.PHONE.getValue());
 		dto.setGeoVisibleMemberIdList(geoVisibleMemberIdList);
 		dto.setPhoneVisibleMemberIdList(phoneVisibleMemberIdList);
 		return dto;
@@ -283,6 +286,39 @@ public class TeamInfoService extends AbstractBaseService
 			}
 		}
 		return list;
+	}
+
+
+	/**
+	 * @param teamId
+	 * @return
+	 */
+	public List<LocationLogDTO> getTeamMemeberLocation(String teamId, List<Double> centerPoint) {
+		List <LocationLog> list = locationDao.getLocationByTeamId(Long.valueOf(teamId));
+		List <LocationLogDTO> result = new ArrayList<LocationLogDTO>();
+		Double centerLati = null;
+		Double centerLongi = null;
+		Set<Long> memberIdSet = new HashSet<Long>();
+		for(LocationLog log : list){
+			MemberInf m = log.getMemberInf();
+			if(!memberIdSet.contains(log.getMemberInf().getId())){
+				if(log.getLatitude() != null && log.getLongitude() != null){
+					if(centerLati == null && centerLongi == null){
+						centerLati = log.getLatitude();
+						centerLongi = log.getLongitude();
+					}
+					if(m.getMemberType().intValue() == MEMBER_TYPE.GUIDE.getValue()){
+						centerLati = log.getLatitude();
+						centerLongi = log.getLongitude();
+					}
+				}
+				result.add(log.toDTO());
+				memberIdSet.add(log.getMemberInf().getId());
+			}
+		}
+		centerPoint.add(centerLongi);
+		centerPoint.add(centerLati);
+		return result;
 	}
 	
 }

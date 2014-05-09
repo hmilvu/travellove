@@ -7,6 +7,7 @@ package com.travel.action.admin;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
@@ -100,6 +101,7 @@ public class TriggerConfigAction extends AuthorityAction{
 		JsonUtils.write(response, "{\"statusCode\":\"200\", \"message\":\"更新成功\", \"navTabId\":\"触发器管理\", \"forwardUrl\":\"\", \"callbackType\":\"\", \"rel\":\"\"}");
 	}
 	
+	@SuppressWarnings("static-access")
 	public void update(){
 		String id = request.getParameter("triggerId");
 		String startTime = request.getParameter("startTime");
@@ -108,6 +110,7 @@ public class TriggerConfigAction extends AuthorityAction{
 		String times = request.getParameter("times");
 		String conditionValue = request.getParameter("conditionValue");
 		String content = request.getParameter("content");
+		String sendSMS = request.getParameter("sendSMS");
 		TriggerConfig trigger = triggerService.getTriggerConfigById(Long.valueOf(id));
 		trigger.setConditionValue(conditionValue);
 		trigger.setStartTime(startTime);
@@ -115,6 +118,11 @@ public class TriggerConfigAction extends AuthorityAction{
 		trigger.setTimes(Integer.valueOf(times));
 //		trigger.setTriggerType(Integer.valueOf(triggerType));
 		trigger.setContent(content);
+		if(StringUtils.equals("1", sendSMS)){
+			trigger.setSendSMS(1);
+		} else{
+			trigger.setSendSMS(0);
+		}
 		triggerService.updateTrigger(trigger, items);
 		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));	
 	}

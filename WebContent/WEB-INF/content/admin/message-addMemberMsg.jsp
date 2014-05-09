@@ -67,6 +67,12 @@ function save(){
 				</dd>
 			</dl>
 			<dl>
+				<dt>是否需要发送短信：</dt>
+				<dd>
+					<input type="checkbox" name="sendSMS" value="1" checked />
+				</dd>
+			</dl>
+			<dl>
 				<dt>发送方式：</dt>
 				<dd>
 					<select id="remindMode" name="remindMode" class="combox">

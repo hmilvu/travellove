@@ -165,6 +165,18 @@ public class SysUserService extends AbstractBaseService
 		sysUserDao.update(user);
 		
 	}
+
+	/**
+	 * @param id
+	 * @return
+	 */
+	public SysUser getUserByTravelId(Long travelId) {
+		List<SysUser> list = sysUserDao.findByTravelId(travelId);
+		if(list != null && list.size() > 0){
+			return list.get(0);
+		}
+		return null;
+	}
 	
 	
 	

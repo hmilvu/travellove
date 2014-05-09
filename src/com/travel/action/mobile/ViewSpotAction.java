@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
+import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.admin.dto.SearchViewSpotDTO;
 import com.travel.common.dto.FailureResult;
@@ -251,6 +253,69 @@ public class ViewSpotAction extends BaseAction{
 		}
 		if(msg.getCreateId().longValue() != member.getId().longValue() || msg.getReceiverType().intValue() != MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue()){
 			FailureResult result = new FailureResult("该评论不是次团员创建，不能删除memeberId="+memberId + " msgId=" + commentId);
+			sendToMobile(result);
+			return;
+		}
+		messageService.deleteMessage(msg);
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);
+		return;
+	}
+	
+	public void guideDeleteComment(){
+		String data = getMobileData();
+		Object commentId = getMobileParameter(data, "commentId");
+		Long commendIdLong = Long.valueOf(0);
+		try {
+			commendIdLong = Long.valueOf(commentId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("commentId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Message msg = messageService.getMessageById(commendIdLong);
+		if(msg == null){
+			FailureResult result = new FailureResult("此评论"+commendIdLong+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		Object viewspotId = getMobileParameter(data, "viewspotId");
+		Long viewspotIdLong = Long.valueOf(0);
+		try {
+			viewspotIdLong = Long.valueOf(viewspotId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("viewspotId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		ViewSpotInfo view = viewSpotService.getViewSpotById(viewspotIdLong);
+		if(view == null){
+			FailureResult result = new FailureResult("此景点"+viewspotId+"不存在");
+			sendToMobile(result);
+			return;
+		}
+		if(msg.getReceiverType().intValue() != Constants.MESSAGE_RECEIVER_TYPE.VIEW_SPOT.getValue() || msg.getReceiverId().longValue() != view.getId().longValue()){
+			FailureResult result = new FailureResult("此评论不是该景点的评论，不能删除");
+			sendToMobile(result);
+			return;
+		}
+		Object memberId = getMobileParameter(data, "memberId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf member = memberService.getMemberById(memberIdLong);
+		if (member == null) {
+			FailureResult result = new FailureResult("该用户不存在memberId = " + memberId);
+			sendToMobile(result);
+			return;
+		}
+		if(member.getMemberType().intValue() != MEMBER_TYPE.GUIDE.getValue()){
+			FailureResult result = new FailureResult("memberId不是导游，不能做删除动作");
 			sendToMobile(result);
 			return;
 		}

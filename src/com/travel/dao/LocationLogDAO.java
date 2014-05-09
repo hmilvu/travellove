@@ -5,16 +5,21 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.dto.LocationLogDTO;
 import com.travel.entity.LocationLog;
+import com.travel.entity.TeamInfo;
 
 /**
  * A data access object (DAO) providing persistence and search support for
@@ -172,5 +177,28 @@ public class LocationLogDAO extends BaseDAO {
 				return query.executeUpdate();
 			}
 		});		
+	}
+
+	/**
+	 * @param valueOf
+	 * @return
+	 */
+	public List<LocationLog> getLocationByTeamId(final Long teamId) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<LocationLog>>() {
+
+			@Override
+			public List<LocationLog> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(LocationLog.class);
+				cr.createAlias("teamInfo", "t");
+				cr.createAlias("memberInf", "m");
+				cr.add(Restrictions.isNotNull("latitude"));
+				cr.add(Restrictions.isNotNull("longitude"));
+				cr.add(Restrictions.eq("isNew", Constants.IS_NEW.TRUE.getValue()));
+				cr.add(Restrictions.eq("t.id", teamId));
+				cr.addOrder(Order.desc("createDate"));
+				return cr.list();
+			}
+		});	
 	}
 }

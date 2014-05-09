@@ -84,6 +84,12 @@ function save(){
 				</dd>
 			</dl>
 			<dl>
+				<dt>是否需要发送短信：</dt>
+				<dd>
+					<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editTriggerConfig.sendSMS == 1}">checked</s:if>/>
+				</dd>
+			</dl>
+			<dl>
 				<dt>触发内容：</dt>
 				<dd>
 					<textarea name="content" cols="80" rows="2" maxlength="140" class="required"><s:property value='%{#request.editTriggerConfig.content}'/></textarea>		

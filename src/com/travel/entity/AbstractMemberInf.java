@@ -47,6 +47,7 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 	private Set<LocationLog> locationLogs = new HashSet<LocationLog>(0);
 	private Set<Order> orders = new HashSet<Order>(0);
 	private Integer status;
+	private Integer osType;
 	// Constructors
 
 	/** default constructor */
@@ -312,6 +313,14 @@ public abstract class AbstractMemberInf extends BaseEntity implements
 
 	public void setStatus(Integer status) {
 		this.status = status;
+	}
+	@Column(name = "os_type")
+	public Integer getOsType() {
+		return osType;
+	}
+
+	public void setOsType(Integer osType) {
+		this.osType = osType;
 	}
 
 }

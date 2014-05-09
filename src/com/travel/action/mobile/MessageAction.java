@@ -14,6 +14,7 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.Constants.MESSAGE_CREATE_TYPE;
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
@@ -277,6 +278,44 @@ public class MessageAction extends BaseAction {
 		messageService.addVisibility(memberIdLong, messageIdLong);
 		SuccessResult<String> result = new SuccessResult<String>("success");
 		sendToMobile(result);
+	}
+	
+	public void guideDelete(){
+		String data = getMobileData();
+		Object memberId = getMobileParameter(data, "memberId");
+		Object messageId = getMobileParameter(data, "messageId");
+		Long memberIdLong = Long.valueOf(0);
+		try {
+			memberIdLong = Long.valueOf(memberId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(messageId.toString());
+		} catch (Throwable e) {
+			FailureResult result = new FailureResult("messageId类型错误");
+			sendToMobile(result);
+			return;
+		}
+		MemberInf memberInf = memberService.getMemberById(memberIdLong);
+		if(memberInf.getMemberType().intValue() != MEMBER_TYPE.GUIDE.getValue()){
+			FailureResult result = new FailureResult("memberId不是导游，不能做删除动作");
+			sendToMobile(result);
+			return;
+		}
+		Message msg = messageService.getMessageById(idLong);
+		if(msg == null){
+			FailureResult result = new FailureResult("此消息不存在");
+			sendToMobile(result);
+			return;
+		}
+		messageService.deleteMessageByIds(idLong + "");
+		SuccessResult<String> result = new SuccessResult<String>("success");
+		sendToMobile(result);
+
 	}
 	
 }

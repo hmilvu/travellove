@@ -55,6 +55,9 @@ public class Order extends AbstractOrder implements java.io.Serializable {
 		dto.setContactTel(getContactTel());
 		dto.setRemark(getRemark());
 		dto.setContactName(getContactName());
+		if(getMemberInf() != null){
+			dto.setMemberName(getMemberInf().getMemberName());
+		}
 		return dto;
 	}
 	

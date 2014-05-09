@@ -18,6 +18,7 @@ import com.travel.common.Constants;
 import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.admin.dto.SelectListTeamDTO;
+import com.travel.common.dto.LocationLogDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.TeamRoute;
@@ -222,5 +223,17 @@ public class TeamInfAction extends AuthorityAction{
 		String teamId = request.getParameter("uid");
 		request.setAttribute("teamId", teamId);
 		return "upload";
+	}
+	
+	public String location(){
+		String teamId = request.getParameter("uid");
+		TeamInfo team = teamService.getTeamById(Long.valueOf(teamId));	
+		List<Double> centerPoint = new ArrayList<Double>();
+		List<LocationLogDTO> list = teamService.getTeamMemeberLocation(teamId, centerPoint);
+		request.setAttribute("editTeam", team);
+		request.setAttribute("locationList", list);
+		request.setAttribute("centerLongi", centerPoint.get(0));
+		request.setAttribute("centerLati", centerPoint.get(1));
+		return "location";
 	}
 }

@@ -19,6 +19,7 @@ public class OrderDTO {
 	private String contactTel;
 	private String remark;
 	private String contactName;
+	private String memberName;
 	public Long getOrderId() {
 		return orderId;
 	}
@@ -66,6 +67,12 @@ public class OrderDTO {
 	}
 	public void setContactName(String contactName) {
 		this.contactName = contactName;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
 	}
 	
 }

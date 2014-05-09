@@ -9,7 +9,7 @@ public class Constants {
 	public static final String ALL_MENU_INF_STR_FOR_EDIT = "ALL_MENU_INF_STR_FOR_EDIT";
 	public static final int DEFAULT_PAGE_SIZE = 10;	
 	public static final int ADMIN_DEFAULT_PAGE_SIZE = 15;
-	
+	public static final String BAIDU_MAP_MEMBER_ID_IN_SESSION = "BAIDU_MAP_MEMBER_ID_IN_SESSION";
 	//客户端类型
 	public enum OS_TYPE {
 		ANDROID(0), IOS(1), WP(2);
@@ -262,4 +262,15 @@ public class Constants {
 			return this.value;
 		}
 	}
+	
+	public enum SMS_STATUS {
+		NOT_SEND(0), SENT(1), SEND_FAILED(2);
+		private int value;
+		private SMS_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
 }

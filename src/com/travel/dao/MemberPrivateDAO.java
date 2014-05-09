@@ -114,5 +114,16 @@ public class MemberPrivateDAO extends BaseDAO  {
 		List<Long> list = getHibernateTemplate().find("select m.memberInfByVisibleMemberId.id from MemberPrivate m where m.memberInfByMemberId.id = ? and m.type = ? and m.visibility = " + VISIBLITY.INVISIBLE.getValue(), memberId, type);
 		return list;
 	}
+
+	/**
+	 * @param memberId
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Long> getInVisibilityByType(Long memberId, int type) {
+		List<Long> list = getHibernateTemplate().find("select m.memberInfByMemberId.id from MemberPrivate m where m.memberInfByVisibleMemberId.id = ? and m.type = ? and m.visibility = " + VISIBLITY.INVISIBLE.getValue(), memberId, type);
+		return list;
+	}
     
 }

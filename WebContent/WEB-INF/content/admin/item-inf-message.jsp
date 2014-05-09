@@ -12,7 +12,8 @@
 			<thead>
 				<tr>
 					<th width="10">序号</th>
-					<th width="280">内容</th>
+					<th width="250">内容</th>
+					<th width="30">评级</th>
 					<th width="30">发布姓名</th>
 					<th width="20">发表时间</th>
 					<th width="10">操作</th>
@@ -25,6 +26,7 @@
 				   	 <s:property value="%{#statu.index+1+#request.startNum}"/>
 					</td>
 					<td><s:property value="%{#msg.content}"/></td>
+					<td><s:property value="%{#msg.score}"/></td>
 					<td>
 						团员：<s:property value="%{#msg.receiverName}"/>
 					</td>

@@ -44,6 +44,8 @@ public abstract class AbstractMessage extends BaseEntity implements
 	private Set<Reply> replies = new HashSet<Reply>(0);
 	private Long triggerId;
 	private Integer score;
+	private Integer smsTrigger = 0;
+	private Integer smsStatus = 0;
 	// Constructors
 
 	/** default constructor */
@@ -269,6 +271,22 @@ public abstract class AbstractMessage extends BaseEntity implements
 
 	public void setScore(Integer score) {
 		this.score = score;
+	}
+	@Column(name = "sms_trigger")
+	public Integer getSmsTrigger() {
+		return smsTrigger;
+	}
+
+	public void setSmsTrigger(Integer smsTrigger) {
+		this.smsTrigger = smsTrigger;
+	}
+	@Column(name = "sms_status")
+	public Integer getSmsStatus() {
+		return smsStatus;
+	}
+
+	public void setSmsStatus(Integer smsStatus) {
+		this.smsStatus = smsStatus;
 	}
 
 }

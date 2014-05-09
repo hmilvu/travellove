@@ -13,17 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opensymphony.xwork2.Action;
 import com.travel.action.BaseAction;
+import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
+import com.travel.common.Constants.OS_TYPE;
 import com.travel.common.Constants.VISIBLE_TYPE;
 import com.travel.common.dto.FailureResult;
 import com.travel.common.dto.MemberDTO;
 import com.travel.common.dto.MemberPrivateDTO;
 import com.travel.common.dto.SuccessResult;
-import com.travel.entity.ItemInf;
 import com.travel.entity.MemberInf;
-import com.travel.service.ItemInfService;
+import com.travel.entity.SysUser;
+import com.travel.entity.TeamInfo;
 import com.travel.service.MemberService;
-import com.travel.service.MessageService;
+import com.travel.service.SysUserService;
+import com.travel.service.TeamInfoService;
 import com.travel.service.TriggerConfigService;
 
 /**
@@ -38,11 +41,11 @@ public class MemberAction extends BaseAction {
 	@Autowired
 	private MemberService memberService;
 	@Autowired
-	private MessageService messageService;
+	private TeamInfoService teamService;
 	@Autowired
 	private TriggerConfigService triggerService;
 	@Autowired
-	private ItemInfService itemService;
+	private SysUserService sysUserService;
 	public void search() {
 		String data = getMobileData();
 		Object id = getMobileParameter(data, "id");
@@ -252,6 +255,12 @@ public class MemberAction extends BaseAction {
 					sendToMobile(result);
 					return;
 				}
+				Object osType = getMobileParameter(data, "osType");
+				if(osType != null && StringUtils.equals(osType.toString(), OS_TYPE.IOS.getValue()+"")){
+					member.setOsType(OS_TYPE.IOS.getValue());
+				} else{
+					member.setOsType(OS_TYPE.ANDROID.getValue());
+				}
 				int num = memberService.updateMember(member);
 				if(num == 0){
 					SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
@@ -375,21 +384,13 @@ public class MemberAction extends BaseAction {
 			return null;
 		}
 		
-		Object geoVisibleIdList = getMobileParameter(data, "geoVisibleIdList");
-		if(geoVisibleIdList == null || StringUtils.isBlank(geoVisibleIdList.toString())){
-			FailureResult result = new FailureResult("geoVisibleIdList不能为空");
-			sendToMobile(result);
-			return null;
-		}
-		Object phoneVisibleIdList = getMobileParameter(data, "phoneVisibleIdList");
-		if(phoneVisibleIdList == null || StringUtils.isBlank(phoneVisibleIdList.toString())){
-			FailureResult result = new FailureResult("phoneVisibleIdList不能为空");
-			sendToMobile(result);
-			return null;
-		}
+		Object geoVisibleIdListObj = getMobileParameter(data, "geoVisibleIdList");		
+		Object phoneVisibleIdListObj = getMobileParameter(data, "phoneVisibleIdList");	
+		String geoVisibleIdList = geoVisibleIdListObj == null ? "" : geoVisibleIdListObj.toString();
+		String phoneVisibleIdList = phoneVisibleIdListObj == null ? "" : phoneVisibleIdListObj.toString();
 		
-		memberService.addMemberVisibility(memberIdLong, geoVisibleIdList.toString(), VISIBLE_TYPE.GEO);
-		memberService.addMemberVisibility(memberIdLong, phoneVisibleIdList.toString(), VISIBLE_TYPE.PHONE);
+		memberService.addMemberVisibility(memberIdLong, geoVisibleIdList, VISIBLE_TYPE.GEO);
+		memberService.addMemberVisibility(memberIdLong, phoneVisibleIdList, VISIBLE_TYPE.PHONE);
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);
 		return null;
@@ -472,4 +473,245 @@ public class MemberAction extends BaseAction {
 //		sendToMobile(result);
 //		return null;
 //	}
+	
+	public String create(){
+		String data = getMobileData();
+		Object teamIdObj = getMobileParameter(data, "teamId");
+		if(teamIdObj == null || StringUtils.isBlank(teamIdObj.toString())){
+			FailureResult result = new FailureResult("teamId不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object nameObj = getMobileParameter(data, "name");
+		if(nameObj == null || StringUtils.isBlank(nameObj.toString())){
+			FailureResult result = new FailureResult("name不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object memberTypeObj = getMobileParameter(data, "memberType");
+		if(memberTypeObj == null || StringUtils.isBlank(memberTypeObj.toString())){
+			FailureResult result = new FailureResult("memberType不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object nicknameObj = getMobileParameter(data, "nickname");
+		Object phoneNumberObj = getMobileParameter(data, "phoneNumber");
+		if(phoneNumberObj == null || StringUtils.isBlank(phoneNumberObj.toString())){
+			FailureResult result = new FailureResult("phoneNumber不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object passwordObj = getMobileParameter(data, "password");		
+		if(passwordObj == null || StringUtils.isBlank(passwordObj.toString())){
+			FailureResult result = new FailureResult("password不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object sexObj = getMobileParameter(data, "sex");	
+		if(sexObj == null || StringUtils.isBlank(sexObj.toString())){
+			FailureResult result = new FailureResult("sex不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object ageObj = getMobileParameter(data, "age");	
+		if(ageObj == null || StringUtils.isBlank(ageObj.toString())){
+			FailureResult result = new FailureResult("age不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object idTypeObj = getMobileParameter(data, "idType");	
+		if(idTypeObj == null || StringUtils.isBlank(idTypeObj.toString())){
+			FailureResult result = new FailureResult("idType不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object idNoObj = getMobileParameter(data, "idNo");
+		if(idNoObj == null || StringUtils.isBlank(idNoObj.toString())){
+			FailureResult result = new FailureResult("idNo不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object interestObj = getMobileParameter(data, "interest");	
+		Object profileObj = getMobileParameter(data, "profile");	
+		
+		TeamInfo team = teamService.getTeamById(Long.valueOf(teamIdObj.toString()));
+		if(team == null){
+			FailureResult result = new FailureResult("team不存在");
+			sendToMobile(result);
+			return null;
+		}
+		MemberInf memberInf = new MemberInf();
+		memberInf.setMemberName(nameObj.toString());
+		memberInf.setMemberType(Integer.valueOf(memberTypeObj.toString()));
+		memberInf.setNickname(nicknameObj == null ? "" : nicknameObj.toString());
+		memberInf.setTravelerMobile(phoneNumberObj.toString());
+		memberInf.setPassword(passwordObj.toString());
+		memberInf.setSex(Integer.valueOf(sexObj.toString()));
+		memberInf.setAge(Integer.valueOf(ageObj.toString()));
+		memberInf.setIdType(Integer.valueOf(idTypeObj.toString()));
+		memberInf.setIdNo(idNoObj.toString());
+		memberInf.setInterest(interestObj == null ? "" : interestObj.toString());
+		memberInf.setProfile(profileObj == null ? "" : profileObj.toString());
+		memberInf.setTeamInfo(team);
+		memberInf.setStatus(MEMBER_STATUS.ACTIVE.getValue());
+		SysUser sysUser = sysUserService.getUserByTravelId(team.getTravelInf().getId());
+		memberInf.setSysUser(sysUser);
+		if(memberService.addMember(memberInf) == 0){
+			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+			sendToMobile(result);	
+		} else {
+			FailureResult result = new FailureResult("创建会员失败");
+			sendToMobile(result);
+		}
+		return null;
+	}
+	
+	public String guideUpdate(){
+		String data = getMobileData();
+		Object teamIdObj = getMobileParameter(data, "teamId");
+		if(teamIdObj == null || StringUtils.isBlank(teamIdObj.toString())){
+			FailureResult result = new FailureResult("teamId不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object nameObj = getMobileParameter(data, "name");
+		if(nameObj == null || StringUtils.isBlank(nameObj.toString())){
+			FailureResult result = new FailureResult("name不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object memberTypeObj = getMobileParameter(data, "memberType");
+		if(memberTypeObj == null || StringUtils.isBlank(memberTypeObj.toString())){
+			FailureResult result = new FailureResult("memberType不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object nicknameObj = getMobileParameter(data, "nickname");
+		Object phoneNumberObj = getMobileParameter(data, "phoneNumber");
+		if(phoneNumberObj == null || StringUtils.isBlank(phoneNumberObj.toString())){
+			FailureResult result = new FailureResult("phoneNumber不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object passwordObj = getMobileParameter(data, "password");		
+		if(passwordObj == null || StringUtils.isBlank(passwordObj.toString())){
+			FailureResult result = new FailureResult("password不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object sexObj = getMobileParameter(data, "sex");	
+		if(sexObj == null || StringUtils.isBlank(sexObj.toString())){
+			FailureResult result = new FailureResult("sex不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object ageObj = getMobileParameter(data, "age");	
+		if(ageObj == null || StringUtils.isBlank(ageObj.toString())){
+			FailureResult result = new FailureResult("age不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object idTypeObj = getMobileParameter(data, "idType");	
+		if(idTypeObj == null || StringUtils.isBlank(idTypeObj.toString())){
+			FailureResult result = new FailureResult("idType不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object idNoObj = getMobileParameter(data, "idNo");
+		if(idNoObj == null || StringUtils.isBlank(idNoObj.toString())){
+			FailureResult result = new FailureResult("idNo不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object interestObj = getMobileParameter(data, "interest");	
+		Object profileObj = getMobileParameter(data, "profile");	
+		Object memberIdObj = getMobileParameter(data, "memberId");
+		Long memberId = Long.valueOf(0);
+		try {
+			memberId = Long.valueOf(memberIdObj.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		MemberInf memberInf = memberService.getMemberById(memberId);
+		if (memberInf == null) {
+			FailureResult result = new FailureResult("member不存在");
+			sendToMobile(result);
+			return null;
+		}
+		if(memberInf.getTeamInfo().getId().longValue() != Long.valueOf(teamIdObj.toString()).longValue()){
+			FailureResult result = new FailureResult("此会员不属于该旅行团，不能修改。");
+			sendToMobile(result);
+			return null; 
+		}
+		TeamInfo team = teamService.getTeamById(Long.valueOf(teamIdObj.toString()));
+		if(team == null){
+			FailureResult result = new FailureResult("team不存在");
+			sendToMobile(result);
+			return null;
+		}
+		memberInf.setMemberName(nameObj.toString());
+		memberInf.setMemberType(Integer.valueOf(memberTypeObj.toString()));
+		memberInf.setNickname(nicknameObj == null ? "" : nicknameObj.toString());
+		memberInf.setTravelerMobile(phoneNumberObj.toString());
+		memberInf.setPassword(passwordObj.toString());
+		memberInf.setSex(Integer.valueOf(sexObj.toString()));
+		memberInf.setAge(Integer.valueOf(ageObj.toString()));
+		memberInf.setIdType(Integer.valueOf(idTypeObj.toString()));
+		memberInf.setIdNo(idNoObj.toString());
+		memberInf.setInterest(interestObj == null ? "" : interestObj.toString());
+		memberInf.setProfile(profileObj == null ? "" : profileObj.toString());
+		memberInf.setTeamInfo(team);
+		memberInf.setStatus(MEMBER_STATUS.ACTIVE.getValue());
+		if(memberService.updateMember(memberInf) == 0){
+			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+			sendToMobile(result);	
+		} else {
+			FailureResult result = new FailureResult("创建会员失败");
+			sendToMobile(result);
+		}
+		return null;
+	}
+	
+	public String deleteMember(){
+		String data = getMobileData();
+		Object teamIdObj = getMobileParameter(data, "teamId");
+		if(teamIdObj == null || StringUtils.isBlank(teamIdObj.toString())){
+			FailureResult result = new FailureResult("teamId不能为空");
+			sendToMobile(result);
+			return null;
+		}
+		Object memberIdObj = getMobileParameter(data, "memberId");		
+		Long memberId = Long.valueOf(0);
+		try {
+			memberId = Long.valueOf(memberIdObj.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("memberId类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		MemberInf memberInf = memberService.getMemberById(memberId);
+		if (memberInf == null) {
+			FailureResult result = new FailureResult("member不存在");
+			sendToMobile(result);
+			return null;
+		}
+		if(memberInf.getTeamInfo().getId().longValue() != Long.valueOf(teamIdObj.toString()).longValue()){
+			FailureResult result = new FailureResult("此会员不属于该旅行团，不能删除。");
+			sendToMobile(result);
+			return null; 
+		}
+		TeamInfo team = teamService.getTeamById(Long.valueOf(teamIdObj.toString()));
+		if(team == null){
+			FailureResult result = new FailureResult("team不存在");
+			sendToMobile(result);
+			return null;
+		}
+		memberInf.setStatus(MEMBER_STATUS.INACTIVE.getValue());
+		memberService.updateMember(memberInf);
+		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+		sendToMobile(result);	
+		return null;
+	}
 }

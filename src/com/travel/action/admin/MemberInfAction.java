@@ -15,6 +15,7 @@ import com.travel.action.AuthorityAction;
 import com.travel.common.Constants;
 import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.admin.dto.SearchMemberDTO;
+import com.travel.common.dto.LocationLogDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.TeamInfo;
@@ -227,5 +228,38 @@ public class MemberInfAction extends AuthorityAction{
 	public String mulselect(){
 		list();
 		return "mulselect";
+	}
+	
+	
+	public String routeView(){
+		String memberId = request.getParameter("memberId");
+		Object memberIdObj = null;
+		if(StringUtils.isBlank(memberId)){
+			memberIdObj = (Object)session.get(Constants.BAIDU_MAP_MEMBER_ID_IN_SESSION);	
+			if(memberIdObj == null || StringUtils.isBlank(memberIdObj.toString())){
+				return "route";
+			} else {
+				memberId = memberIdObj.toString();
+			}
+		}
+		MemberInf member = memberService.getMemberById(Long.valueOf(memberId));
+		if(member == null)return "route";
+		List<LocationLogDTO> list = memberService.getMemberRoute(member, null);
+		if(list.size() > 10){
+			list = list.subList(0, 20);
+		}
+		request.setAttribute("locationList", list);
+		if(list.size() > 0){
+			request.setAttribute("centerLongi", list.get(0).getLongitude());
+			request.setAttribute("centerLati", list.get(0).getLatitude());
+		}
+		request.setAttribute("member", member);
+		return "route";
+	}
+	
+	public String saveMemberId(){
+		String memberId = request.getParameter("memberId");
+		session.put(Constants.BAIDU_MAP_MEMBER_ID_IN_SESSION, memberId);
+		return null;
 	}
 }

@@ -106,6 +106,7 @@ function printQrCode(){
 				<td><s:property value="%{#member.baiduUserId}"/></td>
 				<td>
 					<a href="admin/member-inf!view.action?uid=<s:property value='%{#member.id}'/>" target="navTab" style='color:Peru' title="查看团员">查看</a>
+					&nbsp;&nbsp;<a href="admin/member-inf!routeView.action?memberId=<s:property value='%{#member.id}'/>" target="navTab" style='color:Peru' title="查看轨迹">轨迹</a>
 				</td>
 			</tr>
 			</s:iterator>

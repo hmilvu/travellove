@@ -24,6 +24,7 @@ import com.travel.common.Constants.ORDER_STATUS;
 import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchOrderDTO;
 import com.travel.common.admin.dto.SearchTeamDTO;
+import com.travel.common.dto.OrderDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
@@ -216,5 +217,29 @@ public class OrderDAO extends BaseDAO {
 			throw re;
 		}
 		
+	}
+
+	/**
+	 * @param teamId
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<Order> findByTeamId(final Long teamId, final PageInfoDTO pageInfo) {
+		return getHibernateTemplate().execute(new HibernateCallback<List<Order>>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public List<Order> doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				Criteria cr = session.createCriteria(Order.class);
+				cr.createAlias("memberInf", "m");
+				cr.add(Restrictions.eq("teamInfo.id", teamId));
+				cr.add(Restrictions.ne("status", ORDER_STATUS.DELETED.getValue()));
+				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
+				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				cr.setMaxResults(maxResults);
+				cr.addOrder(org.hibernate.criterion.Order.desc("createDate"));
+				return cr.list();
+			}
+		});
 	}
 }

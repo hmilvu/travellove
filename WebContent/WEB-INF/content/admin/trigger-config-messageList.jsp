@@ -21,6 +21,7 @@
 				<th width="40">优先级</th>
 				<th width="40">状态</th>
 				<th width="40">推送状态</th>
+				<th width="20">类型</th>
 				<th width="70">发送日期</th>
 				<th width="40">操作</th>
 			</tr>
@@ -55,6 +56,12 @@
 					<s:elseif test="%{#message.pushStatus == 1}">已推送</s:elseif>
 					<s:elseif test="%{#message.pushStatus == 2}">推送失败</s:elseif>
 					<s:else>&nbsp;</s:else>
+				</td>
+				<td>
+					<s:if test="%{#message.receiverType == 1}">
+						<s:if test="%{#message.osType == 1}">IOS</s:if>
+						<s:else>Android</s:else>
+					</s:if>
 				</td>
 				<td><s:date name="#message.remindTime" format="yyyy-MM-dd HH:mm:ss" /></td>
 				<td>

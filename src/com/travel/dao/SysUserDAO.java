@@ -118,7 +118,13 @@ public class SysUserDAO extends BaseDAO {
 	}
 
 	public List<SysUser> findByTravelId(Object travelId) {
-		return findByProperty(TRAVEL_ID, travelId);
+		try {
+			String queryString = "from SysUser as model where model.travelInf.id = ?";
+			return getHibernateTemplate().find(queryString, travelId);
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
 	}
 
 	public List<SysUser> findByTravelName(Object travelName) {

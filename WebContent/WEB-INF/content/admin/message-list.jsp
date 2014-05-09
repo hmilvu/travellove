@@ -13,12 +13,12 @@
 </form>
 
 <div class="pageHeader">
-	<form rel="pagerForm" onsubmit="return navTabSearch(this);" action="admin/member-inf!list.action" method="post">
+	<form rel="pagerForm" onsubmit="return navTabSearch(this);" action="admin/message!list.action" method="post">
 	<div class="searchBar">
 		<table class="searchContent">
 			<tr>
 				<td>
-					旅行团名称：<input type="text" name="teamName" value="<s:property value='%{#request.teamName}'/>"/>
+					内容：<input type="text" name="content" value="<s:property value='%{#request.content}'/>"/>
 				</td>
 				<!-- td>
 					标题：<input type="text" name="topic" value="<s:property value='%{#request.topic}'/>"/>
@@ -78,6 +78,7 @@
 				<th width="40">优先级</th>
 				<th width="40">状态</th>
 				<th width="40">推送状态</th>
+				<th width="40">短信</th>
 				<th width="70">创建日期</th>
 				<th width="70">操作</th>
 			</tr>
@@ -111,6 +112,12 @@
 					<s:if test="%{#message.pushStatus == 0}">&nbsp;</s:if>
 					<s:elseif test="%{#message.pushStatus == 1}">已推送</s:elseif>
 					<s:elseif test="%{#message.pushStatus == 2}">推送失败</s:elseif>
+					<s:else>&nbsp;</s:else>
+				</td>
+				<td>
+					<s:if test="%{#message.smsStatus == 0}">&nbsp;</s:if>
+					<s:elseif test="%{#message.smsStatus == 1}">已发送</s:elseif>
+					<s:elseif test="%{#message.smsStatus == 2}">发送失败</s:elseif>
 					<s:else>&nbsp;</s:else>
 				</td>
 				<td><s:date name="#message.createDate" format="yyyy-MM-dd" /></td>

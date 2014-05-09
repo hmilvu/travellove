@@ -82,7 +82,10 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		msg.setCreateDate(getCreateDate());
 		msg.setUpdateDate(getUpdateDate());
 		msg.setPushStatus(getPushStatus());
+		msg.setSmsStatus(getSmsStatus());
+		msg.setSmsTrigger(getSmsTrigger());
 		msg.setTriggerId(getTriggerId());
+		msg.setScore(0);
 		return msg;
 		
 	}
@@ -108,6 +111,16 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 	@Transient
 	public void setRemindTimeStr(String remindTimeStr) {
 		this.remindTimeStr = remindTimeStr;
+	}
+	@Transient
+	private Integer osType;
+	@Transient
+	public Integer getOsType() {
+		return osType;
+	}
+	@Transient
+	public void setOsType(Integer osType) {
+		this.osType = osType;
 	}
 	
 	

@@ -47,12 +47,17 @@ public class ViewSpotService extends AbstractBaseService
 	private ViewSpotItemDAO viewItemDao;
 	public ViewSpotInfo getViewSpotById(Long id){
 		ViewSpotInfo viewSpot = viewSpotDao.findById(id);
+		if(viewSpot == null){
+			return null;
+		}
 		List<String>urls = imageDao.findUrls(IMAGE_TYPE.VIEWSPOT, id);
 		if(urls != null && urls.size() > 0){
 			viewSpot.setUrls(urls);
 		}
 		int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, id);
 		viewSpot.setCommentCount(commentCount);
+		double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.VIEW_SPOT, viewSpot.getId());
+		viewSpot.setScore(score);
 		return viewSpot;
 	}
 

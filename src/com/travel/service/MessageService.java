@@ -1,8 +1,14 @@
 package com.travel.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +29,9 @@ import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
+import com.travel.common.Constants.OS_TYPE;
 import com.travel.common.Constants.PUSH_STATUS;
+import com.travel.common.Constants.SMS_STATUS;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -84,7 +92,7 @@ public class MessageService extends AbstractBaseService
 			} else {
 				dto.setRead(0);
 			}
-			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.MEMBER, memberId);
+			int commentCount = messageDAO.getTotalReplyNum(msg.getId());
 			dto.setCommentCount(commentCount);
 			result.add(dto);
 		}
@@ -271,15 +279,25 @@ public class MessageService extends AbstractBaseService
 			List<MemberInf> memberList) {
 		int result = 0;
 		// 1. 设置developer平台的ApiKey/SecretKey
-		String apiKey = Config.getProperty("baidu.appkey");
-		String secretKey = Config.getProperty("baidu.secretkey");
 		if(memberList.size() == 0){
 			for(Message msg : messageList){
 				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
 				messageDAO.update(msg);
 			}
 		} else {
+			String apiKey = null;
+			String secretKey = null;
+			Integer deployStatus = null;
 			for(int i = 0; i < memberList.size(); i++){
+				MemberInf member = memberList.get(i);
+				if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+					apiKey = Config.getProperty("ios.baidu.appkey");
+					secretKey = Config.getProperty("ios.baidu.secretkey");
+					deployStatus = Integer.valueOf(Config.getProperty("ios.baidu.deploy.status"));
+				} else {
+					apiKey = Config.getProperty("android.baidu.appkey");
+					secretKey = Config.getProperty("android.baidu.secretkey");
+				}
 				ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
 				
 				// 2. 创建BaiduChannelClient对象实例
@@ -293,12 +311,17 @@ public class MessageService extends AbstractBaseService
 					}
 				});
 			
-				MemberInf member = memberList.get(i);
 				Message msg = messageList.get(i);
-				try {				
+				try {		
 					// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
 					PushUnicastMessageRequest request = new PushUnicastMessageRequest();
-					request.setDeviceType(3);	// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
+					// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
+					if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+						request.setDeployStatus(deployStatus); // DeployStatus => 1: Developer 2: Production 
+						request.setDeviceType(4);	
+					} else {
+						request.setDeviceType(3);
+					}
 					request.setChannelId(member.getChannelId());	
 					request.setUserId(member.getBaiduUserId());	
 					request.setMessageType(1);	
@@ -505,8 +528,10 @@ public class MessageService extends AbstractBaseService
 				String teamName = teamDAO.findById(msg.getReceiverId()).getName();
 				msg.setReceiverName(teamName);
 			} else {
-				String memberName = memberDAO.findById(msg.getReceiverId()).getMemberName();
+				MemberInf m = memberDAO.findById(msg.getReceiverId());
+				String memberName = m.getMemberName();
 				msg.setReceiverName(memberName);
+				msg.setOsType(m.getOsType());
 			}
 			result.add(msg);
 		}
@@ -540,7 +565,165 @@ public class MessageService extends AbstractBaseService
 		mvDao.deleteVisible(memberId, msgId);
 		
 	}
+
+	/**
+	 * @param content
+	 * @param memberList
+	 */
+	public void sendSMS(List<Message>messageList, String content, List<MemberInf> memberList) {
+		if(memberList == null || memberList.size() == 0){
+			log.info("会员为空，不发短信");
+			return;
+		}
+		for(int i = 0; i < memberList.size(); i++){
+			MemberInf m = memberList.get(i);
+			Message msg = messageList.get(i);
+			try{
+				String mtUrl=Config.getProperty("sms_url");
+				//操作命令、SP编号、SP密码，必填参数
+		        String command = "MULTI_MT_REQUEST";
+		        String spid = Config.getProperty("sms_spid");
+		        String sppassword = Config.getProperty("sms_password");
+		        //sp服务代码，可选参数，默认为 00
+		        String spsc = "00";
+		        //源号码，可选参数
+		        String sa = Config.getProperty("sms_sender");
+		        
+		        String das = "86" + m.getTravelerMobile();
+		        //目标号码组，必填参数
+		        //下行内容以及编码格式，必填参数
+		        int dc = 15;
+		        String sm = encodeHexStr(dc, content);//下行内容进行Hex编码，此处dc设为15，即使用GBK编码格式
+		
+		        //组成url字符串
+		        String smsUrl = mtUrl + "?command=" + command + "&spid=" + spid + "&sppassword=" + sppassword + "&spsc=" + spsc + "&sa=" + sa + "&das=" + das + "&sm=" + sm + "&dc=" + dc;
+		
+		        //发送http请求，并接收http响应
+		        String resStr = doGetRequest(smsUrl.toString());
+		        log.info("resStr = " + resStr);
+		
+		        //解析响应字符串
+		        HashMap pp = parseResStr(resStr);
+		        if(pp != null && pp.get("mterrcode") != null && StringUtils.equals("000", pp.get("mterrcode").toString())){
+		        	msg.setSmsStatus(SMS_STATUS.SENT.getValue());
+		        } else {
+		        	msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
+		        }
+			} catch(Throwable e){
+				log.error("发送短信失败", e);
+				msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
+			} finally{
+				messageDAO.update(msg);
+			}
+	        
+		}
+		
+	}
 	
+	 private static String doGetRequest(String urlstr) {
+	        String res = null;
+	        try {
+	            URL url = new URL(urlstr);
+	            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+	            httpConn.setRequestMethod("GET");
+	            httpConn.setRequestProperty("Content-Type", "text/html; charset=GB2312");
+	            System.setProperty("sun.net.client.defaultConnectTimeout", "5000");//jdk1.4换成这个,连接超时
+	            System.setProperty("sun.net.client.defaultReadTimeout", "10000"); //jdk1.4换成这个,读操作超时
+	            //httpConn.setConnectTimeout(5000);//jdk 1.5换成这个,连接超时
+	            //httpConn.setReadTimeout(10000);//jdk 1.5换成这个,读操作超时
+	            httpConn.setDoInput(true);
+	            int rescode = httpConn.getResponseCode();
+	            if (rescode == 200) {
+	                BufferedReader bfw = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+	                res = bfw.readLine();
+	            } else {
+	                res = "Http request error code :" + rescode;
+	            }
+	        } catch (Exception e) {
+	            System.out.println(e.toString());
+	        }
+	        return res;
+	    }
+	 /** 
+     * Hex编码字符组
+     */
+    private static final char[] DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static String encodeHexStr(int dataCoding, String realStr) {
+        String hexStr = null;
+
+        if (realStr != null) {
+            byte[] data = null;
+            try {
+                if (dataCoding == 15) {
+                    data = realStr.getBytes("GBK");
+                } else if ((dataCoding & 0x0C) == 0x08) {
+                    data = realStr.getBytes("UnicodeBigUnmarked");
+                } else {
+                    data = realStr.getBytes("ISO8859-1");
+                }
+            } catch (UnsupportedEncodingException e) {
+                System.out.println(e.toString());
+            }
+
+            if (data != null) {
+                int len = data.length;
+                char[] out = new char[len << 1];
+                // two characters form the hex value.
+                for (int i = 0, j = 0; i < len; i++) {
+                    out[j++] = DIGITS[(0xF0 & data[i]) >>> 4];
+                    out[j++] = DIGITS[0x0F & data[i]];
+                }
+                hexStr = new String(out);
+            }
+        }
+        return hexStr;
+    }
 	
+	 /**
+     * 将 短信下行 请求响应字符串解析到一个HashMap中
+     * @param resStr
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	private static HashMap parseResStr(String resStr) {
+        HashMap pp = new HashMap();
+        try {
+            String[] ps = resStr.split("&");
+            for (int i = 0; i < ps.length; i++) {
+                int ix = ps[i].indexOf("=");
+                if (ix != -1) {
+                    pp.put(ps[i].substring(0, ix), ps[i].substring(ix + 1));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        return pp;
+    }
+
+	/**
+	 * @param msgList
+	 * @param content
+	 * @param teamIds
+	 */
+	public void sendSMS(List<Message> messageList, String content, String teamIds) {
+		String []teamIdArr = StringUtils.split(teamIds, ",");
+		List<Message> newMsgList = new ArrayList<Message>();
+		List<MemberInf> newMemberList = new ArrayList<MemberInf>();
+		for(int i = 0; i < teamIdArr.length; i++){
+			String teamId = teamIdArr[i];
+			List<Long> idList = new ArrayList<Long>();
+			idList.add(Long.valueOf(teamId));
+			List<MemberInf> memberList = memberService.findAllMembersByTeamIds(idList);
+			newMemberList.addAll(memberList);
+			for(int j = 0; j < memberList.size(); j++){
+				newMsgList.add(messageList.get(i));
+			}
+		}
+		if(newMemberList.size() > 0){
+			sendSMS(newMsgList, content, newMemberList);
+		}
+		
+	}
 	
 }

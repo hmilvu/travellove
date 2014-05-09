@@ -60,15 +60,15 @@
 		<thead>
 			<tr>
 				<th width="4"></th>
-				<th width="25">旅行团ID</th>
+				<th width="10%">旅行团ID</th>
 				<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">
-				<th width="80">旅行社名称</th>
+				<th width="30%">旅行社名称</th>
 				</s:if>
-				<th width="150">旅行团名称</th>
-				<th width="15">人数</th>
-				<th width="80">开始时间</th>
-				<th width="80">结束时间</th>	
-				<th width="40">操作</th>			
+				<th width="30%">旅行团名称</th>
+				<th width="15%">人数</th>
+				<th width="10%">开始时间</th>
+				<th width="10%">结束时间</th>	
+				<th>操作</th>			
 			</tr>
 		</thead>
 		<tbody>
@@ -99,6 +99,8 @@
 					<a class="btnAssign" href="admin/member-inf!list.action?teamId=<s:property value='%{#team.id}'/>&fromTeam=1" target="navTab" title="查看会员">查看会员</a>
 					&nbsp;&nbsp;
 					<a href="admin/team-inf!view.action?uid=<s:property value='%{#team.id}'/>" target="navTab" style='color:Peru' title="查看旅行团">查看</a>
+					&nbsp;&nbsp;
+					<a href="admin/team-inf!location.action?uid=<s:property value='%{#team.id}'/>" target="navTab" style='color:Peru' title="查看位置">位置</a>
 				</td>
 			</tr>
 		</s:iterator>

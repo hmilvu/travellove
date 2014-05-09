@@ -162,5 +162,38 @@ public class OrderService extends AbstractBaseService
 		order.setUpdateDate(new Timestamp(new Date().getTime()));
 		orderDao.update(order);
 	}
+
+	/**
+	 * @param idLong
+	 * @param pageInfo
+	 * @return
+	 */
+	public List<OrderDTO> getOrdersByTeamId(Long teamId, PageInfoDTO pageInfo) {
+		List<Order> list = orderDao.findByTeamId(teamId, pageInfo);
+		List<OrderDTO> result = new ArrayList<OrderDTO>();
+		for(Order o : list){
+			ItemInf item = o.getItemInf();
+			int commentCount = messageDAO.getTotalMessageNum(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			item.setCommentCount(commentCount);
+			List<String> imageUrls = imgDao.findUrls(IMAGE_TYPE.ITEM, item.getId());
+			item.setUrls(imageUrls);
+			double score = messageDAO.caculateScore(MESSAGE_RECEIVER_TYPE.ITEM, item.getId());
+			ItemInfDTO itemDto = item.toDTO();
+			itemDto.setScore(score);
+			
+			OrderDTO orderDto = o.toDTO();
+			orderDto.setItem(itemDto);
+			result.add(orderDto);
+		}
+		return result;
+	}
+
+	/**
+	 * @param o
+	 */
+	public void updateOrder(Order order) {
+		orderDao.update(order);
+		
+	}
 	
 }

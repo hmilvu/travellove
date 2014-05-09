@@ -52,7 +52,7 @@ public class MessageAction extends AuthorityAction{
 
 	public String list(){
 		String topic = request.getParameter("topic");
-		String teamName = request.getParameter("teamName");
+		String content = request.getParameter("content");
 		String type = request.getParameter("type");
 		String status = request.getParameter("status");
 		String priority = request.getParameter("priority");
@@ -70,7 +70,7 @@ public class MessageAction extends AuthorityAction{
 			pageInfo.setPageSize(Constants.ADMIN_DEFAULT_PAGE_SIZE);
 		}
 		SearchMessageDTO dto = new SearchMessageDTO();		
-		dto.setTeamName(teamName);
+		dto.setContent(content);
 		dto.setTopic(topic);
 		if(StringUtils.isNotBlank(status)){
 			dto.setStatus(Integer.valueOf(status));
@@ -89,11 +89,17 @@ public class MessageAction extends AuthorityAction{
 		request.setAttribute("messageList", list);
 		request.setAttribute("totalCount", totalNum+"");
 		request.setAttribute("topic", topic);
-		request.setAttribute("status", status);
-		request.setAttribute("priority", priority);
-		request.setAttribute("teamName", teamName);
+		if(StringUtils.isNotBlank(status)){
+			request.setAttribute("status", Integer.valueOf(status));
+		}
+		if(StringUtils.isNotBlank(priority)){
+			request.setAttribute("priority", Integer.valueOf(priority));
+		}
+		request.setAttribute("content", content);
 		request.setAttribute("topic", topic);
-		request.setAttribute("type", type);
+		if(StringUtils.isNotBlank(type)){
+			request.setAttribute("type", Integer.valueOf(type));
+		}
 		request.setAttribute("pageNumber", pageNumber == null ? 1 : pageNumber);
 		request.setAttribute("startNum", (pageInfo.getPageNumber()-1)*pageInfo.getPageSize());
 		return "list";
@@ -113,6 +119,10 @@ public class MessageAction extends AuthorityAction{
 		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
 		if(msgList != null && msgList.size() > 0){
 			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
+				String sendSMS = request.getParameter("sendSMS");
+				if(StringUtils.equals("1", sendSMS)){
+					messageService.sendSMS(msgList, msg.getContent(), teamIds);
+				}
 				messageService.sendTeamPushMsg(msgList, msg.getContent(), teamIds);
 			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
@@ -129,6 +139,7 @@ public class MessageAction extends AuthorityAction{
 		String priority = request.getParameter("priority");
 		String remindMode = request.getParameter("remindMode");
 		String remindTime = request.getParameter("remindTime");
+		String sendSMS = request.getParameter("sendSMS");
 		Message msg = new Message();
 		if(StringUtils.equals(type, MESSAGE_TYPE.NOTIFICATION.getValue()+"") && StringUtils.equals(remindMode,MESSAGE_REMIND_MODE.LATER.getValue()+"")){
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -162,6 +173,9 @@ public class MessageAction extends AuthorityAction{
 			msg.setTravelInf(travelInf);
 		}
 		msg.setTriggerId(0L);
+		if(StringUtils.equals("1", sendSMS)){
+			msg.setSmsTrigger(1);
+		}
 		return msg;
 	}
 	
@@ -179,6 +193,10 @@ public class MessageAction extends AuthorityAction{
 		List<Message>msgList = messageService.addMessageForReceiver(msg, memberIds, MESSAGE_RECEIVER_TYPE.MEMBER);
 		if(msgList != null && msgList.size() > 0){
 			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
+				String sendSMS = request.getParameter("sendSMS");
+				if(StringUtils.equals("1", sendSMS)){
+					messageService.sendSMS(msgList, msg.getContent(), memberList);
+				}
 				messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
 			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));

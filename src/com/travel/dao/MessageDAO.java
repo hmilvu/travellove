@@ -174,8 +174,8 @@ public class MessageDAO extends BaseDAO {
 		if (dto.getTravelId() != null) {
 			cr.add(Restrictions.eq("t.id", dto.getTravelId()));
 		}
-		if (!StringUtils.isBlank(dto.getTeamName())) {
-			cr.add(Restrictions.like("name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
+		if (!StringUtils.isBlank(dto.getContent())) {
+			cr.add(Restrictions.like("content", StringUtils.trim("%" + dto.getContent()) + "%").ignoreCase());
 		}
 		if (dto.getTopic() != null){
 			cr.add(Restrictions.like("topic", "%" + StringUtils.trim(dto.getTopic()) + "%").ignoreCase());
@@ -457,10 +457,13 @@ public class MessageDAO extends BaseDAO {
 			@Override
 			public Double doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				SQLQuery query = session.createSQLQuery("select if(isnull(score),0,score) as score from message where receiver_type = "+type.getValue()+" and receiver_id = ? and status <> " + MESSAGE_STATUS.DELETED.getValue());
+				SQLQuery query = session.createSQLQuery("select avg(if(isnull(score),0,score)) as score from message where receiver_type = "+type.getValue()+" and receiver_id = ? and status <> " + MESSAGE_STATUS.DELETED.getValue());
 				query.setLong(0, receiverId);
 				List list = query.list();
 				if(list.size() > 0){
+					if(list.get(0) == null){
+						return 0D;
+					}
 					return Double.valueOf(list.get(0).toString());
 				} else {
 					return 0D;

@@ -13,6 +13,7 @@ import java.util.Date;
  */
 public class SearchMessageDTO extends BaseAdminDTO{
 	private String topic;
+	private String content;
 	private String teamName;
 	private Integer type;
 	private Integer priority;
@@ -53,6 +54,12 @@ public class SearchMessageDTO extends BaseAdminDTO{
 	}
 	public void setTriggerId(Long triggerId) {
 		this.triggerId = triggerId;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
 	}
 	
 

@@ -90,6 +90,16 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 	public void setCommentCount(int commentCount) {
 		this.commentCount = commentCount;
 	}
+	@Transient
+	private double score;		
+	@Transient
+	public double getScore() {
+		return score;
+	}
+	@Transient
+	public void setScore(double score) {
+		this.score = score;
+	}
 
 	/**
 	 * @return
@@ -111,6 +121,7 @@ public class ViewSpotInfo extends AbstractViewSpotInfo implements
 		dto.setProvince(getProvinceName());
 		dto.setCity(getCityName());
 		dto.setCommentCount(commentCount);
+		dto.setScore(score);
 		return dto;
 	}
 
