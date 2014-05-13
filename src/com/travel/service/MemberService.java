@@ -135,10 +135,24 @@ public class MemberService extends AbstractBaseService
 	 * @param memberInf
 	 * @return
 	 */
-	public int addMember(MemberInf memberInf) {
-		memberInf.setCreateDate(new Timestamp(new Date().getTime()));
-		memberInf.setUpdateDate(memberInf.getCreateDate());
-		return memberInfDao.save(memberInf);
+	public int addMember(MemberInf member) {
+		member.setCreateDate(new Timestamp(new Date().getTime()));
+		member.setUpdateDate(member.getCreateDate());
+		memberInfDao.save(member);
+		
+		LocationLog location = new LocationLog();
+		location.setMemberInf(member);
+		TeamInfo teamInfo = new TeamInfo();
+		teamInfo.setId(member.getTeamInfo().getId());
+		location.setTeamInfo(teamInfo);
+		location.setCreateDate(new Timestamp(System.currentTimeMillis()));
+		location.setUpdateDate(location.getCreateDate());
+		location.setLocateTime(location.getCreateDate());
+		location.setLongitude(0D);
+		location.setLatitude(0D);
+		location.setIsNew(Constants.IS_NEW.TRUE.getValue());
+		locationDao.save(location);
+		return 0;
 	}
 
 
