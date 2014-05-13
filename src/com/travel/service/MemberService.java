@@ -32,6 +32,7 @@ import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberAdviceDAO;
 import com.travel.dao.MemberInfDAO;
 import com.travel.dao.MemberPrivateDAO;
+import com.travel.dao.TeamInfoDAO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.MemberAdvice;
 import com.travel.entity.MemberInf;
@@ -52,6 +53,8 @@ public class MemberService extends AbstractBaseService
 	private MemberAdviceDAO adviceDao;
 	@Autowired
 	private MemberPrivateDAO privateDao;
+	@Autowired
+	private TeamInfoDAO teamDao;
 	public MemberInf getMemberById(Long id){
 		return memberInfDao.findById(id);
 	}
@@ -152,6 +155,8 @@ public class MemberService extends AbstractBaseService
 		location.setLatitude(0D);
 		location.setIsNew(Constants.IS_NEW.TRUE.getValue());
 		locationDao.save(location);
+		
+		teamDao.updateMemberNum(member.getTeamInfo().getId());
 		return 0;
 	}
 

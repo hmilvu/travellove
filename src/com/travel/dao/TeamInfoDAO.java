@@ -1,7 +1,6 @@
 package com.travel.dao;
 
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -19,6 +19,8 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_STATUS;
+import com.travel.common.Constants.MEMBER_TYPE;
 import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchTeamDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -213,5 +215,26 @@ public class TeamInfoDAO extends BaseDAO {
 			log.error("getActiveTeamByTravelId failed", re);
 			throw re;
 		}
+	}
+
+	/**
+	 * @param id
+	 */
+	public void updateMemberNum(final Long teamId) {
+		getHibernateTemplate().execute(new HibernateCallback<Integer>() {
+
+			@Override
+			public Integer doInHibernate(Session session) throws HibernateException,
+					SQLException {
+				SQLQuery sql = session.createSQLQuery("update team_info set people_count = (select count(*) from member_inf where team_id = ? and status <> ? and member_type = ?) " +
+						"where id = ? ");
+				sql.setLong(0, teamId);
+				sql.setInteger(1, MEMBER_STATUS.INACTIVE.getValue());
+				sql.setInteger(2, MEMBER_TYPE.TRAVELER.getValue());
+				sql.setLong(3, teamId);
+				return sql.executeUpdate();
+			}
+		});
+		
 	}
 }
