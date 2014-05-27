@@ -17,6 +17,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
+import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.dto.LocationLogDTO;
 import com.travel.entity.LocationLog;
 import com.travel.entity.TeamInfo;
@@ -93,8 +94,8 @@ public class LocationLogDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public List<LocationLog> findByTeamId(Long teamId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and isNew = ? order by lo.createDate desc";
-			return getHibernateTemplate().find(queryString, teamId, Constants.IS_NEW.TRUE.getValue());			
+			String queryString = "from LocationLog as lo where lo.memberInf.status <> ? and lo.teamInfo.id = ? and isNew = ? order by lo.createDate desc";
+			return getHibernateTemplate().find(queryString, MEMBER_STATUS.INACTIVE.getValue(), teamId, Constants.IS_NEW.TRUE.getValue());			
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
 			throw re;
@@ -109,8 +110,8 @@ public class LocationLogDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public LocationLog getLocationByMember(Long teamId, Long memberId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
-			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId);
+			String queryString = "from LocationLog as lo where lo.memberInf.status <> ? and lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
+			List <LocationLog> list = getHibernateTemplate().find(queryString, MEMBER_STATUS.INACTIVE.getValue(), teamId, memberId);
 			if(list != null && list.size() > 0){
 				return list.get(0);
 			} else {
@@ -130,8 +131,8 @@ public class LocationLogDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public List<LocationLog> getLocationListByMember(Long teamId, Long memberId) {
 		try {
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
-			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId);
+			String queryString = "from LocationLog as lo where lo.memberInf.status <> ? and lo.teamInfo.id = ? and lo.memberInf.id = ? order by lo.createDate desc";
+			List <LocationLog> list = getHibernateTemplate().find(queryString, MEMBER_STATUS.INACTIVE.getValue(), teamId, memberId);
 			return list;
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
@@ -151,8 +152,8 @@ public class LocationLogDAO extends BaseDAO {
 		try {
 			Timestamp startTimestamp = new Timestamp(date.getTime()); 
 			Timestamp endTimestamp = new Timestamp(startTimestamp.getTime() + 3600 * 24 * 1000);
-			String queryString = "from LocationLog as lo where lo.teamInfo.id = ? and lo.memberInf.id = ? and lo.createDate >= ? and lo.createDate < ? order by lo.createDate desc";
-			List <LocationLog> list = getHibernateTemplate().find(queryString, teamId, memberId, startTimestamp, endTimestamp);
+			String queryString = "from LocationLog as lo where lo.memberInf.status <> ? and lo.teamInfo.id = ? and lo.memberInf.id = ? and lo.createDate >= ? and lo.createDate < ? order by lo.createDate desc";
+			List <LocationLog> list = getHibernateTemplate().find(queryString, MEMBER_STATUS.INACTIVE.getValue(), teamId, memberId, startTimestamp, endTimestamp);
 			return list;
 		} catch (RuntimeException re) {
 			log.error("find by property name failed", re);
@@ -192,6 +193,7 @@ public class LocationLogDAO extends BaseDAO {
 				Criteria cr = session.createCriteria(LocationLog.class);
 				cr.createAlias("teamInfo", "t");
 				cr.createAlias("memberInf", "m");
+				cr.add(Restrictions.ne("m.status", MEMBER_STATUS.INACTIVE.getValue()));
 				cr.add(Restrictions.isNotNull("latitude"));
 				cr.add(Restrictions.isNotNull("longitude"));
 				cr.add(Restrictions.eq("isNew", Constants.IS_NEW.TRUE.getValue()));

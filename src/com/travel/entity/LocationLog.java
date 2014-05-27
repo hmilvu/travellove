@@ -43,6 +43,11 @@ public class LocationLog extends AbstractLocationLog implements
 		dto.setMemberType(getMemberInf().getMemberType());
 		String dateStr = DateUtils.toStr(new Date(getCreateDate().getTime()));
 		dto.setCreateDate(dateStr.substring(0, dateStr.length() - 3));
+		dto.setAge(getMemberInf().getAge());
+		dto.setIdNo(getMemberInf().getIdNo());
+		dto.setIdType(getMemberInf().getIdType());
+		dto.setInterest(getMemberInf().getInterest());
+		dto.setProfile(getMemberInf().getProfile());
 		return dto;
 	}
 

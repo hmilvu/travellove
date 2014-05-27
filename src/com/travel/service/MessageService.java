@@ -325,7 +325,11 @@ public class MessageService extends AbstractBaseService
 					request.setChannelId(member.getChannelId());	
 					request.setUserId(member.getBaiduUserId());	
 					request.setMessageType(1);	
-					request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
+					if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+						request.setMessage("{\"aps\":{\"alert\":\""+content+"\",\"sound\":\"default\"}}");
+					} else {
+						request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
+					}
 					
 					// 5. 调用pushMessage接口
 					PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
@@ -597,7 +601,7 @@ public class MessageService extends AbstractBaseService
 		
 		        //组成url字符串
 		        String smsUrl = mtUrl + "?command=" + command + "&spid=" + spid + "&sppassword=" + sppassword + "&spsc=" + spsc + "&sa=" + sa + "&das=" + das + "&sm=" + sm + "&dc=" + dc;
-		
+		        log.info("smsUrl = " + smsUrl);
 		        //发送http请求，并接收http响应
 		        String resStr = doGetRequest(smsUrl.toString());
 		        log.info("resStr = " + resStr);

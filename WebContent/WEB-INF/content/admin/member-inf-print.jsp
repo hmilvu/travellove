@@ -1,4 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%> 
+<%@ taglib prefix="s" uri="/struts-tags"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -8,57 +9,18 @@
 <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />  
 </head>
 <body>
-<table border="1" width="100%" height="100%">
-	<%
-		int row = Integer.valueOf((String)request.getAttribute("row"));
-		int column = Integer.valueOf((String)request.getAttribute("column"));
-		List<Object []>memberList = (List<Object []>)request.getAttribute("memberList");
-		for(int i = 0; i < row; i++){
-	%>
-	<tr>
-		<%
-			for(int j = 0; j < 3; j++){
-				if(i * 3 + j < memberList.size()){
-					Object[] member = (Object[])memberList.get(i * 3 + j);
-					Long memberId = (Long)member[0];
-					String memberName = (String)member[1];					
-		 %>
+<table border="0" width="200" height="240">
+<s:iterator var="member" value="%{#request.memberList}" status="statu">	
+	<tr height="175" align="center">
 		<td>
-			<table width="300" height="250">
-				<tr height="200" align="center"">
-					<td>
-						<img src="../memberQrCode.action?memberId=<%=memberId %>" alt="二维码" width="200" height="200"/>
-					</td>					
-				</tr>
-				<tr align="center"">
-					<td><%=memberName %>
-					</td>					
-				</tr>
-			</table>
-		</td>
-		<%
-				} else{
-		%>
-		<td>
-			<table width="300" height="250">
-				<tr height="200">
-					<td>&nbsp;
-					</td>					
-				</tr>
-				<tr>
-					<td>&nbsp;
-					</td>					
-				</tr>
-			</table>
-		</td>
-		<%
-				}//else
-			}// for j
-		 %>
+			<img src="../memberQrCode.action?memberId=<s:property value='%{#member[0]}'/>" alt="二维码" width="160" height="160"/>
+		</td>					
 	</tr>
-	<%
-		}// for i
-	 %>
+	<tr height="65" align="center" valign="top">
+		<td><s:property value='%{#member[1]}'/>
+		</td>					
+	</tr>
+</s:iterator>
 </table>
 </body>
 </html>

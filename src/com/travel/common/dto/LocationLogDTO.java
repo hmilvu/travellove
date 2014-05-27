@@ -20,6 +20,12 @@ public class LocationLogDTO {
 	private String travelerMobile;
 	private Integer memberType;
 	private Integer sex;
+	private Integer age;
+	private Integer idType;
+	private String idNo;
+	private String avatarUrl;
+	private String profile;
+	private String interest;
 	private Long memberId;
 	private String createDate;
 	public Double getLongitude() {
@@ -75,6 +81,42 @@ public class LocationLogDTO {
 	}
 	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
+	}
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	public Integer getIdType() {
+		return idType;
+	}
+	public void setIdType(Integer idType) {
+		this.idType = idType;
+	}
+	public String getIdNo() {
+		return idNo;
+	}
+	public void setIdNo(String idNo) {
+		this.idNo = idNo;
+	}
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
+	public String getProfile() {
+		return profile;
+	}
+	public void setProfile(String profile) {
+		this.profile = profile;
+	}
+	public String getInterest() {
+		return interest;
+	}
+	public void setInterest(String interest) {
+		this.interest = interest;
 	}
 	
 	

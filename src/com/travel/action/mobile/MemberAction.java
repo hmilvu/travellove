@@ -94,7 +94,7 @@ public class MemberAction extends BaseAction {
 //			} catch (Throwable ignore) {
 //			}		
 //			member.setSex(sex);
-
+//
 //			Object ageObj = getMobileParameter(data, "age");
 //			Integer age = Integer.valueOf(0);
 //			try {
@@ -103,7 +103,7 @@ public class MemberAction extends BaseAction {
 //			}
 //			;
 //			member.setAge(age);
-
+//
 //			Object idTypeObj = getMobileParameter(data, "idType");
 //			Integer idType = Integer.valueOf(0);
 //			try {
@@ -112,7 +112,7 @@ public class MemberAction extends BaseAction {
 //			}
 //			;
 //			member.setIdType(idType);
-
+//
 //			member.setIdNo((String) getMobileParameter(data, "idNo"));
 //			member.setAvatarUrl((String) getMobileParameter(data, "avatarUrl"));
 			member.setProfile((String) getMobileParameter(data, "profile"));
@@ -593,12 +593,12 @@ public class MemberAction extends BaseAction {
 			sendToMobile(result);
 			return null;
 		}
-		Object passwordObj = getMobileParameter(data, "password");		
-		if(passwordObj == null || StringUtils.isBlank(passwordObj.toString())){
-			FailureResult result = new FailureResult("password不能为空");
-			sendToMobile(result);
-			return null;
-		}
+//		Object passwordObj = getMobileParameter(data, "password");		
+//		if(passwordObj == null || StringUtils.isBlank(passwordObj.toString())){
+//			FailureResult result = new FailureResult("password不能为空");
+//			sendToMobile(result);
+//			return null;
+//		}
 		Object sexObj = getMobileParameter(data, "sex");	
 		if(sexObj == null || StringUtils.isBlank(sexObj.toString())){
 			FailureResult result = new FailureResult("sex不能为空");
@@ -655,7 +655,7 @@ public class MemberAction extends BaseAction {
 		memberInf.setMemberType(Integer.valueOf(memberTypeObj.toString()));
 		memberInf.setNickname(nicknameObj == null ? "" : nicknameObj.toString());
 		memberInf.setTravelerMobile(phoneNumberObj.toString());
-		memberInf.setPassword(passwordObj.toString());
+//		memberInf.setPassword(passwordObj.toString());
 		memberInf.setSex(Integer.valueOf(sexObj.toString()));
 		memberInf.setAge(Integer.valueOf(ageObj.toString()));
 		memberInf.setIdType(Integer.valueOf(idTypeObj.toString()));
@@ -713,5 +713,31 @@ public class MemberAction extends BaseAction {
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);	
 		return null;
+	}
+	
+	public String resetPassword(){
+		String data = getMobileData();
+		Object id = getMobileParameter(data, "memberId");
+		Long idLong = Long.valueOf(0);
+		try {
+			idLong = Long.valueOf(id.toString());
+		} catch (Exception e) {
+			FailureResult result = new FailureResult("id类型错误");
+			sendToMobile(result);
+			return null;
+		}
+		
+		MemberInf member = memberService.getMemberById(idLong);
+		if (member != null && member.getId() > 0) {
+			member.setPassword("000000");
+			memberService.updateMember(member);
+			SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
+			sendToMobile(result);
+			return null;
+		} else {
+			FailureResult result = new FailureResult("该用户不存在");
+			sendToMobile(result);
+			return null;
+		}
 	}
 }

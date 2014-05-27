@@ -212,6 +212,7 @@ public class TeamInfoService extends AbstractBaseService
 	public int updateTeam(TeamInfo team) {
 		team.setUpdateDate(new Timestamp(new Date().getTime()));
 		int result = teamDao.update(team);	
+		teamDao.updateMemberNum(team.getId());
 		return result;
 	}
 
