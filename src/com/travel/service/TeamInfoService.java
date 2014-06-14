@@ -126,12 +126,27 @@ public class TeamInfoService extends AbstractBaseService
 	public TeamLocationDTO getTeamMemeberLocation(Long teamId, Long memberId) {
 		List <LocationLog> list = locationDao.findByTeamId(teamId);
 		TeamLocationDTO dto = new TeamLocationDTO();
+		RouteInf firstRoute = null;
+		boolean searchedRoute = false;
 		Set<Long> memberIdSet = new HashSet<Long>();
 		for(LocationLog location : list){
 			if(location.getMemberInf().getId().longValue() != memberId.longValue()){
 				if(!memberIdSet.contains(location.getMemberInf().getId())){
 					dto.setTeamInfo(location.getTeamInfo().toDTO());
-					dto.addLocation(location.toDTO());
+					LocationLogDTO locationDto = location.toDTO();
+					// If the member never signs in the app, the location is null. So we assign the route start point as the member's location. 
+					if(locationDto.getLatitude() == null || locationDto.getLongitude() == null
+							|| locationDto.getLatitude() < 1 || locationDto.getLongitude() < 1){
+						if(!searchedRoute){
+							firstRoute = teamRouteDao.getFirstRouteByTeamId(teamId);
+							searchedRoute = true;
+						}
+						if(firstRoute != null){
+							locationDto.setLatitude(firstRoute.getStartLatitude());
+							locationDto.setLongitude(firstRoute.getStartLongtitude());
+						}
+					}
+					dto.addLocation(locationDto);
 					memberIdSet.add(location.getMemberInf().getId());
 				}
 			}

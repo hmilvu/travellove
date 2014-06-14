@@ -7,7 +7,6 @@ package com.travel.service;
 
 import java.sql.Date;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.travel.common.admin.dto.WeatherDTO;
 import com.travel.dao.WeatherDataDAO;
 import com.travel.entity.WeatherData;
 import com.travel.utils.HttpUtil;
@@ -39,7 +39,7 @@ public class WeatherService {
 	private WeatherDataDAO weahterDao;
 	
 	@SuppressWarnings("unchecked")
-	public String[] getWheatherData(Double latitude, Double longitude) {
+	public WeatherDTO getWheatherData(Double latitude, Double longitude) {
 		log.info("获取天气数据");
 		String[] data = new String[0];
 		String apiKey = "SHUp4teTcYTAGKHZef97IbGP";//Config.getProperty("baidu.appkey");
@@ -50,6 +50,7 @@ public class WeatherService {
 		ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES , true);
         Map<String, Object> reponseMapper = null;;
+        WeatherDTO dto = null;
 		try {
 			reponseMapper = objectMapper.readValue(response, HashMap.class);
 			Object status = reponseMapper.get("status");
@@ -57,12 +58,15 @@ public class WeatherService {
 				HashMap result = (HashMap)reponseMapper.get("result");
 				HashMap address = (HashMap)result.get("addressComponent");
 				String city = (String)address.get("city");
-				data = getDataByCityName(city);  
+				data = getDataByCityName(city);
+				dto = new WeatherDTO();
+				dto.setCityName(city);
+				dto.setData(data);
 			}
 		} catch (Throwable e) {
 			log.error("根据经纬度获取城市名失败 response = " + response, e);
 		}
-		return data;
+		return dto;
 	}
 	/**
 	 * @param data
@@ -87,6 +91,7 @@ public class WeatherService {
 		}
 		Map<String, String>params = new HashMap<String, String>();
 		params.put("theCityName", city);
+		params.put("theUserID", "d1f5e0b835b5448ebedf3e27f812eb3b");
 		String wheatherUrl = "http://www.webxml.com.cn/WebServices/WeatherWebService.asmx/getWeatherbyCityName";
 		String wheatherResponse = HttpUtil.post(wheatherUrl, params);
 		

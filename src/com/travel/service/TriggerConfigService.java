@@ -1,6 +1,5 @@
 package com.travel.service;
 
-import java.awt.print.Printable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -19,9 +18,12 @@ import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
+import com.travel.common.Constants.SMS_STATUS;
+import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.Constants.TRIGGER_STATUS;
 import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
+import com.travel.common.admin.dto.WeatherDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.dao.LocationLogDAO;
 import com.travel.dao.MemberInfDAO;
@@ -146,29 +148,50 @@ public class TriggerConfigService extends AbstractBaseService
 	 * @param trigger
 	 */
 	public void trigger(TriggerConfig trigger) {
-		if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.WEATHER.getValue()){
-			triggerWheather(trigger);
-		} else if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.REMIND.getValue()){
+		if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.REMIND.getValue()){
 			triggerRemind(trigger);
-		}		
+		} else if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.INSTALL.getValue()){
+			triggerInstall(trigger);
+		}			
+	}
+	
+	private void triggerInstall(TriggerConfig trigger) {
+		Long travelId = trigger.getTravelId();
+		List<TeamInfo> teamList =teamDao.getWillStartTeamByTravelId(travelId);
+		for(TeamInfo team : teamList){
+			List<Long> teamIdList = new ArrayList<Long>();
+			teamIdList.add(team.getId());
+			List<MemberInf> memberList = memberDao.findByTeamIds(teamIdList);
+			for(MemberInf member : memberList){
+				List<Message> existingMessages = messageDao.findTriggerMessage(MESSAGE_RECEIVER_TYPE.MEMBER, member.getId(), trigger.getId());
+				if(existingMessages != null && existingMessages.size() > 0){
+					continue;
+				}
+				Message msg1 = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), trigger.getContent(), trigger.getId());
+				msg1.setSmsTrigger(SMS_TRIGGER.ACTIVE.getValue());
+				Timestamp startTimestamp = new Timestamp(System.currentTimeMillis()/86400000*86400000 + DateUtils.strToHHssTime(trigger.getStartTime()).getTime()); 
+				msg1.setRemindTime(startTimestamp);
+				if(trigger.getTimes() > 0){
+					messageService.addMessageForReceiver(msg1, member.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
+				}
+			}
+		}
 	}
 
-	private void triggerWheather(TriggerConfig trigger) {
+	public void triggerTomorrowWheather(TriggerConfig trigger) {
 		Long travelId = trigger.getTravelId();
-		List<TeamInfo> teamList =teamDao.getActiveTeamByTravelId(travelId);
+		List<TeamInfo> teamList = teamDao.getActiveTeamByTravelId(travelId);
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		pageInfo.setPageNumber(1);
 		pageInfo.setPageSize(1000);
 		for(TeamInfo team : teamList){
-			List<Message> existingMessages = messageDao.findTriggerMessage(team.getId(), trigger.getId());
-			if(existingMessages != null && existingMessages.size() > 0){
-				log.info("消息大于设置次数 teamId="  + team.getId() + " teamName=" + team.getName());
-				continue;
-			}
+			WeatherDTO weatherDto = null;
+			List<MemberInf> memberList = memberDao.findByTeamIds(team.getId()+"");
 			boolean triggered = false;
 			List <TeamRoute> list = teamRouteDao.findByTeamId(team.getId(), pageInfo);	
 			log.info("线路总数 = " + list.size() + " teamId = " + team.getId());
 			for(TeamRoute teamRoute : list){			
+//				Timestamp tomorrow = new Timestamp(System.currentTimeMillis()/86400000*86400000 +  + 3600 * 24 * 1000);
 				List<Object[]> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
 				log.info("景点数量 = " + viewSpotList.size() + " routeId = " + teamRoute.getRouteInf().getId());
 				for(Object[] objArr : viewSpotList){
@@ -181,70 +204,123 @@ public class TriggerConfigService extends AbstractBaseService
 					cal.setTime(teamRoute.getDate()); 
 					cal.add(Calendar.DAY_OF_YEAR, numberOfDay);
 					cal.add(Calendar.HOUR_OF_DAY, 8);
-//					Long startDateLong = cal.getTime().getTime();
-//					Long currentLong = System.currentTimeMillis();
+					Long startDateLong = cal.getTime().getTime();
+					Long currentLong = System.currentTimeMillis();
 					log.info("景点 viewId = " + view.getId() + " viewName = " + view.getName());
-//					if(startDateLong - currentLong > 0 && startDateLong - currentLong < 24 * 3600 * 1000 ){ // 提前一天	
+					if(startDateLong - currentLong > 0 && startDateLong - currentLong < 24 * 3600 * 1000 ){ // 提前一天	
 						try {
 							log.info("查询天气线程休眠10秒");
 							Thread.sleep(10000);
 						} catch (InterruptedException e) {
 							log.error("查询天气线程休眠10秒错误", e);
 						}
-						String []data = weahterService.getWheatherData(view.getLatitude(), view.getLongitude());
-						if(data != null && data.length > 14){
-							if(data[13] != null){
-								String[]keys = StringUtils.split(trigger.getConditionValue(), ",");
-								boolean contains = false;
-								for(String key : keys){
-									if(data[13].contains(key.trim())){
-										contains = true;
-										break;
-									}
-								}
-								if(contains){ //包含关键字
-									Message msg1 = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), trigger.getContent(), trigger.getId());
-									Message msg2 = null;
-									Message msg3 = null;
-									Long today = System.currentTimeMillis()/86400000*86400000;
-									Timestamp startTimestamp = new Timestamp(today + DateUtils.strToHHssTime(trigger.getStartTime()).getTime());
-									Timestamp endTimestamp = new Timestamp(today + DateUtils.strToHHssTime(trigger.getEndTime()).getTime());
-									Timestamp middleTimestamp = new Timestamp((startTimestamp.getTime() + endTimestamp.getTime())/2);
-									msg1.setRemindTime(startTimestamp);
-									msg2 = msg1.clone();
-									msg2.setRemindTime(endTimestamp);
-									msg3 = msg1.clone();
-									msg3.setRemindTime(middleTimestamp);								
-									if(trigger.getTimes() > 0){
-										List<Message>msgList = messageService.addMessageForReceiver(msg1, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
-										if(msgList != null && msgList.size() > 0){									
-											triggered = true;
-										}
-									}
-									if(trigger.getTimes() > 1){
-										List<Message>msgList = messageService.addMessageForReceiver(msg2, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
-										if(msgList != null && msgList.size() > 0){									
-											triggered = true;
-										}
-									} 
-									if(trigger.getTimes() > 2){
-										List<Message>msgList = messageService.addMessageForReceiver(msg3, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
-										if(msgList != null && msgList.size() > 0){									
-											triggered = true;
-										}
+						if(weatherDto == null){
+							weatherDto = weahterService.getWheatherData(view.getLatitude(), view.getLongitude());
+						}
+						String []data = null;
+						if(weatherDto != null){
+							data = weatherDto.getData();
+						}
+						if(data != null && data.length > 15){
+							String weather = data[13] + " " + data[12] + " " + data[14];
+							String content = trigger.getContent();
+							content = StringUtils.replace(content, "{weatherData}", weather);
+							content = StringUtils.replace(content, "{cityName}", weatherDto.getCityName());
+							Message msg1 = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), content, trigger.getId());
+							msg1.setRemindTime(new Timestamp(System.currentTimeMillis()));
+							msg1.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
+							if(trigger.getTimes() > 0){
+								for(MemberInf member : memberList){
+									List<Message>msgList = messageService.addMessageForReceiver(msg1, member.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
+									if(msgList != null && msgList.size() > 0){									
+										messageService.sendSMS(msgList.get(0), member);
+										messageService.sendPushMsg(msgList.get(0), member);
+										triggered = true;
 									}
 								}
 							}
 						}
-//					} else {
-//				
-//					}
+						if(triggered){
+							break; // break view
+						}
+					}
 					if(triggered){
-						break;
+						break; // break route
 					}
 				}
-				if(triggered){
-					break;
+			}
+		}
+	}
+	
+	public void triggerTodayWheather(TriggerConfig trigger) {
+		Long travelId = trigger.getTravelId();
+		List<TeamInfo> teamList = teamDao.getActiveTeamByTravelId(travelId);
+		PageInfoDTO pageInfo = new PageInfoDTO();
+		pageInfo.setPageNumber(1);
+		pageInfo.setPageSize(1000);
+		for(TeamInfo team : teamList){
+			WeatherDTO weatherDto = null;
+			List<MemberInf> memberList = memberDao.findByTeamIds(team.getId()+"");
+			boolean triggered = false;
+			List <TeamRoute> list = teamRouteDao.findByTeamId(team.getId(), pageInfo);	
+			log.info("线路总数 = " + list.size() + " teamId = " + team.getId());
+			for(TeamRoute teamRoute : list){			
+//				Timestamp tomorrow = new Timestamp(System.currentTimeMillis()/86400000*86400000 +  + 3600 * 24 * 1000);
+				List<Object[]> viewSpotList = routeViewSpotDao.findViewSpotByRouteId(teamRoute.getRouteInf().getId());
+				log.info("景点数量 = " + viewSpotList.size() + " routeId = " + teamRoute.getRouteInf().getId());
+				for(Object[] objArr : viewSpotList){
+					ViewSpotInfo view = (ViewSpotInfo)objArr[0];
+					Integer numberOfDay = (Integer)objArr[3] - 1;
+					if(numberOfDay < 0){
+						numberOfDay = 0;
+					}
+					Calendar cal = Calendar.getInstance();	
+					cal.setTime(teamRoute.getDate()); 
+					cal.add(Calendar.DAY_OF_YEAR, numberOfDay);
+					cal.add(Calendar.HOUR_OF_DAY, 8);
+					Long startDateLong = cal.getTime().getTime();
+					Long currentLong = System.currentTimeMillis();
+					log.info("景点 viewId = " + view.getId() + " viewName = " + view.getName());
+					if(startDateLong - currentLong > 0 && startDateLong - currentLong < 24 * 3600 * 1000 ){ // 提前一天	
+						try {
+							log.info("查询天气线程休眠10秒");
+							Thread.sleep(10000);
+						} catch (InterruptedException e) {
+							log.error("查询天气线程休眠10秒错误", e);
+						}
+						if(weatherDto == null){
+							weatherDto = weahterService.getWheatherData(view.getLatitude(), view.getLongitude());
+						}
+						String []data = null;
+						if(weatherDto != null){
+							data = weatherDto.getData();
+						}
+						if(data != null && data.length > 15){
+							String weather = data[13] + " " + data[12] + " " + data[14];
+							String content = trigger.getContent();
+							content = StringUtils.replace(content, "{weatherData}", weather);
+							content = StringUtils.replace(content, "{cityName}", weatherDto.getCityName());
+							Message msg1 = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), content, trigger.getId());
+							msg1.setRemindTime(new Timestamp(System.currentTimeMillis()));
+							msg1.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
+							if(trigger.getTimes() > 0){
+								for(MemberInf member : memberList){
+									List<Message>msgList = messageService.addMessageForReceiver(msg1, member.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
+									if(msgList != null && msgList.size() > 0){									
+										messageService.sendSMS(msgList.get(0), member);
+										messageService.sendPushMsg(msgList.get(0), member);
+										triggered = true;
+									}
+								}
+							}
+						}
+						if(triggered){
+							break; // break view
+						}
+					}
+					if(triggered){
+						break; // break route
+					}
 				}
 			}
 		}
@@ -252,7 +328,7 @@ public class TriggerConfigService extends AbstractBaseService
 	
 	private void triggerRemind(TriggerConfig trigger) {
 		Long travelId = trigger.getTravelId();
-		List<TeamInfo> teamList =teamDao.getActiveTeamByTravelId(travelId);
+		List<TeamInfo> teamList =teamDao.getWillStartTeamByTravelId(travelId);
 		for(TeamInfo team : teamList){
 			List<Message> existingMessages = messageDao.findWaringTriggerMessage(team.getId(), trigger.getId());
 			if(existingMessages != null && existingMessages.size() > 0){
@@ -263,24 +339,23 @@ public class TriggerConfigService extends AbstractBaseService
 				content = StringUtils.replace(content, "{name}", team.getName());
 			}
 			Message msg1 = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), content, trigger.getId());
-			Message msg2 = null;
-			Message msg3 = null;
 			Timestamp startTimestamp = new Timestamp(System.currentTimeMillis()/86400000*86400000 + DateUtils.strToHHssTime(trigger.getStartTime()).getTime()); 
 			Timestamp endTimestamp = new Timestamp(System.currentTimeMillis()/86400000*86400000 + DateUtils.strToHHssTime(trigger.getEndTime()).getTime());
 			Timestamp middleTimestamp = new Timestamp((startTimestamp.getTime() + endTimestamp.getTime())/2);
 			msg1.setRemindTime(startTimestamp);
-			msg2 = msg1.clone();
-			msg2.setRemindTime(endTimestamp);
-			msg3 = msg1.clone();
-			msg3.setRemindTime(middleTimestamp);								
+			List<MemberInf> memberList = memberDao.findByTeamIds(team.getId()+"");
 			if(trigger.getTimes() > 0){
-				messageService.addMessageForReceiver(msg1, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
+				messageService.addMessageForTeamMembers(memberList, msg1, team.getId()+"");
 			}
 			if(trigger.getTimes() > 1){
-				messageService.addMessageForReceiver(msg2, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
+				Message msg2 =  msg1.clone();
+				msg2.setRemindTime(endTimestamp);
+				messageService.addMessageForTeamMembers(memberList, msg2, team.getId()+"");
 			} 
 			if(trigger.getTimes() > 2){
-				messageService.addMessageForReceiver(msg3, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
+				Message msg3 = msg1.clone();
+				msg3.setRemindTime(middleTimestamp);								
+				messageService.addMessageForTeamMembers(memberList, msg3, team.getId()+"");
 			}
 		}
 	}
@@ -313,6 +388,8 @@ public class TriggerConfigService extends AbstractBaseService
 			log.info("当前时间（毫秒）：" + current);
 			log.info("上次地理位置记录时间（毫秒）: " + lastLocation.getCreateDate().getTime());
 			this.triggerVelocity(member, velocity);
+		} else{
+			log.info("no location. memberid = " + member.getId() + " phone = " + member.getTravelerMobile());
 		}
 	}
 
@@ -345,13 +422,12 @@ public class TriggerConfigService extends AbstractBaseService
 										content = StringUtils.replace(content, "{value}", triggerValue+"");
 									}
 									Message msg = setupMessage(team.getTravelInf().getId(), trigger.getTriggerName(), content, trigger.getId());
+									msg.setSmsTrigger(trigger.getSendSMS());
 									Timestamp now = new Timestamp(System.currentTimeMillis());
 									msg.setRemindTime(now);
 									msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
 									List<Message> msgList = messageService.addMessageForReceiver(msg, reminder.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
-									List<MemberInf> memberList = new ArrayList<MemberInf>();
-									memberList.add(member);
-									messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+									messageService.sendPushMsg(msgList.get(0), reminder);
 								}
 							}
 						}
@@ -415,9 +491,8 @@ public class TriggerConfigService extends AbstractBaseService
 						msg.setRemindTime(now);
 						msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
 						List<Message> msgList = messageService.addMessageForReceiver(msg, member.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
-						List<MemberInf> memberList = new ArrayList<MemberInf>();
-						memberList.add(member);
-						messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+						messageService.sendPushMsg(msgList.get(0), member);
+						messageService.sendSMS(msgList.get(0), member);
 					} else {
 						log.info("会员提醒超过提醒次数 memberId = " + member.getId());
 					}
@@ -435,9 +510,8 @@ public class TriggerConfigService extends AbstractBaseService
 						msg.setRemindTime(now);
 						msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
 						List<Message> msgList = messageService.addMessageForReceiver(msg, guider.getId().toString(), MESSAGE_RECEIVER_TYPE.MEMBER);
-						List<MemberInf> memberList = new ArrayList<MemberInf>();
-						memberList.add(guider);
-						messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
+						messageService.sendPushMsg(msgList.get(0), guider);
+						messageService.sendSMS(msgList.get(0), guider);
 					} else {
 						log.info("导游提醒超过提醒次数 memberId = " + guider.getId());
 					}
@@ -492,7 +566,7 @@ public class TriggerConfigService extends AbstractBaseService
 					List <ViewSpotInfo> viewSpotList = viewSpotDao.getTriggeredViewSpot(trigger.getId(), viewSpotIdList);
 					for(ViewSpotInfo view : viewSpotList){
 						try{
-							List<Message> existingMessages = messageDao.getLastHourMessage(MESSAGE_RECEIVER_TYPE.TEAM, team.getId(), trigger.getId());
+							List<Message> existingMessages = messageDao.getLastHourMessage(MESSAGE_RECEIVER_TYPE.MEMBER, team.getId(), trigger.getId());
 							if(existingMessages.size() < trigger.getTimes()){
 								double distance = getDistance(latitude, longitude, view.getLatitude(), view.getLongitude());
 								Double triggerValue = null;
@@ -510,10 +584,11 @@ public class TriggerConfigService extends AbstractBaseService
 									Timestamp now = new Timestamp(System.currentTimeMillis());
 									msg.setRemindTime(now);
 									msg.setRemindMode(MESSAGE_REMIND_MODE.NOW.getValue());
-									List<Message> msgList = messageService.addMessageForReceiver(msg, team.getId().toString(), MESSAGE_RECEIVER_TYPE.TEAM);
-									if(msgList != null && msgList.size() > 0){
-										messageService.sendTeamPushMsg(msgList, msg.getContent(), msg.getReceiverId()+"");
-										break;
+									List<MemberInf> memberList = memberDao.findByTeamIds(team.getId()+"");
+									List<Message> msgList = messageService.addMessageForTeamMembers(memberList, msg, team.getId()+"");
+									for(int i = 0; i < msgList.size(); i++){
+										messageService.sendSMS(msgList.get(i), memberList.get(i));
+										messageService.sendPushMsg(msgList.get(i), memberList.get(i));
 									}
 								}
 							}

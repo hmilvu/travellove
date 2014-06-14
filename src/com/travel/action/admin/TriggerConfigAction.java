@@ -14,6 +14,7 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.action.admin.form.ViewSpotItemForm;
 import com.travel.common.Constants;
+import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -117,6 +118,9 @@ public class TriggerConfigAction extends AuthorityAction{
 		trigger.setEndTime(endTime);
 		trigger.setTimes(Integer.valueOf(times));
 //		trigger.setTriggerType(Integer.valueOf(triggerType));
+		if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.INSTALL.getValue()){
+			sendSMS = "1";
+		}
 		trigger.setContent(content);
 		if(StringUtils.equals("1", sendSMS)){
 			trigger.setSendSMS(1);

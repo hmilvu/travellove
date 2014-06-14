@@ -16,7 +16,7 @@
 					<option value="-1">---------所有-------</option>
 					<s:iterator var="location" value="%{#request.locationList}" status="statu">
 						<option value="<s:property value='%{#location.memberId}'/>" >
-							<s:property value='%{#location.memberName}'/>
+							<s:property value='%{#location.memberName}'/> (<s:number name="#location.latitude" groupingUsed="true" type="double" maximumFractionDigits="2"/>, <s:number name="#location.longitude" groupingUsed="true" type="double" maximumFractionDigits="2"/>)
 						</option>
 					</s:iterator>
 				</select>

@@ -471,4 +471,15 @@ public class MessageDAO extends BaseDAO {
 			}
 		});	
 	}
+
+	/**
+	 * @param id
+	 * @param id2
+	 * @return
+	 */
+	public List<Message> findTriggerMessage(MESSAGE_RECEIVER_TYPE type, Long receiverid, Long triggerId) {
+		String hql = "from Message where receiverType = " + type.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
+		 + " and receiverId = ? and triggerId = ?";
+		return getHibernateTemplate().find(hql, receiverid, triggerId);
+	}
 }

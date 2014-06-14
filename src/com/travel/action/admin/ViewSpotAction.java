@@ -70,9 +70,7 @@ public class ViewSpotAction extends AuthorityAction{
 		String pageNumber = request.getParameter("pageNum");
 		String province = request.getParameter("province");
 		String city = request.getParameter("city");
-		if(areaList == null || areaList.size() == 0){
-			areaList = areaService.getAllProvinces();
-		}
+		areaList = areaService.getAllProvinces();
 		PageInfoDTO pageInfo = new PageInfoDTO();
 		try{
 			pageInfo.setPageNumber(Integer.valueOf(pageNumber.toString()));
@@ -109,9 +107,7 @@ public class ViewSpotAction extends AuthorityAction{
 	}
 	
 	public String add(){
-		if(areaList == null || areaList.size() == 0){
-			areaList = areaService.getAllProvinces();
-		}
+		areaList = areaService.getAllProvinces();
 		request.setAttribute("areaList", areaList);		
 		return "add";
 	}
@@ -180,9 +176,7 @@ public class ViewSpotAction extends AuthorityAction{
 		}catch(Throwable ignore){	
 			return "edit";
 		}
-		if(areaList == null || areaList.size() == 0){
-			areaList = areaService.getAllProvinces();
-		}
+		areaList = areaService.getAllProvinces();
 		ViewSpotInfo view = viewSpotService.getViewSpotById(idLong);	
 		if(view != null && view.getId() > 0){
 			if(StringUtils.isNotBlank(view.getProvince())){

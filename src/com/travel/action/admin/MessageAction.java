@@ -8,6 +8,7 @@ package com.travel.action.admin;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
+import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
@@ -115,15 +117,15 @@ public class MessageAction extends AuthorityAction{
 		if(msg == null){
 			return;
 		}
-		String teamIds = request.getParameter("selectteam.id");		
-		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
+		String teamIds = request.getParameter("selectteam.id");
+		List<MemberInf> memberList = memberService.findAllMembersByTeamIds(teamIds);
+		List<Message> msgList = messageService.addMessageForTeamMembers(memberList, msg, teamIds);
 		if(msgList != null && msgList.size() > 0){
 			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
-				String sendSMS = request.getParameter("sendSMS");
-				if(StringUtils.equals("1", sendSMS)){
-					messageService.sendSMS(msgList, msg.getContent(), teamIds);
+				for(int i = 0; i < msgList.size(); i++){
+					messageService.sendSMS(msgList.get(i), memberList.get(i));
+					messageService.sendPushMsg(msgList.get(i), memberList.get(i));
 				}
-				messageService.sendTeamPushMsg(msgList, msg.getContent(), teamIds);
 			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
@@ -173,8 +175,10 @@ public class MessageAction extends AuthorityAction{
 			msg.setTravelInf(travelInf);
 		}
 		msg.setTriggerId(0L);
-		if(StringUtils.equals("1", sendSMS)){
-			msg.setSmsTrigger(1);
+		if(StringUtils.equals(SMS_TRIGGER.ACTIVE.getValue()+"", sendSMS)){
+			msg.setSmsTrigger(SMS_TRIGGER.ACTIVE.getValue());
+		} else {
+			msg.setSmsTrigger(SMS_TRIGGER.INACTIVE.getValue());
 		}
 		return msg;
 	}
@@ -193,11 +197,10 @@ public class MessageAction extends AuthorityAction{
 		List<Message>msgList = messageService.addMessageForReceiver(msg, memberIds, MESSAGE_RECEIVER_TYPE.MEMBER);
 		if(msgList != null && msgList.size() > 0){
 			if(msg.getRemindMode().intValue() == MESSAGE_REMIND_MODE.NOW.getValue()){
-				String sendSMS = request.getParameter("sendSMS");
-				if(StringUtils.equals("1", sendSMS)){
-					messageService.sendSMS(msgList, msg.getContent(), memberList);
+				for(int i = 0; i < msgList.size(); i++){
+					messageService.sendSMS(msgList.get(i), memberList.get(i));
+					messageService.sendPushMsg(msgList.get(i), memberList.get(i));
 				}
-				messageService.sendMemberPushMsg(msgList, msg.getContent(), memberList);
 			}
 			JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));
 		} else {			
@@ -226,15 +229,9 @@ public class MessageAction extends AuthorityAction{
 		if(msg != null && msg.getId() > 0){
 			request.setAttribute("editMessage", msg);
 		}
-		if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
-			TeamInfo team = teamService.getTeamById(msg.getReceiverId());
-			msg.setReceiverName(team.getName());
-			return "editTeamMsg";
-		} else {
-			MemberInf member = memberService.getMemberById(msg.getReceiverId());
-			msg.setReceiverName(member.getMemberName());
-			return "editMemberMsg";
-		}
+		MemberInf member = memberService.getMemberById(msg.getReceiverId());
+		msg.setReceiverName(member.getMemberName());
+		return "editMemberMsg";
 	}
 	
 	public void updateMemberMsg(){

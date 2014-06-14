@@ -209,6 +209,9 @@ public class MemberService extends AbstractBaseService
             String nickname = getString(row, 2);
             String phoneNumber = getString(row, 3);
             String password = getString(row, 4);
+            if(StringUtils.isBlank(password)){
+            	password = "000000";
+            }
             String genderStr = getString(row, 5);
             Integer gender = 2;
             try{
@@ -288,6 +291,10 @@ public class MemberService extends AbstractBaseService
 	 */
 	public List<MemberInf> findAllMembersByTeamIds(List<Long> idList) {
 		return memberInfDao.findByTeamIds(idList);
+	}
+	
+	public List<MemberInf> findAllMembersByTeamIds(String ids) {
+		return memberInfDao.findByTeamIds(ids);
 	}
 
 

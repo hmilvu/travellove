@@ -1,6 +1,7 @@
 package com.travel.dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +9,6 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -20,9 +20,9 @@ import org.springframework.stereotype.Repository;
 import com.travel.common.Constants;
 import com.travel.common.Constants.MEMBER_STATUS;
 import com.travel.common.Constants.MEMBER_TYPE;
+import com.travel.common.Constants.TEAM_STATUS;
 import com.travel.common.admin.dto.SearchMemberDTO;
 import com.travel.common.dto.PageInfoDTO;
-import com.travel.entity.ItemInf;
 import com.travel.entity.MemberInf;
 
 /**
@@ -119,7 +119,8 @@ public class MemberInfDAO extends BaseDAO {
 	@SuppressWarnings("unchecked")
 	public MemberInf findByCredentials(Long teamId, String mobile, String password) {
 		try {
-			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ?";
+			String queryString = "from MemberInf as m where m.teamInfo.id = ? and m.travelerMobile = ? and m.password = ? and m.status = " + MEMBER_STATUS.ACTIVE.getValue()
+			 + " and m.teamInfo.status = " + TEAM_STATUS.ACTIVE.getValue();
 			List<MemberInf> list = getHibernateTemplate().find(queryString, teamId, mobile, password);
 			if(list != null && list.size() > 0){
 				return list.get(0);
@@ -155,6 +156,7 @@ public class MemberInfDAO extends BaseDAO {
 	private Criteria buildSearchCriteria(Session session, SearchMemberDTO dto) {
 		Criteria cr = session.createCriteria(MemberInf.class);
 		cr.createAlias("teamInfo", "t");
+		cr.add(Restrictions.ne("t.status", Integer.valueOf(TEAM_STATUS.INACTIVE.getValue())));
 		cr.createAlias("sysUser", "s");
 		if (StringUtils.isNotBlank(dto.getTeamName())) {
 			cr.add(Restrictions.like("t.name", StringUtils.trim(dto.getTeamName()) + "%").ignoreCase());
@@ -247,12 +249,22 @@ public class MemberInfDAO extends BaseDAO {
 			@Override
 			public List<MemberInf> doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				String queryString = "from MemberInf as m where m.teamInfo.id in (:ids)";
+				String queryString = "from MemberInf as m where m.teamInfo.id in (:ids) and status != " + MEMBER_STATUS.INACTIVE.getValue()
+				+ " and m.teamInfo.status !=" + TEAM_STATUS.INACTIVE.getValue();
 				Query queryObject = session.createQuery(queryString);
 				queryObject.setParameterList("ids", idList);
 				return queryObject.list();
 			}
 		});	
+	}
+	
+	public List<MemberInf> findByTeamIds(final String ids) {
+		List<Long>idList = new ArrayList<Long>();
+		String[] idArr = StringUtils.split(ids, ",");
+		for(String id : idArr){
+			idList.add(Long.valueOf(Long.valueOf(id.trim())));
+		}
+		return findByTeamIds(idList);
 	}
 
 	/**

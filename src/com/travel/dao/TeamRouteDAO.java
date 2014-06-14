@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.dto.PageInfoDTO;
+import com.travel.entity.RouteInf;
 import com.travel.entity.TeamInfo;
 import com.travel.entity.TeamRoute;
 
@@ -153,6 +154,29 @@ public class TeamRouteDAO extends BaseDAO {
 					Query queryObject = session.createQuery(queryString);
 					queryObject.setParameter(0, teamId);
 					return queryObject.list();
+			}
+		});	
+	}
+
+	/**
+	 * @param teamId
+	 * @return
+	 */
+	public RouteInf getFirstRouteByTeamId(final Long teamId) {
+		return getHibernateTemplate().execute(new HibernateCallback<RouteInf>() {
+			@Override
+			public RouteInf doInHibernate(Session session) throws HibernateException,
+					SQLException {
+					String queryString = "select m.routeInf from TeamRoute as m where m.teamInfo.id = ? order by m.routeOrder";
+					Query queryObject = session.createQuery(queryString);
+					queryObject.setParameter(0, teamId);
+					queryObject.setMaxResults(1);
+					List<RouteInf> list = queryObject.list();
+					if(list.size() > 0){
+						return list.get(0);
+					} else {
+						return null;
+					}
 			}
 		});	
 	}

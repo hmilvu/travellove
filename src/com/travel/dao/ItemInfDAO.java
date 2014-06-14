@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Order;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Repository;
 
 import com.travel.common.Constants;
 import com.travel.common.Constants.ITEM_TYPE;
-import com.travel.common.Constants.VIEW_SPOT_TYPE;
 import com.travel.common.admin.dto.SearchItemDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.ItemInf;
@@ -188,17 +188,22 @@ public class ItemInfDAO extends BaseDAO {
 			@Override
 			public List<ItemInf> doInHibernate(Session session) throws HibernateException,
 					SQLException {
-				Criteria cr = session.createCriteria(ItemInf.class);
-				cr.createAlias("travelInf", "t", CriteriaSpecification.LEFT_JOIN);
-				cr.add(Restrictions.or(Restrictions.eq("t.id", dto.getTravelId()), Restrictions.eq("type", VIEW_SPOT_TYPE.PUBLIC.getValue())));
+				String sql = "select i.* from team_route tr, route_view_spot rv, view_spot_item vi, item_inf i" +
+						" where tr.route_id = rv.route_id and rv.view_spot_id = vi.view_spot_id and vi.item_id = i.id" +
+						" and tr.team_id = ? ";
 				if (StringUtils.isNotBlank(dto.getName())) {
-					cr.add(Restrictions.like("name", StringUtils.trim("%" + dto.getName()) + "%").ignoreCase());
+					sql = sql + " and i.name like ?";
+				}
+				sql = sql + " order by i.create_date desc";
+				SQLQuery query = session.createSQLQuery(sql).addEntity(ItemInf.class); ;
+				query.setLong(0, dto.getTeamId());
+				if(StringUtils.isNotBlank(dto.getName())){
+					query.setString(1, "%" + StringUtils.trim(dto.getName()) + "%");
 				}
 				int maxResults = pageInfo.getPageSize() > 0 ? pageInfo.getPageSize() : Constants.DEFAULT_PAGE_SIZE;
-				cr.setMaxResults(maxResults);
-				cr.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
-				cr.addOrder(Order.desc("createDate"));
-				return cr.list();
+				query.setMaxResults(maxResults);
+				query.setFirstResult((pageInfo.getPageNumber()-1) * maxResults);
+				return query.list();
 			}
 		});	
 	}

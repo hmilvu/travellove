@@ -13,6 +13,7 @@ package com.travel.common.admin.dto;
 public class SearchItemDTO extends BaseAdminDTO{
 	private String name;
 	private String brands;
+	private Long teamId;
 	public String getName() {
 		return name;
 	}
@@ -24,6 +25,12 @@ public class SearchItemDTO extends BaseAdminDTO{
 	}
 	public void setBrands(String brands) {
 		this.brands = brands;
+	}
+	public Long getTeamId() {
+		return teamId;
+	}
+	public void setTeamId(Long teamId) {
+		this.teamId = teamId;
 	}
 	
 }

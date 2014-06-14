@@ -63,11 +63,13 @@ function save(){
 			</dl>
 			<dl>
 				<dt>触发频次：</dt>
-				<dd>
+				<dd> 
 					<select class="combox required" name="times">
 						<option <s:if test="%{#request.editTriggerConfig.times == 1}">selected</s:if> value="1">1</option>
+						<s:if test="%{#request.editTriggerConfig.typeValue != 6}">
 						<option <s:if test="%{#request.editTriggerConfig.times == 2}">selected</s:if> value="2">2</option>
 						<option <s:if test="%{#request.editTriggerConfig.times == 3}">selected</s:if> value="3">3</option>
+						</s:if>
 					</select>
 				</dd>
 			</dl>
@@ -86,13 +88,13 @@ function save(){
 			<dl>
 				<dt>是否需要发送短信：</dt>
 				<dd>
-					<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editTriggerConfig.sendSMS == 1}">checked</s:if>/>
+					<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editTriggerConfig.sendSMS == 1}">checked</s:if> <s:if test="%{#request.editTriggerConfig.typeValue == 6}">disabled</s:if>/>
 				</dd>
 			</dl>
 			<dl>
 				<dt>触发内容：</dt>
 				<dd>
-					<textarea name="content" cols="80" rows="2" maxlength="140" class="required"><s:property value='%{#request.editTriggerConfig.content}'/></textarea>		
+					<textarea name="content" cols="80" rows="4" maxlength="140" class="required"><s:property value='%{#request.editTriggerConfig.content}'/></textarea>		
 				</dd>
 			</dl>	
 			<s:if test="%{#request.editTriggerConfig.typeValue == 3}">

@@ -76,8 +76,9 @@ public class ItemInfAction extends BaseAction {
 		if(keyword != null && StringUtils.isNotBlank(keyword.toString())){
 			dto.setName(keyword.toString().trim());
 		}
-		TeamInfo team = teamService.getTeamById(teamIdLong);
-		dto.setTravelId(team.getTravelInf().getId());
+//		TeamInfo team = teamService.getTeamById(teamIdLong);
+//		dto.setTravelId(team.getTravelInf().getId());
+		dto.setTeamId(teamIdLong);
 		List<ItemInfDTO> list = itemService.getItemList(dto, pageInfo);
 		SuccessResult<List<ItemInfDTO>> result = new SuccessResult<List<ItemInfDTO>>(list);
 		sendToMobile(result);

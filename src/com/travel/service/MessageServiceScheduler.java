@@ -8,6 +8,7 @@ package com.travel.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
+import com.travel.common.Constants.SMS_STATUS;
+import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
@@ -33,29 +36,23 @@ public class MessageServiceScheduler {
 	private MemberService memberService;
 	@Autowired
 	private TriggerConfigService triggerService;
-	@Scheduled(fixedRate = 60000)
+//	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
-		log.info("检查自动触发");
+		log.debug("检查自动触发");
 		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
 		for(TriggerConfig trigger : list){
-			log.info("自动触发：" + trigger.toString());
-			if(trigger.getTriggerType().intValue() != TRIGGER_TYPE.WEATHER.getValue()){
+			log.debug("自动触发：" + trigger.toString());
+			if(trigger.getTypeValue().intValue() != TRIGGER_TYPE.WEATHER.getValue()){
 				triggerService.trigger(trigger);
 			}
 		}		
 		
-		log.info("检查预约消息，准备推送");
+		log.debug("检查预约消息，准备推送");
 		List<Message> messageList = messageService.getNeedToPushMessages();
 		for(Message msg : messageList){
-			log.info("开始推送");
-			if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
-				messageService.sendTeamPushMsg(messageList, msg.getContent(), msg.getReceiverId()+"");
-			} else {
-				MemberInf member = memberService.getMemberById(msg.getReceiverId());
-				List <MemberInf> memberList = new ArrayList<MemberInf>();
-				memberList.add(member);
-				messageService.sendMemberPushMsg(messageList, msg.getContent(), memberList);
-			}
+			MemberInf member = memberService.getMemberById(msg.getReceiverId());
+			messageService.sendPushMsg(msg, member);
+			messageService.sendSMS(msg, member);
 		}
 	}
 }

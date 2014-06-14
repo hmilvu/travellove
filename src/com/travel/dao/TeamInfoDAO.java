@@ -203,14 +203,14 @@ public class TeamInfoDAO extends BaseDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<TeamInfo> getActiveTeamByTravelId(Long travelId) {
+	public List<TeamInfo> getWillStartTeamByTravelId(Long travelId) {
 		log.debug("getActiveTeamByTravelId instances");
 		try {
-			String queryString = "from TeamInfo where travelInf.id = ? and status=0 and beginDate <= ? and endDate >= ?";
+			String queryString = "select id from TeamInfo where travelInf.id = ? and status=" +TEAM_STATUS.ACTIVE.getValue()+ " and beginDate = ?";
 			Calendar tomorrow=Calendar.getInstance();
 			tomorrow.setTime(new Date());
 			tomorrow.add(Calendar.DAY_OF_MONTH, 1);
-			return getHibernateTemplate().find(queryString, travelId, tomorrow.getTime(), tomorrow.getTime());
+			return getHibernateTemplate().find(queryString, travelId, tomorrow.getTime());
 		} catch (RuntimeException re) {
 			log.error("getActiveTeamByTravelId failed", re);
 			throw re;
@@ -237,4 +237,23 @@ public class TeamInfoDAO extends BaseDAO {
 		});
 		
 	}
+
+	/**
+	 * @param travelId
+	 * @return
+	 */
+	public List<TeamInfo> getActiveTeamByTravelId(Long travelId) {
+		log.debug("getActiveTeamByTravelId instances");
+		try {
+			String queryString = "from TeamInfo where travelInf.id = ? and status=" +TEAM_STATUS.ACTIVE.getValue()+ " and (beginDate = ? or endDate = ? or (beginDate < ? and endDate > ?))";
+			Calendar tomorrow=Calendar.getInstance();
+			tomorrow.setTime(new Date());
+			tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+			return getHibernateTemplate().find(queryString, travelId, tomorrow.getTime(), tomorrow.getTime(), tomorrow.getTime(), tomorrow.getTime());
+		} catch (RuntimeException re) {
+			log.error("getActiveTeamByTravelId failed", re);
+			throw re;
+		}
+	}
+
 }

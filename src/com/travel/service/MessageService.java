@@ -32,6 +32,7 @@ import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.Constants.OS_TYPE;
 import com.travel.common.Constants.PUSH_STATUS;
 import com.travel.common.Constants.SMS_STATUS;
+import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.MessageDTO;
 import com.travel.common.dto.PageInfoDTO;
@@ -132,13 +133,8 @@ public class MessageService extends AbstractBaseService
 		List<Message> list = messageDAO.findMessages(dto, pageInfo);
 		List<Message> result = new ArrayList<Message>();
 		for(Message msg : list){
-			if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
-				String teamName = teamDAO.findById(msg.getReceiverId()).getName();
-				msg.setReceiverName(teamName);
-			} else {
-				String memberName = memberDAO.findById(msg.getReceiverId()).getMemberName();
-				msg.setReceiverName(memberName);
-			}
+			String memberName = memberDAO.findById(msg.getReceiverId()).getMemberName();
+			msg.setReceiverName(memberName);
 			result.add(msg);
 		}
 		return result;
@@ -186,178 +182,6 @@ public class MessageService extends AbstractBaseService
 		reply.setCreateDate(new Timestamp(new Date().getTime()));
 		reply.setUpdateDate(reply.getCreateDate());
 		return replyDAO.save(reply);
-	}
-
-	/**
-	 * @param msgIdList
-	 * @param content
-	 */
-	public void sendTeamPushMsg(List<Message>messageList, String content, String teamIds) {
-		String []teamIdArr = StringUtils.split(teamIds, ",");
-		List<Message> newMsgList = new ArrayList<Message>();
-		List<MemberInf> newMemberList = new ArrayList<MemberInf>();
-		for(int i = 0; i < teamIdArr.length; i++){
-			String teamId = teamIdArr[i];
-			List<Long> idList = new ArrayList<Long>();
-			idList.add(Long.valueOf(teamId));
-			List<MemberInf> memberList = memberService.findAllMembersByTeamIds(idList);
-			newMemberList.addAll(memberList);
-			for(int j = 0; j < memberList.size(); j++){
-				newMsgList.add(messageList.get(i));
-			}
-		}
-		if(newMemberList.size() == 0){
-			for(Message msg : messageList){
-				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
-				messageDAO.update(msg);
-			}
-		} else {
-			int result = sendMemberPushMsg(newMsgList, content, newMemberList);
-			if(result == newMemberList.size()){
-				log.info("全部推送成功");
-			} else {
-				log.info("部分或全部推送失败");
-			}
-		}
-/*		// 1. 设置developer平台的ApiKey/SecretKey
-		String apiKey = Config.getProperty("baidu.appkey");
-		String secretKey = Config.getProperty("baidu.secretkey");
-		ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);		
-		// 2. 创建BaiduChannelClient对象实例
-		BaiduChannelClient channelClient = new BaiduChannelClient(pair);		
-		// 3. 若要了解交互细节，请注册YunLogHandler类
-		channelClient.setChannelLogHandler(new YunLogHandler() {
-			@Override
-			public void onHandle(YunLogEvent event) {
-				log.info(event.getMessage());
-			}
-		});
-		
-		String []teamIdArray = StringUtils.split(teamIds, ",");
-		for(int i = 0; i < teamIdArray.length; i++){
-			String teamId = teamIdArray[i];
-			Message msg = messageList.get(i);
-			try {			
-				// 4. 创建请求类对象
-				PushTagMessageRequest request = new PushTagMessageRequest();
-				request.setDeviceType(3); 	// device_type => 1: web 2: pc 3:android 4:ios 5:wp	
-				request.setTagName("TAG_" + teamId);
-				request.setMessage(content);
-				// 若要通知，
-				//	request.setMessageType(1);
-				//	request.setMessage("{\"title\":\"Notify_title_danbo\",\"description\":\"Notify_description_content\"}");		
-				// 5. 调用pushMessage接口
-				PushTagMessageResponse response = channelClient.pushTagMessage(request);
-				// 6. 认证推送成功
-				log.info("push amount : " + response.getSuccessAmount()); 
-				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
-			} catch (ChannelClientException e) {
-				// 处理客户端错误异常
-				log.error("团队推送失败 TAG = ", "TAG_" + teamId);
-				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-			} catch (ChannelServerException e) {
-				// 处理服务端错误异常
-				log.error("团队推送失败 TAG = ", "TAG_" + teamId);
-				log.error(String.format("request_id: %d, error_code: %d, error_message: %s" , 
-							e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
-							));
-				msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-			} finally{
-				messageDAO.update(msg);
-			}
-		}	*/	
-	}
-
-	/**
-	 * @param msgIdList
-	 * @param content
-	 * @param memberList
-	 * @brief	推送单播消息(消息类型为透传，由开发方应用自己来解析消息内容)
-	* 			message_type = 0 (默认为0)
-	 */
-	public int sendMemberPushMsg(List<Message>messageList, String content,
-			List<MemberInf> memberList) {
-		int result = 0;
-		// 1. 设置developer平台的ApiKey/SecretKey
-		if(memberList.size() == 0){
-			for(Message msg : messageList){
-				msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
-				messageDAO.update(msg);
-			}
-		} else {
-			String apiKey = null;
-			String secretKey = null;
-			Integer deployStatus = null;
-			for(int i = 0; i < memberList.size(); i++){
-				MemberInf member = memberList.get(i);
-				if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
-					apiKey = Config.getProperty("ios.baidu.appkey");
-					secretKey = Config.getProperty("ios.baidu.secretkey");
-					deployStatus = Integer.valueOf(Config.getProperty("ios.baidu.deploy.status"));
-				} else {
-					apiKey = Config.getProperty("android.baidu.appkey");
-					secretKey = Config.getProperty("android.baidu.secretkey");
-				}
-				ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
-				
-				// 2. 创建BaiduChannelClient对象实例
-				BaiduChannelClient channelClient = new BaiduChannelClient(pair);
-				
-				// 3. 若要了解交互细节，请注册YunLogHandler类
-				channelClient.setChannelLogHandler(new YunLogHandler() {
-					@Override
-					public void onHandle(YunLogEvent event) {
-						log.info(event.getMessage());
-					}
-				});
-			
-				Message msg = messageList.get(i);
-				try {		
-					// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
-					PushUnicastMessageRequest request = new PushUnicastMessageRequest();
-					// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
-					if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
-						request.setDeployStatus(deployStatus); // DeployStatus => 1: Developer 2: Production 
-						request.setDeviceType(4);	
-					} else {
-						request.setDeviceType(3);
-					}
-					request.setChannelId(member.getChannelId());	
-					request.setUserId(member.getBaiduUserId());	
-					request.setMessageType(1);	
-					if(member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
-						request.setMessage("{\"aps\":{\"alert\":\""+content+"\",\"sound\":\"default\"}}");
-					} else {
-						request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
-					}
-					
-					// 5. 调用pushMessage接口
-					PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
-					// 6. 认证推送成功
-					log.info("单点推送成功 memberId = " + member.getId() +", channelId = " + member.getChannelId());
-					log.info("push amount : " + response.getSuccessAmount()); 	
-					msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
-					result++;
-				} catch (ChannelClientException e) {
-					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-				} catch (ChannelServerException e) {
-					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-					log.error(
-							String.format("request_id: %d, error_code: %d, error_message: %s" , 
-								e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
-								)
-							);
-					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-				} catch (Throwable e){
-					log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
-					msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
-				} finally{
-					messageDAO.update(msg);
-				}
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -528,15 +352,10 @@ public class MessageService extends AbstractBaseService
 		List<Message> list = messageDAO.findTriggerMessages(dto, pageInfo);
 		List<Message> result = new ArrayList<Message>();
 		for(Message msg : list){
-			if(msg.getReceiverType().intValue() == MESSAGE_RECEIVER_TYPE.TEAM.getValue()){
-				String teamName = teamDAO.findById(msg.getReceiverId()).getName();
-				msg.setReceiverName(teamName);
-			} else {
-				MemberInf m = memberDAO.findById(msg.getReceiverId());
-				String memberName = m.getMemberName();
-				msg.setReceiverName(memberName);
-				msg.setOsType(m.getOsType());
-			}
+			MemberInf m = memberDAO.findById(msg.getReceiverId());
+			String memberName = m.getMemberName();
+			msg.setReceiverName(memberName);
+			msg.setOsType(m.getOsType());
 			result.add(msg);
 		}
 		return result;
@@ -567,60 +386,6 @@ public class MessageService extends AbstractBaseService
 	 */
 	public void deleteVisible(Long memberId, Long msgId) {
 		mvDao.deleteVisible(memberId, msgId);
-		
-	}
-
-	/**
-	 * @param content
-	 * @param memberList
-	 */
-	public void sendSMS(List<Message>messageList, String content, List<MemberInf> memberList) {
-		if(memberList == null || memberList.size() == 0){
-			log.info("会员为空，不发短信");
-			return;
-		}
-		for(int i = 0; i < memberList.size(); i++){
-			MemberInf m = memberList.get(i);
-			Message msg = messageList.get(i);
-			try{
-				String mtUrl=Config.getProperty("sms_url");
-				//操作命令、SP编号、SP密码，必填参数
-		        String command = "MULTI_MT_REQUEST";
-		        String spid = Config.getProperty("sms_spid");
-		        String sppassword = Config.getProperty("sms_password");
-		        //sp服务代码，可选参数，默认为 00
-		        String spsc = "00";
-		        //源号码，可选参数
-		        String sa = Config.getProperty("sms_sender");
-		        
-		        String das = "86" + m.getTravelerMobile();
-		        //目标号码组，必填参数
-		        //下行内容以及编码格式，必填参数
-		        int dc = 15;
-		        String sm = encodeHexStr(dc, content);//下行内容进行Hex编码，此处dc设为15，即使用GBK编码格式
-		
-		        //组成url字符串
-		        String smsUrl = mtUrl + "?command=" + command + "&spid=" + spid + "&sppassword=" + sppassword + "&spsc=" + spsc + "&sa=" + sa + "&das=" + das + "&sm=" + sm + "&dc=" + dc;
-		        log.info("smsUrl = " + smsUrl);
-		        //发送http请求，并接收http响应
-		        String resStr = doGetRequest(smsUrl.toString());
-		        log.info("resStr = " + resStr);
-		
-		        //解析响应字符串
-		        HashMap pp = parseResStr(resStr);
-		        if(pp != null && pp.get("mterrcode") != null && StringUtils.equals("000", pp.get("mterrcode").toString())){
-		        	msg.setSmsStatus(SMS_STATUS.SENT.getValue());
-		        } else {
-		        	msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
-		        }
-			} catch(Throwable e){
-				log.error("发送短信失败", e);
-				msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
-			} finally{
-				messageDAO.update(msg);
-			}
-	        
-		}
 		
 	}
 	
@@ -706,28 +471,152 @@ public class MessageService extends AbstractBaseService
     }
 
 	/**
-	 * @param msgList
-	 * @param content
-	 * @param teamIds
+	 * @param msg
+	 * @param member
 	 */
-	public void sendSMS(List<Message> messageList, String content, String teamIds) {
-		String []teamIdArr = StringUtils.split(teamIds, ",");
-		List<Message> newMsgList = new ArrayList<Message>();
-		List<MemberInf> newMemberList = new ArrayList<MemberInf>();
-		for(int i = 0; i < teamIdArr.length; i++){
-			String teamId = teamIdArr[i];
-			List<Long> idList = new ArrayList<Long>();
-			idList.add(Long.valueOf(teamId));
-			List<MemberInf> memberList = memberService.findAllMembersByTeamIds(idList);
-			newMemberList.addAll(memberList);
-			for(int j = 0; j < memberList.size(); j++){
-				newMsgList.add(messageList.get(i));
-			}
+	public void sendSMS(Message msg, MemberInf member) {
+		if(msg == null || member == null){
+			log.error("msg or member is null. No need to send SMS." );
+			return;
 		}
-		if(newMemberList.size() > 0){
-			sendSMS(newMsgList, content, newMemberList);
+		if(msg.getSmsTrigger().intValue() != SMS_TRIGGER.ACTIVE.getValue()){
+			log.info("msg SMS trigger is disabled. No need to send SMS. msg.id = " + msg.getId());
+			return;
+		}
+		try{
+			String mtUrl=Config.getProperty("sms_url");
+			//操作命令、SP编号、SP密码，必填参数
+	        String command = "MULTI_MT_REQUEST";
+	        String spid = Config.getProperty("sms_spid");
+	        String sppassword = Config.getProperty("sms_password");
+	        //sp服务代码，可选参数，默认为 00
+	        String spsc = "00";
+	        //源号码，可选参数
+	        String sa = Config.getProperty("sms_sender");
+	        
+	        String das = "86" + member.getTravelerMobile();
+	        //目标号码组，必填参数
+	        //下行内容以及编码格式，必填参数
+	        int dc = 15;
+	        String sm = encodeHexStr(dc, msg.getContent());//下行内容进行Hex编码，此处dc设为15，即使用GBK编码格式
+	
+	        //组成url字符串
+	        String smsUrl = mtUrl + "?command=" + command + "&spid=" + spid + "&sppassword=" + sppassword + "&spsc=" + spsc + "&sa=" + sa + "&das=" + das + "&sm=" + sm + "&dc=" + dc;
+	        log.info("smsUrl = " + smsUrl);
+	        //发送http请求，并接收http响应
+	        String resStr = doGetRequest(smsUrl.toString());
+	        log.info("resStr = " + resStr);
+	
+	        //解析响应字符串
+	        HashMap pp = parseResStr(resStr);
+	        if(pp != null && pp.get("mterrcode") != null && StringUtils.equals("000", pp.get("mterrcode").toString())){
+	        	msg.setSmsStatus(SMS_STATUS.SENT.getValue());
+	        } else {
+	        	msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
+	        }
+		} catch(Throwable e){
+			log.error("发送短信失败", e);
+			msg.setSmsStatus(SMS_STATUS.SEND_FAILED.getValue());
+		} finally{
+			messageDAO.update(msg);
+		}
+	        
+		
+	}
+
+	/**
+	 * @param message
+	 * @param memberInf
+	 */
+	public void sendPushMsg(Message msg, MemberInf member) {
+		if(msg == null || member == null){
+			log.error("msg or member is null. No need to push message." );
+			return;
+		}
+		try {		
+			String apiKey = null;
+			String secretKey = null;
+			Integer deployStatus = null;
+			// 1. 设置developer平台的ApiKey/SecretKey
+			if(member.getOsType() != null && member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+				apiKey = Config.getProperty("ios.baidu.appkey");
+				secretKey = Config.getProperty("ios.baidu.secretkey");
+				deployStatus = Integer.valueOf(Config.getProperty("ios.baidu.deploy.status"));
+			} else {
+				apiKey = Config.getProperty("android.baidu.appkey");
+				secretKey = Config.getProperty("android.baidu.secretkey");
+			}
+			ChannelKeyPair pair = new ChannelKeyPair(apiKey, secretKey);
+			
+			// 2. 创建BaiduChannelClient对象实例
+			BaiduChannelClient channelClient = new BaiduChannelClient(pair);
+			
+			// 3. 若要了解交互细节，请注册YunLogHandler类
+			channelClient.setChannelLogHandler(new YunLogHandler() {
+				@Override
+				public void onHandle(YunLogEvent event) {
+					log.info(event.getMessage());
+				}
+			});
+	
+			// 4. 创建请求类对象, 手机端的ChannelId， 手机端的UserId
+			PushUnicastMessageRequest request = new PushUnicastMessageRequest();
+			// device_type => 1: web 2: pc 3:android 4:ios 5:wp		
+			if(member.getOsType() != null && member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+				request.setDeployStatus(deployStatus); // DeployStatus => 1: Developer 2: Production 
+				request.setDeviceType(4);	
+			} else {
+				request.setDeviceType(3);
+			}
+			request.setChannelId(member.getChannelId());	
+			request.setUserId(member.getBaiduUserId());	
+			request.setMessageType(1);	
+			String content = msg.getContent();
+			if(member.getOsType() != null && member.getOsType().intValue() == OS_TYPE.IOS.getValue()){
+				request.setMessage("{\"aps\":{\"alert\":\""+content+"\",\"sound\":\"default\"}}");
+			} else {
+				request.setMessage("{\"title\":\"旅游关爱消息中心\",\"description\":\""+content+"\"}");
+			}
+			
+			// 5. 调用pushMessage接口
+			PushUnicastMessageResponse response = channelClient.pushUnicastMessage(request);						
+			// 6. 认证推送成功
+			log.info("单点推送成功 memberId = " + member.getId() +", channelId = " + member.getChannelId());
+			log.info("push amount : " + response.getSuccessAmount()); 	
+			msg.setPushStatus(PUSH_STATUS.PUSHED.getValue());
+		} catch (ChannelClientException e) {
+			log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+			msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+		} catch (ChannelServerException e) {
+			log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+			log.error(
+					String.format("request_id: %d, error_code: %d, error_message: %s" , 
+						e.getRequestId(), e.getErrorCode(), e.getErrorMsg()
+						)
+					);
+			msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+		} catch (Throwable e){
+			log.error("单点推送失败 memberId = " + member.getId() +", channelId = " + member.getChannelId(), e);
+			msg.setPushStatus(PUSH_STATUS.PUSH_FAILED.getValue());
+		} finally{
+			messageDAO.update(msg);
 		}
 		
 	}
-	
+
+	/**
+	 * @param msg
+	 * @param teamIds
+	 * @return
+	 */
+	public List<Message> addMessageForTeamMembers(List<MemberInf> memberList, Message msg, String teamIds) {
+		String memberIds = "";
+		for(MemberInf m : memberList){
+			memberIds += m.getId() + ",";
+		}
+		if(memberIds.length() > 0){
+			memberIds = memberIds.substring(0, memberIds.length() - 1);
+		}
+		return addMessageForReceiver(msg, memberIds, MESSAGE_RECEIVER_TYPE.TEAM);
+	}
 }

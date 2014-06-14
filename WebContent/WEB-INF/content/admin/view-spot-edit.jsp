@@ -30,7 +30,7 @@ var latiEdit = '${requestScope.editView.latitude}';
 			<dl></dl>
 			<dl>
 				<dt>所在城市：</dt>
-				<select class="combox" name="province" ref="w_combox_city" refUrl="admin/area-inf!cityList.action?cityCode={value}">
+				<select class="combox" name="province" ref="w_combox_city3" refUrl="admin/area-inf!cityList.action?cityCode={value}">
 					<option value="">请选择省份</option>
 					<s:iterator value="#request.areaList" id="c" status="st">
 						<option value="<s:property value='#c.cityCode'/>" <s:if test="%{#request.editView.province == #c.cityCode}">selected</s:if> >
@@ -38,7 +38,7 @@ var latiEdit = '${requestScope.editView.latitude}';
 						</option>				
 					</s:iterator>
 				</select>
-				<select class="combox" name="city" id="w_combox_city" ref="w_combox_area">
+				<select class="combox" name="city" id="w_combox_city3" ref="w_combox_area">
 					<option value="">请选择城市</option>		
 					<s:iterator value="#request.subareaList" id="c" status="st">
 						<option value="<s:property value='#c.cityCode'/>" <s:if test="%{#request.editView.city == #c.cityCode}">selected</s:if> >

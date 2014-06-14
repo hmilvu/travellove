@@ -199,7 +199,8 @@ public class MessageAction extends BaseAction {
 		Hibernate.initialize(member.getTeamInfo());
 		msg.setTravelInf(member.getTeamInfo().getTravelInf());
 		String teamIds = member.getTeamInfo().getId()+"";		
-		List<Message>msgList = messageService.addMessageForReceiver(msg, teamIds, MESSAGE_RECEIVER_TYPE.TEAM);
+		List<MemberInf> memberList = memberService.findAllMembersByTeamIds(teamIds);
+		List<Message> msgList = messageService.addMessageForTeamMembers(memberList, msg, teamIds);
 		if(msgList != null && msgList.size() > 0){
 			SuccessResult<String> result = new SuccessResult<String>("success");
 			sendToMobile(result);

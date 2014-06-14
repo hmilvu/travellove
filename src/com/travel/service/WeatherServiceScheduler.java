@@ -29,14 +29,15 @@ public class WeatherServiceScheduler {
 	private static final Logger log = LoggerFactory.getLogger(WeatherServiceScheduler.class);
 	@Autowired
 	private TriggerConfigService triggerService;
-	@Scheduled(cron = "0 0/30 6-22 * * ?") 
+//	@Scheduled(cron = "0 0/30 6-22 * * ?") 
+	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
 		log.info("检查天气触发");
 		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
 		for(TriggerConfig trigger : list){
 			log.info("自动触发：" + trigger.toString());
-			if(trigger.getTriggerType().intValue() == TRIGGER_TYPE.WEATHER.getValue()){
-				triggerService.trigger(trigger);
+			if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.WEATHER.getValue()){
+				triggerService.triggerTomorrowWheather(trigger);
 			}
 		}	
 		

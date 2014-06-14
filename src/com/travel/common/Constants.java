@@ -122,7 +122,7 @@ public class Constants {
 	} 
 	
 	public enum MESSAGE_RECEIVER_TYPE {
-		TEAM(0), MEMBER(1), VIEW_SPOT(2), ITEM(3);
+		MEMBER(1), VIEW_SPOT(2), ITEM(3);
 		private int value;
 		private MESSAGE_RECEIVER_TYPE(int value) {
 			this.value = value;
@@ -220,7 +220,8 @@ public class Constants {
 	} 
 	
 	public enum TRIGGER_TYPE {
-		MANUAL(0), VELOCITY(1), MEMBER_DISTANCE(2), VIEW_SPOT_WARNING(3), REMIND(4), WEATHER(5);
+		MANUAL(0), VELOCITY(1), MEMBER_DISTANCE(2), VIEW_SPOT_WARNING(3), REMIND(4), WEATHER(5),
+		INSTALL(6);
 		private int value;
 		private TRIGGER_TYPE(int value) {
 			this.value = value;
@@ -267,6 +268,17 @@ public class Constants {
 		NOT_SEND(0), SENT(1), SEND_FAILED(2);
 		private int value;
 		private SMS_STATUS(int value) {
+			this.value = value;
+		}
+		public int getValue(){
+			return this.value;
+		}
+	} 
+	
+	public enum SMS_TRIGGER {
+		ACTIVE(1), INACTIVE(0);
+		private int value;
+		private SMS_TRIGGER(int value) {
 			this.value = value;
 		}
 		public int getValue(){
