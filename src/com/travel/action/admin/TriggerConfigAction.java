@@ -14,6 +14,8 @@ import com.opensymphony.xwork2.Action;
 import com.travel.action.AuthorityAction;
 import com.travel.action.admin.form.ViewSpotItemForm;
 import com.travel.common.Constants;
+import com.travel.common.Constants.PUSH_TRIGGER;
+import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.Constants.TRIGGER_TYPE;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.admin.dto.SearchTriggerConfigDTO;
@@ -112,20 +114,26 @@ public class TriggerConfigAction extends AuthorityAction{
 		String conditionValue = request.getParameter("conditionValue");
 		String content = request.getParameter("content");
 		String sendSMS = request.getParameter("sendSMS");
+		String sendPush = request.getParameter("sendPush");
 		TriggerConfig trigger = triggerService.getTriggerConfigById(Long.valueOf(id));
 		trigger.setConditionValue(conditionValue);
 		trigger.setStartTime(startTime);
 		trigger.setEndTime(endTime);
 		trigger.setTimes(Integer.valueOf(times));
 //		trigger.setTriggerType(Integer.valueOf(triggerType));
-		if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.INSTALL.getValue()){
-			sendSMS = "1";
-		}
 		trigger.setContent(content);
-		if(StringUtils.equals("1", sendSMS)){
-			trigger.setSendSMS(1);
+		if(trigger.getTypeValue().intValue() == TRIGGER_TYPE.INSTALL.getValue()){
+			sendSMS = SMS_TRIGGER.ACTIVE.getValue()+"";
+		}
+		if(StringUtils.equals(SMS_TRIGGER.ACTIVE.getValue()+"", sendSMS)){
+			trigger.setSendSMS(SMS_TRIGGER.ACTIVE.getValue());
 		} else{
-			trigger.setSendSMS(0);
+			trigger.setSendSMS(SMS_TRIGGER.INACTIVE.getValue());
+		}
+		if(StringUtils.equals(PUSH_TRIGGER.ACTIVE.getValue()+"", sendPush)){
+			trigger.setSendPush(PUSH_TRIGGER.ACTIVE.getValue());
+		} else{
+			trigger.setSendPush(PUSH_TRIGGER.INACTIVE.getValue());
 		}
 		triggerService.updateTrigger(trigger, items);
 		JsonUtils.write(response, binder.toJson("result", Action.SUCCESS));	

@@ -8,7 +8,6 @@ package com.travel.action.admin;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,13 +22,13 @@ import com.travel.common.Constants.MESSAGE_RECEIVER_TYPE;
 import com.travel.common.Constants.MESSAGE_REMIND_MODE;
 import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
+import com.travel.common.Constants.PUSH_TRIGGER;
 import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.admin.dto.SearchMessageDTO;
 import com.travel.common.dto.PageInfoDTO;
 import com.travel.entity.MemberInf;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
-import com.travel.entity.TeamInfo;
 import com.travel.entity.TravelInf;
 import com.travel.service.MemberService;
 import com.travel.service.MessageService;
@@ -142,6 +141,7 @@ public class MessageAction extends AuthorityAction{
 		String remindMode = request.getParameter("remindMode");
 		String remindTime = request.getParameter("remindTime");
 		String sendSMS = request.getParameter("sendSMS");
+		String sendPush = request.getParameter("sendPush");
 		Message msg = new Message();
 		if(StringUtils.equals(type, MESSAGE_TYPE.NOTIFICATION.getValue()+"") && StringUtils.equals(remindMode,MESSAGE_REMIND_MODE.LATER.getValue()+"")){
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -180,6 +180,11 @@ public class MessageAction extends AuthorityAction{
 		} else {
 			msg.setSmsTrigger(SMS_TRIGGER.INACTIVE.getValue());
 		}
+		if(StringUtils.equals(PUSH_TRIGGER.ACTIVE.getValue()+"", sendPush)){
+			msg.setPushTrigger(PUSH_TRIGGER.ACTIVE.getValue());
+		} else {
+			msg.setPushTrigger(PUSH_TRIGGER.INACTIVE.getValue());
+		}
 		return msg;
 	}
 	
@@ -216,13 +221,7 @@ public class MessageAction extends AuthorityAction{
 	
 	public String edit(){
 		String id = request.getParameter("uid");
-		Long idLong = 0L;
-		try{
-			idLong = Long.valueOf(id);
-		}catch(Throwable ignore){	
-			return "edit";
-		}
-		Message msg = messageService.getMessageById(idLong);	
+		Message msg = messageService.getMessageById(Long.valueOf(id));	
 		if(msg.getRemindTime().before(new Date())){
 			request.setAttribute("canNotModify", Integer.valueOf(1));
 		}

@@ -189,7 +189,7 @@ public class ItemInfAction extends BaseAction {
 			return;
 		}
 		
-		messageService.savItemMessage(member, itemIdLong, content.toString(), scoreInt);
+		messageService.saveItemMessage(member, itemIdLong, content.toString(), scoreInt);
 		SuccessResult<String> result = new SuccessResult<String>(Action.SUCCESS);
 		sendToMobile(result);
 		return;		

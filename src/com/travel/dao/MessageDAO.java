@@ -359,23 +359,26 @@ public class MessageDAO extends BaseDAO {
 	 * @param weather
 	 * @return
 	 */
+	/*@SuppressWarnings("unchecked")
+	@Deprecated
 	public List<Message> findTriggerMessage(Long teamId, Long triggerId) {
 		Timestamp startTimestamp = new Timestamp(System.currentTimeMillis()/86400000*86400000-(23-Calendar.ZONE_OFFSET)*3600000); 
 		Timestamp endTimestamp = new Timestamp(startTimestamp.getTime() + 3600 * 24 * 1000);
 		String hql = "from Message where receiverType = " + MESSAGE_RECEIVER_TYPE.TEAM.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
 		 + " and receiverId = ? and triggerId = ? and remindTime > ? and remindTime < ?";
 		return getHibernateTemplate().find(hql, teamId, triggerId, startTimestamp, endTimestamp);
-	}
+	}*/
 	
 	/**
 	 * @param id
 	 * @param weather
 	 * @return
 	 */
-	public List<Message> findWaringTriggerMessage(Long teamId, Long triggerId) {
-		String hql = "from Message where receiverType = " + MESSAGE_RECEIVER_TYPE.TEAM.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
+	@SuppressWarnings("unchecked")
+	public List<Message> findWaringTriggerMessage(Long memberId, Long triggerId) {
+		String hql = "from Message where receiverType = " + MESSAGE_RECEIVER_TYPE.MEMBER.getValue() + " and status <> " + MESSAGE_STATUS.DELETED.getValue()
 		 + " and receiverId = ? and triggerId = ?";
-		return getHibernateTemplate().find(hql, teamId, triggerId);
+		return getHibernateTemplate().find(hql, memberId, triggerId);
 	}
 
 	/**
@@ -460,13 +463,14 @@ public class MessageDAO extends BaseDAO {
 				SQLQuery query = session.createSQLQuery("select avg(if(isnull(score),0,score)) as score from message where receiver_type = "+type.getValue()+" and receiver_id = ? and status <> " + MESSAGE_STATUS.DELETED.getValue());
 				query.setLong(0, receiverId);
 				List list = query.list();
-				if(list.size() > 0){
-					if(list.get(0) == null){
-						return 0D;
-					}
-					return Double.valueOf(list.get(0).toString());
+				Double score = 0D;
+				if(list.size() > 0 && list.get(0) != null){
+					score = Double.valueOf(list.get(0).toString());
+				}
+				if(score > 0){
+					return (score + 3.0)/2.0;
 				} else {
-					return 0D;
+					return 3D;
 				}
 			}
 		});	

@@ -15,7 +15,8 @@
 		<thead>
 			<tr>
 				<th width="20">序号</th>
-				<th width="60">消息接收人/团名称</th>
+				<th width="60">团名称</th>
+				<th width="60">团员</th>
 				<th width="140">内容</th>
 				<th width="40">类型</th>
 				<th width="40">推送状态</th>
@@ -30,8 +31,12 @@
 			<tr target="sid_user" rel="<s:property value="%{#message.id}"/>">
 				<td><s:property value="%{#statu.index+1+#request.startNum}"/></td>
 				<td>
-					<s:if test="%{#message.receiverType == 0}">旅行团：<s:property value="%{#message.receiverName}"/></s:if>
-					<s:elseif test="%{#message.receiverType == 1}">团员：<s:property value="%{#message.receiverName}"/></s:elseif>
+					<s:property value="%{#message.teamName}"/>
+				</td>
+				<td>
+					<s:property value="%{#message.receiverName}"/>
+					<%--s:if test="%{#message.receiverType == 0}">旅行团：<s:property value="%{#message.receiverName}"/></s:if>
+					<s:elseif test="%{#message.receiverType == 1}">团员：<s:property value="%{#message.receiverName}"/></s:elseif--%>
 				</td>
 				<td><s:if test="#message.content.length()>40"><s:property value="#message.content.substring(0, 40)"/></s:if><s:else><s:property value="#message.content"/></s:else></td>
 				<td>

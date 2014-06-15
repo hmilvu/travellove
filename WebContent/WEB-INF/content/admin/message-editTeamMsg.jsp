@@ -72,6 +72,13 @@ function save(){
 				</dd>
 			</dl>
 			<dl>
+				<dt>发送类型：</dt>
+				<dd>
+					<label>网络推送：<input type="checkbox" name="sendPush" value="1" <s:if test="%{#request.editMessage.pushTrigger == 1}">checked</s:if>/></label>
+					<label>短信：<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editMessage.smsTrigger == 1}">checked</s:if>/></label>
+				</dd>
+			</dl>
+			<dl>
 				<dt>发送方式：</dt>
 				<dd>
 					<select id="remindMode" name="remindMode" class="combox">

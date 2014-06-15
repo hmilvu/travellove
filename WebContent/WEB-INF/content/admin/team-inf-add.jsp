@@ -28,7 +28,7 @@ function save(){
 
 <div class="pageContent">
 	<form name="teamForm" id="teamForm" method="post" action="" class="pageForm required-validate">
-		<div class="pageFormContent nowrap" layoutH="46">		
+		<div class="pageFormContent nowrap" layoutH="56">		
 			<s:if test="%{#session.SYS_USER_INF_IN_SESSION.userType == 0 || #session.SYS_USER_INF_IN_SESSION.userType == 1}">	
 			<dl>
 				<dt>旅行社：</dt>

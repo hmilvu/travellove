@@ -36,7 +36,7 @@ public class MessageServiceScheduler {
 	private MemberService memberService;
 	@Autowired
 	private TriggerConfigService triggerService;
-//	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 60000)
 	void doSomethingWithRate() {
 		log.debug("检查自动触发");
 		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();

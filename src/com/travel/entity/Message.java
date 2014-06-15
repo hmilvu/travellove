@@ -84,6 +84,7 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		msg.setPushStatus(getPushStatus());
 		msg.setSmsStatus(getSmsStatus());
 		msg.setSmsTrigger(getSmsTrigger());
+		msg.setPushTrigger(getPushTrigger());
 		msg.setTriggerId(getTriggerId());
 		msg.setScore(0);
 		return msg;
@@ -101,6 +102,17 @@ public class Message extends AbstractMessage implements java.io.Serializable {
 		this.receiverName = receiverName;
 	}
 	
+	@Transient
+	private String teamName;
+	@Transient
+	public String getTeamName() {
+		return teamName;
+	}
+	@Transient
+	public void setTeamName(String teamName) {
+		this.teamName = teamName;
+	}
+
 	@Transient
 	private String remindTimeStr;
 	@Transient

@@ -67,9 +67,10 @@ function save(){
 				</dd>
 			</dl>
 			<dl>
-				<dt>是否需要发送短信：</dt>
+				<dt>发送类型：</dt>
 				<dd>
-					<input type="checkbox" name="sendSMS" value="1" checked/>
+					<label>网络推送：<input type="checkbox" name="sendPush" value="1" checked/></label>
+					<label>短信：<input type="checkbox" name="sendSMS" value="1" checked/></label>
 				</dd>
 			</dl>
 			<dl>

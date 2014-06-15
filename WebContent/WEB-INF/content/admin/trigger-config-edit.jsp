@@ -86,9 +86,16 @@ function save(){
 				</dd>
 			</dl>
 			<dl>
-				<dt>是否需要发送短信：</dt>
+				<dt>发送类型：</dt>
 				<dd>
-					<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editTriggerConfig.sendSMS == 1}">checked</s:if> <s:if test="%{#request.editTriggerConfig.typeValue == 6}">disabled</s:if>/>
+				<s:if test="%{#request.editTriggerConfig.typeValue == 6}">
+					<label>网络推送：<input type="checkbox" name="sendPush" value="1" disabled/></label>
+					<label>短信：<input type="checkbox" name="sendSMS" value="1" checked disabled/></label>
+				</s:if>
+				<s:else>
+					<label>网络推送：<input type="checkbox" name="sendPush" value="1" <s:if test="%{#request.editTriggerConfig.sendPush == 1}">checked</s:if>/></label>
+					<label>短信：<input type="checkbox" name="sendSMS" value="1" <s:if test="%{#request.editTriggerConfig.sendSMS == 1}">checked</s:if>/></label>
+				</s:else>
 				</dd>
 			</dl>
 			<dl>

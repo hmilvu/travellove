@@ -72,14 +72,15 @@
 		<thead>
 			<tr>
 				<th width="22"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
-				<th width="60">消息接收人/团名称</th>
+				<th width="60">旅行团</th>
+				<th width="40">团员</th>
 				<th width="120">内容</th>
 				<th width="40">类型</th>
 				<th width="40">优先级</th>
 				<th width="40">状态</th>
 				<th width="40">推送状态</th>
 				<th width="40">短信</th>
-				<th width="70">创建日期</th>
+				<th width="50">创建时间</th>
 				<th width="70">操作</th>
 			</tr>
 		</thead>
@@ -88,8 +89,12 @@
 			<tr target="sid_user" rel="<s:property value="%{#message.id}"/>">
 				<td><input name="ids" value="<s:property value="%{#message.id}"/>" type="checkbox"></td>
 				<td>
-					<s:if test="%{#message.receiverType == 0}">旅行团：<s:property value="%{#message.receiverName}"/></s:if>
-					<s:elseif test="%{#message.receiverType == 1}">团员：<s:property value="%{#message.receiverName}"/></s:elseif>
+					<s:property value="%{#message.teamName}"/>
+				</td>
+				<td>
+					<s:property value="%{#message.receiverName}"/>
+					<%--<s:if test="%{#message.receiverType == 0}">旅行团：<s:property value="%{#message.receiverName}"/></s:if>
+					<s:elseif test="%{#message.receiverType == 1}">团员：<s:property value="%{#message.receiverName}"/></s:elseif>--%>
 				</td>
 				<td><s:if test="#message.content.length()>20"><s:property value="#message.content.substring(0, 20)"/></s:if><s:else><s:property value="#message.content"/></s:else></td>
 				<td>
@@ -120,7 +125,7 @@
 					<s:elseif test="%{#message.smsStatus == 2}">发送失败</s:elseif>
 					<s:else>&nbsp;</s:else>
 				</td>
-				<td><s:date name="#message.createDate" format="yyyy-MM-dd" /></td>
+				<td><s:date name="#message.createDate" format="yyyy-MM-dd HH:mm:ss" /></td>
 				<td>
 					<a class="btnEdit" href="admin/message!audit.action?messageId=<s:property value='%{#message.id}'/>" target="navTab" title="审核消息">审核消息</a>
 					<a class="btnView" href="admin/message!reply.action?messageId=<s:property value='%{#message.id}'/>" target="navTab" title="查看回复" rel="replyNavTab">查看回复</a>

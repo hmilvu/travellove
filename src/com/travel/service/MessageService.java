@@ -31,6 +31,7 @@ import com.travel.common.Constants.MESSAGE_STATUS;
 import com.travel.common.Constants.MESSAGE_TYPE;
 import com.travel.common.Constants.OS_TYPE;
 import com.travel.common.Constants.PUSH_STATUS;
+import com.travel.common.Constants.PUSH_TRIGGER;
 import com.travel.common.Constants.SMS_STATUS;
 import com.travel.common.Constants.SMS_TRIGGER;
 import com.travel.common.admin.dto.SearchMessageDTO;
@@ -46,6 +47,7 @@ import com.travel.entity.MemberInf;
 import com.travel.entity.MemberMessageVisibility;
 import com.travel.entity.Message;
 import com.travel.entity.Reply;
+import com.travel.entity.TeamInfo;
 import com.travel.entity.TravelInf;
 import com.travel.utils.Config;
 
@@ -133,8 +135,10 @@ public class MessageService extends AbstractBaseService
 		List<Message> list = messageDAO.findMessages(dto, pageInfo);
 		List<Message> result = new ArrayList<Message>();
 		for(Message msg : list){
-			String memberName = memberDAO.findById(msg.getReceiverId()).getMemberName();
-			msg.setReceiverName(memberName);
+			MemberInf member = memberDAO.findById(msg.getReceiverId());
+			msg.setReceiverName(member.getMemberName());
+			TeamInfo team = teamDAO.findById(member.getTeamInfo().getId());
+			msg.setTeamName(team.getName());
 			result.add(msg);
 		}
 		return result;
@@ -328,7 +332,7 @@ public class MessageService extends AbstractBaseService
 	 * @param itemIdLong
 	 * @param string
 	 */
-	public void savItemMessage(MemberInf member, Long itemIdLong, String content, int scoreInt) {
+	public void saveItemMessage(MemberInf member, Long itemIdLong, String content, int scoreInt) {
 		Message msg = setupComment(member, itemIdLong, content, scoreInt);
 		msg.setReceiverType(MESSAGE_RECEIVER_TYPE.ITEM.getValue());
 		messageDAO.save(msg);
@@ -356,6 +360,8 @@ public class MessageService extends AbstractBaseService
 			String memberName = m.getMemberName();
 			msg.setReceiverName(memberName);
 			msg.setOsType(m.getOsType());
+			TeamInfo team = teamDAO.findById(m.getTeamInfo().getId());
+			msg.setTeamName(team.getName());
 			result.add(msg);
 		}
 		return result;
@@ -531,6 +537,10 @@ public class MessageService extends AbstractBaseService
 	public void sendPushMsg(Message msg, MemberInf member) {
 		if(msg == null || member == null){
 			log.error("msg or member is null. No need to push message." );
+			return;
+		}
+		if(msg.getPushTrigger().intValue() != PUSH_TRIGGER.ACTIVE.getValue()){
+			log.info("msg PUSH trigger is disabled. No need to send PUSH. msg.id = " + msg.getId());
 			return;
 		}
 		try {		

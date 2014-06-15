@@ -29,7 +29,7 @@ function save(){
 <div class="pageContent">
 	<form name="teamForm" id="teamForm" method="post" action="" class="pageForm required-validate">
 	<input type="hidden" id="teamId" name="teamId" value='<s:property value="%{#request.editTeam.id}"/>'/>
-		<div class="pageFormContent nowrap" layoutH="46">		
+		<div class="pageFormContent nowrap" layoutH="56">		
 			<dl>
 				<dt>旅行团名称：</dt>
 				<dd><input type="text" id="name" name="name" size="30" class="required" maxlength="128" value='<s:property value="%{#request.editTeam.name}"/>'/></dd>

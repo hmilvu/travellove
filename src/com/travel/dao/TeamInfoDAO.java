@@ -206,7 +206,7 @@ public class TeamInfoDAO extends BaseDAO {
 	public List<TeamInfo> getWillStartTeamByTravelId(Long travelId) {
 		log.debug("getActiveTeamByTravelId instances");
 		try {
-			String queryString = "select id from TeamInfo where travelInf.id = ? and status=" +TEAM_STATUS.ACTIVE.getValue()+ " and beginDate = ?";
+			String queryString = "from TeamInfo where travelInf.id = ? and status=" +TEAM_STATUS.ACTIVE.getValue()+ " and beginDate = ?";
 			Calendar tomorrow=Calendar.getInstance();
 			tomorrow.setTime(new Date());
 			tomorrow.add(Calendar.DAY_OF_MONTH, 1);

@@ -38,6 +38,7 @@ public abstract class AbstractMessage extends BaseEntity implements
 	private Integer receiverType;
 	private Timestamp remindTime;
 	private Integer remindMode;
+	private Integer pushTrigger = 0;
 	private Integer pushStatus;
 	private Timestamp createDate;
 	private Timestamp updateDate;
@@ -287,6 +288,14 @@ public abstract class AbstractMessage extends BaseEntity implements
 
 	public void setSmsStatus(Integer smsStatus) {
 		this.smsStatus = smsStatus;
+	}
+	@Column(name = "push_trigger")
+	public Integer getPushTrigger() {
+		return pushTrigger;
+	}
+
+	public void setPushTrigger(Integer pushTrigger) {
+		this.pushTrigger = pushTrigger;
 	}
 
 }

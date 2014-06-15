@@ -32,6 +32,7 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 	private Integer triggerStatus;
 	private String unitage;
 	private Integer sendSMS = 0;
+	private Integer sendPush = 0;
 	// Constructors
 
 	/** default constructor */
@@ -186,6 +187,14 @@ public abstract class AbstractTriggerConfig extends BaseEntity implements
 
 	public void setSendSMS(Integer sendSMS) {
 		this.sendSMS = sendSMS;
+	}
+	@Column(name = "send_push")	
+	public Integer getSendPush() {
+		return sendPush;
+	}
+
+	public void setSendPush(Integer sendPush) {
+		this.sendPush = sendPush;
 	}
 
 }
