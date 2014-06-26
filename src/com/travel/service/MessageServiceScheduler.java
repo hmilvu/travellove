@@ -42,7 +42,8 @@ public class MessageServiceScheduler {
 		List<TriggerConfig> list = triggerService.getValidTriggerConfigs();
 		for(TriggerConfig trigger : list){
 			log.debug("自动触发：" + trigger.toString());
-			if(trigger.getTypeValue().intValue() != TRIGGER_TYPE.WEATHER.getValue()){
+			if(trigger.getTypeValue().intValue() != TRIGGER_TYPE.TOMORROW_WEATHER.getValue() 
+					&& trigger.getTypeValue().intValue() != TRIGGER_TYPE.TODAY_WEATHER.getValue()){
 				triggerService.trigger(trigger);
 			}
 		}		
